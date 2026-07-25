@@ -1,0 +1,290 @@
+﻿@model IEnumerable<LibraryManagement.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-clipboard-list text-primary me-2"></i>
+
+                Audit Logs
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Track all important system activities
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row mb-3">
+
+    <div class="col-md-3">
+
+        <div class="small-box bg-primary">
+
+            <div class="inner">
+
+                <h3>@Model.Count()</h3>
+
+                <p>Total Logs</p>
+
+            </div>
+
+            <div class="icon">
+
+                <i class="fas fa-history"></i>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th width="180">
+
+                            <i class="fas fa-clock"></i>
+
+                            Time
+
+                        </th>
+
+                        <th width="220">
+
+                            <i class="fas fa-user"></i>
+
+                            User
+
+                        </th>
+
+                        <th width="150">
+
+                            Action
+
+                        </th>
+
+                        <th width="180">
+
+                            Entity
+
+                        </th>
+
+                        <th>
+
+                            Description
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                @item.Time.ToString("dd/MM/yyyy")
+
+                                <br />
+
+                                <small class="text-muted">
+
+                                    @item.Time.ToString("HH:mm:ss")
+
+                                </small>
+
+                            </td>
+
+                            <td>
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="avatar-circle">
+
+                                        @(string.IsNullOrEmpty(item.UserName)
+                                                                            ? "?"
+                                                                            : item.UserName.Substring(0, 1).ToUpper())
+
+                                </div>
+
+                                    <div class="ms-2">
+
+                                        <strong>
+
+                                            @item.UserName
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                            @switch (item.Action)
+                                {
+                                    case "Create":
+
+                                        <span class="badge bg-success">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            Create
+
+                                        </span>
+
+                                        break;
+
+                                    case "Update":
+
+                                    case "Edit":
+
+                                        <span class="badge bg-warning text-dark">
+
+                                            <i class="fas fa-pen"></i>
+
+                                            Update
+
+                                        </span>
+
+                                        break;
+
+                                    case "Delete":
+
+                                        <span class="badge bg-danger">
+
+                                            <i class="fas fa-trash"></i>
+
+                                            Delete
+
+                                        </span>
+
+                                        break;
+
+                                    case "Login":
+
+                                        <span class="badge bg-info">
+
+                                            <i class="fas fa-right-to-bracket"></i>
+
+                                            Login
+
+                                        </span>
+
+                                        break;
+
+                                    case "Logout":
+
+                                        <span class="badge bg-secondary">
+
+                                            <i class="fas fa-right-from-bracket"></i>
+
+                                            Logout
+
+                                        </span>
+
+                                        break;
+
+                                    default:
+
+                                        <span class="badge bg-primary">
+
+                                            @item.Action
+
+                                        </span>
+
+                                        break;
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <span class="badge bg-light text-dark border">
+
+                                    @item.Entity
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <div class="bg-light rounded p-2">
+
+                                    @item.Description
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+
+                            <td colspan="5" class="text-center py-5">
+
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+
+                                <h5>
+
+                                    No audit logs found
+
+                                </h5>
+
+                                <span class="text-muted">
+
+                                    System activities will appear here.
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

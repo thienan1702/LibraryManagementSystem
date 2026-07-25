@@ -1,0 +1,188 @@
+﻿@model LibraryManagement.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="card shadow">
+
+    <div class="card-header bg-primary text-white">
+
+        <h3>@Model.Title</h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4 text-center">
+
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl"
+                         class="img-fluid rounded shadow"
+                         style="max-height:350px;" />
+                }
+                else
+                {
+                    <img src="~/images/no-image.png"
+                         class="img-fluid rounded shadow"
+                         style="max-height:350px;" />
+                }
+
+            </div>
+
+            <div class="col-md-8">
+
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th width="180">ISBN</th>
+                        <td>@Model.ISBN</td>
+                    </tr>
+
+                    <tr>
+                        <th>Author</th>
+                        <td>@Model.Author?.Name</td>
+                    </tr>
+
+                    <tr>
+                        <th>Category</th>
+                        <td>@Model.Category?.Name</td>
+                    </tr>
+
+                    <tr>
+                        <th>Publisher</th>
+                        <td>@Model.Publisher?.Name</td>
+                    </tr>
+
+                    <tr>
+                        <th>Total Quantity</th>
+                        <td>@Model.Quantity</td>
+                    </tr>
+
+                    <tr>
+                        <th>Available</th>
+                        <td>@Model.AvailableQuantity</td>
+                    </tr>
+
+                    <tr>
+                        <th>Description</th>
+                        <td>@Model.Description</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <hr />
+
+    <h5 class="text-primary mb-3">
+
+        📖 Borrow History
+
+    </h5>
+    @if (Model.BorrowDetails.Any())
+    {
+        <table class="table table-bordered table-striped">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>Borrower</th>
+
+                    <th>Borrow Date</th>
+
+                    <th>Return Date</th>
+
+                    <th>Status</th>
+
+                    <th>Quantity</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var history in Model.BorrowDetails.OrderByDescending(x => x.Borrow.BorrowDate))
+                {
+                    <tr>
+
+                        <td>
+                            @history.Borrow.BorrowerName
+                        </td>
+
+                        <td>
+                            @history.Borrow.BorrowDate.ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td>
+                            @(history.Borrow.ReturnDate?.ToString("dd/MM/yyyy") ?? "-")
+                        </td>
+
+                        <td>
+
+                            @if (history.Borrow.IsReturned)
+                            {
+                                <span class="badge bg-success">
+                                    Returned
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Borrowing
+                                </span>
+                            }
+
+                        </td>
+
+                        <td>
+
+                            @history.Quantity
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+
+            This book has never been borrowed.
+
+        </div>
+    }
+
+    <div class="card-footer">
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-warning">
+
+            Edit
+
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            Back
+
+        </a>
+
+    </div>
+
+</div>

@@ -1,0 +1,573 @@
+﻿@model IEnumerable<LibraryManagement.ViewModels.UserListViewModel>
+@using Microsoft.AspNetCore.Identity
+@using LibraryManagement.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var roles = ViewBag.UserRoles as Dictionary<string, string>;
+}
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-users text-primary me-2"></i>
+
+                User Management
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Manage all system users
+
+            </div>
+
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-app btn-add">
+
+            <i class="fas fa-user-plus"></i>
+
+            Create User
+
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<div class="row g-2">
+
+    <div class="col-md-5">
+
+        <input type="text"
+               name="search"
+               value="@ViewBag.Search"
+               class="form-control"
+               placeholder="Search by name, username or email..." />
+
+    </div>
+
+    <div class="col-md-2">
+
+        <select name="role" class="form-select">
+
+            <option value="">All Roles</option>
+
+            <option value="Admin"
+                    selected="@(ViewBag.Role == "Admin")">
+
+                Admin
+
+            </option>
+
+            <option value="User"
+                    selected="@(ViewBag.Role == "User")">
+
+                User
+
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <select name="status" class="form-select">
+
+            <option value="">All Status</option>
+
+            <option value="Active"
+                    selected="@(ViewBag.Status == "Active")">
+
+                Active
+
+            </option>
+
+            <option value="Locked"
+                    selected="@(ViewBag.Status == "Locked")">
+
+                Locked
+
+            </option>
+
+            <option value="Confirmed"
+                    selected="@(ViewBag.Status == "Confirmed")">
+
+                Email Confirmed
+
+            </option>
+
+            <option value="NotConfirmed"
+                    selected="@(ViewBag.Status == "NotConfirmed")">
+
+                Email Not Confirmed
+
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-2">
+
+        <button class="btn btn-primary w-100">
+
+            <i class="fas fa-search"></i>
+
+            Search
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<a asp-action="Index"
+   class="btn btn-outline-secondary mt-2">
+
+    <i class="fas fa-rotate-left"></i>
+
+    Reset Filter
+
+</a>
+
+
+<div id="bulkToolbar"
+     class="bulk-toolbar"
+     style="display:none;">
+
+    <div class="bulk-left">
+
+        <i class="fas fa-check-circle"></i>
+
+        <span id="selectedCount">0</span>
+
+        selected
+
+    </div>
+
+    <div class="bulk-right">
+
+        <button id="lockSelected"
+                class="btn btn-warning btn-sm">
+
+            <i class="fas fa-lock"></i>
+
+            Lock
+
+        </button>
+
+        <button id="unlockSelected"
+                class="btn btn-success btn-sm">
+
+            <i class="fas fa-lock-open"></i>
+
+            Unlock
+
+        </button>
+
+        <button id="resetSelected"
+                class="btn btn-info btn-sm">
+
+            <i class="fas fa-key"></i>
+
+            Reset Password
+
+        </button>
+
+        <button id="deleteSelected"
+                class="btn btn-danger btn-sm">
+
+            <i class="fas fa-trash"></i>
+
+            Delete
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<table class="table table-bordered table-striped">
+
+    <thead class="table-dark">
+
+
+        <tr>
+
+            <th width="40">
+
+                <input type="checkbox"
+                       id="checkAll" />
+
+            </th>
+
+
+            <th>Full Name</th>
+
+            <th>Email</th>
+
+            <th>User Name</th>
+
+            <th>Email Confirmed</th>
+
+            <th>Role</th>
+
+
+            <th>Status</th>
+
+            <th width="320">Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <!-- Checkbox -->
+                <td class="text-center">
+                    <input type="checkbox"
+                           class="form-check-input user-check"
+                           value="@item.Id" />
+                </td>
+
+                <td>
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="avatar-circle">
+
+                            @item.FullName.Substring(0, 1)
+
+                        </div>
+
+                        <div class="ms-2">
+
+                            <strong>@item.FullName</strong>
+
+                            <br>
+
+                            <small class="text-muted">
+
+                                @item.UserName
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+                <td>@item.Email</td>
+
+                <td>@item.UserName</td>
+
+                <td>
+
+                    @if (item.EmailConfirmed)
+                    {
+                        <span class="badge bg-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">No</span>
+                    }
+
+                </td>
+
+                <td>
+
+                    @if (item.Role == "Admin")
+                    {
+                        <span class="badge bg-danger">
+
+                            <i class="fas fa-user-shield"></i>
+
+                            Admin
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-primary">
+
+                            <i class="fas fa-user"></i>
+
+                            User
+
+                        </span>
+                    }
+
+                </td>
+
+                <td>
+
+                    @if (item.IsLocked)
+                    {
+                        <span class="badge bg-danger">
+
+                            <i class="fas fa-lock"></i>
+
+                            Locked
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">
+
+                            <i class="fas fa-circle-check"></i>
+
+                            Active
+
+                        </span>
+                    }
+
+                </td>
+
+                <td>
+
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-app btn-detail">
+
+                        <i class="fas fa-circle-info"></i>
+
+                        Details
+
+                    </a>
+
+                    @if (item.IsLocked)
+                    {
+                        <a asp-action="Unlock"
+                           asp-route-id="@item.Id"
+                           class="btn btn-app btn-unlock">
+
+                            <i class="fas fa-lock-open"></i>
+
+                            Unlock
+
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Lock"
+                           asp-route-id="@item.Id"
+                           class="btn btn-app btn-lock">
+
+                            <i class="fas fa-lock"></i>
+
+                            Lock
+
+                        </a>
+                    }
+
+                    <a asp-action="ResetPassword"
+                       asp-route-id="@item.Id"
+                       class="btn btn-app btn-reset">
+
+                        <i class="fas fa-key"></i>
+
+                        Reset Password
+
+                    </a>
+
+                    @if (item.Id != UserManager.GetUserId(User))
+                    {
+                        <form id="deleteForm-@item.Id"
+                              asp-action="Delete"
+                              asp-route-id="@item.Id"
+                              method="post"
+                              class="d-inline">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="button"
+                                    class="btn btn-app btn-delete btn-delete-user"
+                                    data-id="@item.Id"
+                                    data-name="@item.FullName">
+
+                                <i class="fas fa-trash"></i>
+
+                                Delete
+
+                            </button>
+
+                        </form>
+                    }
+
+                   
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@section Scripts {
+
+    <script>
+
+        const checkAll = document.getElementById("checkAll");
+        const toolbar = document.getElementById("bulkToolbar");
+        const count = document.getElementById("selectedCount");
+
+        function updateSelection() {
+
+            let checked = document.querySelectorAll(".user-check:checked");
+
+            count.innerHTML = checked.length;
+
+            toolbar.style.display = checked.length > 0
+                ? "block"
+                : "none";
+        }
+
+        checkAll.addEventListener("change", function () {
+
+            document.querySelectorAll(".user-check")
+                .forEach(cb => cb.checked = this.checked);
+
+            updateSelection();
+
+        });
+
+        document.querySelectorAll(".user-check")
+        .forEach(cb => {
+
+            cb.addEventListener("change", function () {
+
+                updateSelection();
+
+                checkAll.checked =
+                    document.querySelectorAll(".user-check").length ==
+                    document.querySelectorAll(".user-check:checked").length;
+
+            });
+
+        });
+
+        function getSelectedIds() {
+
+            let ids = [];
+
+            document.querySelectorAll(".user-check:checked")
+                .forEach(cb => ids.push(cb.value));
+
+            return ids;
+        }
+
+        function executeAction(action, title) {
+
+            let ids = getSelectedIds();
+
+            if (ids.length == 0) {
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No users selected'
+                });
+
+                return;
+            }
+
+            Swal.fire({
+                title: title,
+                text: "This action will affect " + ids.length + " user(s).",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Continue"
+            }).then(result => {
+
+                if (result.isConfirmed) {
+
+                    window.location =
+                        "/Users/" + action + "?ids=" + ids.join(",");
+
+                }
+
+            });
+
+        }
+
+        document.getElementById("lockSelected").onclick =
+            () => executeAction("LockSelected", "Lock selected users?");
+
+        document.getElementById("unlockSelected").onclick =
+            () => executeAction("UnlockSelected", "Unlock selected users?");
+
+        document.getElementById("deleteSelected").onclick =
+            () => executeAction("DeleteSelected", "Delete selected users?");
+
+        document.getElementById("resetSelected").onclick =
+            () => executeAction("ResetPasswordSelected", "Reset password for selected users?");
+
+
+                    document.querySelectorAll(".btn-delete-user")
+        .forEach(btn=>{
+
+            btn.addEventListener("click",function(){
+
+                let id=this.dataset.id;
+
+                let name=this.dataset.name;
+
+                Swal.fire({
+
+                    title:"Delete User?",
+
+                    html:"<b>"+name+"</b><br>This action cannot be undone.",
+
+                    icon:"warning",
+
+                    showCancelButton:true,
+
+                    confirmButtonColor:"#dc3545",
+
+                    cancelButtonColor:"#6c757d",
+
+                    confirmButtonText:"Delete",
+
+                    cancelButtonText:"Cancel"
+
+                }).then((result)=>{
+
+                    if(result.isConfirmed){
+
+                        document
+                        .getElementById("deleteForm-"+id)
+                        .submit();
+
+                    }
+
+                });
+
+            });
+
+        });
+    </script>
+
+}

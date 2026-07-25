@@ -1,0 +1,138 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@model IPagedList<LibraryManagement.Models.Category>
+
+@{
+    ViewData["Title"] = "Category Management";
+}
+
+<h1>Category Management</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-app btn-add">
+        <i class="fas fa-plus"></i>
+
+        Add Category
+    </a>
+</p>
+
+<form asp-action="Index" method="get" class="row mb-3">
+
+    <div class="col-md-4">
+        <input class="form-control"
+               name="search"
+               value="@ViewBag.Search"
+               placeholder="Search category..." />
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary">
+            Search
+        </button>
+    </div>
+
+</form>
+
+<table class="table table-bordered table-striped">
+
+    <thead>
+
+        <tr>
+
+            <th>
+                <a asp-action="Index"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-sortOrder="@ViewBag.NameSort">
+                    Name
+                </a>
+            </th>
+
+            <th>Description</th>
+
+            <th width="180">Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.Name</td>
+
+                <td>@item.Description</td>
+
+                <td>
+
+                    <a asp-action="Edit"
+                       asp-route-id="@item.Id"
+                       class="btn btn-app btn-edit">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </a>
+
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-app btn-detail">
+                        <i class="fas fa-circle-info"></i>
+                        Details
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@item.Id"
+                       class="btn btn-app btn-delete">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+<div class="d-flex justify-content-center mt-4">
+
+    @Html.PagedListPager(
+
+    Model,
+
+    page => Url.Action("Index", new
+    {
+        page,
+        search = ViewBag.Search,
+        categoryId = ViewBag.CategoryId,
+        authorId = ViewBag.AuthorId,
+        publisherId = ViewBag.PublisherId,
+        sortOrder = ViewBag.SortOrder
+    }),
+
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "Previous",
+            LinkToNextPageFormat = "Next",
+            LinkToLastPageFormat = ">>",
+
+            MaximumPageNumbersToDisplay = 5,
+
+            UlElementClasses = new[] { "pagination" },
+
+            LiElementClasses = new[] { "page-item" },
+
+            PageClasses = new[] { "page-link" }
+        })
+
+</div>

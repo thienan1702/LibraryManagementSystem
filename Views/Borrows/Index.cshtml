@@ -1,0 +1,399 @@
+﻿@model IEnumerable<LibraryManagement.Models.Borrow>
+
+@{
+    ViewData["Title"] = "Borrow Management";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-handshake text-primary me-2"></i>
+
+                Borrow Management
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Manage all borrow transactions
+
+            </div>
+
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-app btn-add">
+
+            <i class="fas fa-plus"></i>
+
+            Borrow Book
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-book-reader fa-2x text-primary mb-2"></i>
+
+                <h6>Total Borrow</h6>
+
+                <h3>@Model.Count()</h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+
+                <h6>Borrowing</h6>
+
+                <h3>@Model.Count(x => !x.IsReturned)</h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+
+                <h6>Returned</h6>
+
+                <h3>@Model.Count(x => x.IsReturned)</h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="page-card">
+
+    <form asp-action="Index" method="get">
+
+        <div class="row g-2">
+
+            <div class="col-md-4">
+
+                <div class="search-box">
+
+                    <i class="fas fa-search"></i>
+
+                    <input class="form-control"
+                           name="search"
+                           value="@ViewBag.Search"
+                           placeholder="Borrower..." />
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <select class="form-select"
+                        name="status">
+
+                    <option value="">All Status</option>
+
+                    <option value="false"
+                            selected="@(ViewBag.Status?.ToString() == "False")">
+
+                        Borrowing
+
+                    </option>
+
+                    <option value="true"
+                            selected="@(ViewBag.Status?.ToString() == "True")">
+
+                        Returned
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-5">
+
+                <button class="btn btn-app btn-search">
+
+                    <i class="fas fa-search"></i>
+
+                    Search
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<table class="table table-bordered table-striped">
+
+    <thead class="table-dark">
+        <tr>
+            <th>Borrower</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Return Date</th>
+            <th>Status</th>
+            <th>Days</th>
+            <th>Books</th>
+            <th>Fine</th>
+
+            <th width="280">Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="avatar-circle">
+
+                            @item.BorrowerName.Substring(0, 1).ToUpper()
+
+                        </div>
+
+                        <div class="ms-2">
+
+                            <strong>@item.BorrowerName</strong>
+
+                        </div>
+
+                    </div>
+
+                </td>
+
+                <td>
+                    @item.BorrowDate.ToString("dd/MM/yyyy")
+                </td>
+                
+                <td>
+                    @item.DueDate.ToString("dd/MM/yyyy")
+                </td>
+
+                <td>
+                    @(item.ReturnDate?.ToString("dd/MM/yyyy") ?? "-")
+                </td>
+
+                <td>
+                    @if (item.IsReturned)
+                    {
+                        <span class="badge bg-secondary">
+                            Returned
+                        </span>
+                    }
+                    else if (item.DueDate.Date < DateTime.Today)
+                    {
+                        <span class="badge bg-danger">
+                            Overdue (@((DateTime.Today - item.DueDate.Date).Days) days)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">
+                            Borrowing
+                        </span>
+                    }
+                </td>
+                <td>
+
+                    @{
+
+                        var days = (DateTime.Now - item.BorrowDate).Days;
+
+                    }
+
+                    @if (!item.IsReturned && days > 14)
+                    {
+                        <span class="badge bg-danger">
+
+                            @days days
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-info">
+
+                            @days days
+
+                        </span>
+                    }
+
+                </td>
+
+                <td>
+                    @item.BorrowDetails.Sum(x => x.Quantity)
+                </td>
+
+                <td>
+
+                    @if (item.FineAmount > 0)
+                    {
+                        <span class="badge bg-danger">
+
+                            @item.FineAmount.ToString("N0") VNĐ
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-success">
+
+                            0 VNĐ
+
+                        </span>
+                    }
+
+                </td>
+
+                <td>
+
+                    <div class="btn-group">
+
+                        <a asp-action="Details"
+                           asp-route-id="@item.Id"
+                           class="btn btn-app btn-detail">
+
+                            <i class="fas fa-circle-info"></i>
+                            Detail
+                        </a>
+
+                        <a asp-action="Print"
+                           asp-route-id="@item.Id"
+                           class="btn btn-app btn-print">
+
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </a>
+
+                        @if (!item.IsReturned)
+                        {
+                            <a asp-action="Return"
+                               asp-route-id="@item.Id"
+                               class="btn btn-app btn-success">
+
+                                <i class="fas fa-rotate-left"></i>
+                                Return
+                            </a>
+                        }
+
+                        <form asp-action="Delete"
+                              asp-route-id="@item.Id"
+                              method="post"
+                              class="d-inline delete-form">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-app btn-delete">
+
+                                <i class="fas fa-trash"></i>
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+@section Scripts {
+
+    <script>
+
+               document.querySelectorAll(".delete-form").forEach(form => {
+
+            form.addEventListener("submit", function (e) {
+
+                e.preventDefault();
+
+                Swal.fire({
+
+                    title: "Delete borrow?",
+
+                    text: "This action cannot be undone.",
+
+                    icon: "warning",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: "#dc3545",
+
+                    cancelButtonColor: "#6c757d",
+
+                    confirmButtonText: "Delete"
+
+                }).then(result => {
+
+                    if (result.isConfirmed) {
+
+                        form.submit();
+
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+
+}

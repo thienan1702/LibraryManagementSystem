@@ -1,0 +1,36 @@
+﻿@model LibraryManagement.Models.Borrow
+
+<h2>Borrow Receipt</h2>
+
+<p>
+    <b>Borrower:</b>
+    @Model.BorrowerName
+</p>
+
+<p>
+    <b>Borrow Date:</b>
+    @Model.BorrowDate.ToString("dd/MM/yyyy")
+</p>
+
+<table class="table">
+
+    <tr>
+
+        <th>Book</th>
+
+        <th>Quantity</th>
+
+    </tr>
+
+    @foreach (var item in Model.BorrowDetails)
+    {
+        <tr>
+
+            <td>@item.Book?.Title</td>
+
+            <td>@item.Quantity</td>
+
+        </tr>
+    }
+
+</table>

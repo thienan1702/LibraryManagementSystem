@@ -1,0 +1,28 @@
+## Visual Studio
+.vs/
+
+## Build
+bin/
+obj/
+
+## User
+*.user
+*.suo
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Logs
+*.log
+
+## Publish
+publish/
+
+## Uploads
+wwwroot/uploads/
+
+## Local config
+appsettings.Development.json

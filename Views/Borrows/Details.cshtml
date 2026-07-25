@@ -1,0 +1,120 @@
+﻿@model LibraryManagement.Models.Borrow
+
+@{
+    ViewData["Title"] = "Borrow Details";
+}
+
+<h1>Borrow Details</h1>
+
+<hr />
+
+<div class="row">
+
+    <div class="col-md-6">
+
+        <dl class="row">
+
+            <dt class="col-sm-4">
+                Borrower
+            </dt>
+
+            <dd class="col-sm-8">
+                @Model.BorrowerName
+            </dd>
+
+            <dt class="col-sm-4">
+                Borrow Date
+            </dt>
+
+            <dd class="col-sm-8">
+                @Model.BorrowDate.ToString("dd/MM/yyyy")
+            </dd>
+
+            <dt class="col-sm-4">
+                Return Date
+            </dt>
+
+            <dd class="col-sm-8">
+                @(Model.ReturnDate?.ToString("dd/MM/yyyy") ?? "-")
+            </dd>
+
+            <dt class="col-sm-4">
+                Status
+            </dt>
+
+            <dd class="col-sm-8">
+
+                @if (Model.IsReturned)
+                {
+                    <span class="badge bg-success">
+                        Returned
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">
+                        Borrowing
+                    </span>
+                }
+
+            </dd>
+
+        </dl>
+
+    </div>
+
+</div>
+
+<hr />
+
+<h4>Borrowed Books</h4>
+
+<table class="table table-bordered table-striped">
+
+    <thead class="table-dark">
+
+        <tr>
+
+            <th>Book</th>
+
+            <th>Quantity</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model.BorrowDetails)
+        {
+            <tr>
+
+                <td>
+                    @item.Book?.Title
+                </td>
+
+                <td>
+                    @item.Quantity
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+<div class="mt-3">
+
+    <a asp-action="Edit"
+       asp-route-id="@Model.Id"
+       class="btn btn-warning">
+        Edit
+    </a>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Back
+    </a>
+
+</div>

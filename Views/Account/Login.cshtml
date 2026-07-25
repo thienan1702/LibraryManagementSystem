@@ -1,0 +1,74 @@
+﻿@model LibraryManagement.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-5">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-primary text-white">
+
+                <h4>Library Management Login</h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Login">
+
+                    <div asp-validation-summary="All"
+                         class="text-danger">
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="Email"></label>
+
+                        <input asp-for="Email"
+                               class="form-control" />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="Password"></label>
+
+                        <input asp-for="Password"
+                               class="form-control" />
+
+                    </div>
+
+                    <div class="form-check mb-3">
+
+                        <input asp-for="RememberMe"
+                               class="form-check-input" />
+
+                        <label asp-for="RememberMe"></label>
+
+                    </div>
+
+                    <button class="btn btn-primary w-100">
+
+                        Login
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

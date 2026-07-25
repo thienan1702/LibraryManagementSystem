@@ -1,0 +1,447 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@model IPagedList<LibraryManagement.Models.Book>
+@{
+    ViewData["Title"] = "Book Management";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-book text-primary me-2"></i>
+
+                Book Management
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Manage all books in the library
+
+            </div>
+
+        </div>
+
+        <div class="mt-2 mt-md-0">
+
+            <a asp-action="Create"
+               class="btn btn-app btn-add">
+
+                <i class="fas fa-plus"></i>
+
+                Add Book
+
+            </a>
+
+            <a asp-action="ExportExcel"
+               class="btn btn-app btn-success">
+
+                <i class="fas fa-file-excel"></i>
+
+                Excel
+
+            </a>
+
+            <a asp-action="ExportPdf"
+               class="btn btn-app btn-print">
+
+                <i class="fas fa-file-pdf"></i>
+
+                PDF
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-book fa-2x text-primary mb-2"></i>
+
+                <h6>Total Books</h6>
+
+                <h3>@Model.TotalItemCount</h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+
+                <h6>Available</h6>
+
+                <h3>@Model.Sum(x => x.AvailableQuantity)</h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="page-card">
+
+    <form asp-action="Index" method="get">
+
+        <div class="row g-2">
+
+            <div class="col-md-3">
+
+                <div class="search-box">
+
+                    <i class="fas fa-search"></i>
+
+                    <input name="search"
+                           value="@ViewBag.Search"
+                           class="form-control"
+                           placeholder="Search title..." />
+
+                </div>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <select name="categoryId"
+                        asp-items="ViewBag.Categories"
+                        class="form-select">
+
+                    <option value="">Category</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <select name="authorId"
+                        asp-items="ViewBag.Authors"
+                        class="form-select">
+
+                    <option value="">Author</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <select name="publisherId"
+                        asp-items="ViewBag.Publishers"
+                        class="form-select">
+
+                    <option value="">Publisher</option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <button class="btn btn-app btn-search">
+
+                    <i class="fas fa-search"></i>
+
+                    Search
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+@if (Model.Any())
+{
+<table class="table table-hover align-middle">
+
+    <thead class="table-dark">
+
+        <tr>
+            <th width="90">Image</th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.TitleSort"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-categoryId="@ViewBag.CategoryId"
+                   asp-route-authorId="@ViewBag.AuthorId"
+                   asp-route-publisherId="@ViewBag.PublisherId">
+
+                    Title
+
+                </a>
+            </th>
+            <th>ISBN</th>
+            <th>
+
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.QuantitySort"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-categoryId="@ViewBag.CategoryId"
+                   asp-route-authorId="@ViewBag.AuthorId"
+                   asp-route-publisherId="@ViewBag.PublisherId">
+
+                    Quantity
+
+                </a>
+
+            </th>
+            <th width="100">Available</th>
+            <th>Category</th>
+            <th>Author</th>
+            <th>Publisher</th>
+            <th width="230">Action</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td class="text-center">
+
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl"
+                             class="img-thumbnail"
+                             style="width:70px;height:90px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <img src="/images/books/no-image.png"
+                             class="img-thumbnail"
+                             style="width:70px;height:90px;object-fit:cover;" />
+                    }
+
+                </td>
+
+                <td>
+                    <strong>@item.Title</strong>
+                </td>
+
+                <td>
+                    @item.ISBN
+                </td>
+
+                <td class="text-center">
+                    @item.Quantity
+                </td>
+
+                <td class="text-center">
+
+                    @if (item.AvailableQuantity == 0)
+                    {
+                        <span class="badge bg-danger">
+
+                            Out of Stock
+
+                        </span>
+                    }
+                    else if (item.AvailableQuantity < 5)
+                    {
+                        <span class="badge bg-warning text-dark">
+
+                            @item.AvailableQuantity Left
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">
+
+                            @item.AvailableQuantity Available
+
+                        </span>
+                    }
+
+                </td>
+
+                <td>
+                    @item.Category?.Name
+                </td>
+
+                <td>
+                    @item.Author?.Name
+                </td>
+
+                <td>
+                    @item.Publisher?.Name
+                </td>
+
+                    <td>
+
+                        <div class="btn-group">
+
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-app btn-edit">
+
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </a>
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-app btn-detail">
+
+                                <i class="fas fa-circle-info"></i>
+                                Detail
+                            </a>
+
+                            <button class="btn btn-app btn-delete"
+                                    data-url="@Url.Action("Delete", "Books", new { id = item.Id })">
+
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+}
+
+else
+{
+    <div class="empty-state">
+
+        <i class="fas fa-book-open"></i>
+
+        <h4>No books found</h4>
+
+        <p>Click Add Book to create one.</p>
+
+        <a asp-action="Create"
+           class="btn btn-app btn-add">
+
+            <i class="fas fa-plus"></i>
+
+            Add Book
+
+        </a>
+
+    </div>
+}
+<div class="d-flex justify-content-center mt-4">
+
+    @Html.PagedListPager(
+
+    Model,
+
+    page => Url.Action("Index", new
+    {
+        page,
+        search = ViewBag.Search,
+        categoryId = ViewBag.CategoryId,
+        authorId = ViewBag.AuthorId,
+        publisherId = ViewBag.PublisherId,
+        sortOrder = ViewBag.SortOrder
+    }),
+
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "Previous",
+            LinkToNextPageFormat = "Next",
+            LinkToLastPageFormat = ">>",
+
+            MaximumPageNumbersToDisplay = 5,
+
+            UlElementClasses = new[] { "pagination" },
+
+            LiElementClasses = new[] { "page-item" },
+
+            PageClasses = new[] { "page-link" }
+        })
+
+</div>
+@section Scripts {
+
+    <script>
+
+        document.querySelectorAll(".btn-delete").forEach(btn=>{
+
+        btn.addEventListener("click",function(){
+
+        let url=this.dataset.url;
+
+        Swal.fire({
+
+        title:"Delete this item?",
+
+        text:"This action cannot be undone.",
+
+        icon:"warning",
+
+        showCancelButton:true,
+
+        confirmButtonText:"Delete"
+
+        }).then((result)=>{
+
+        if(result.isConfirmed){
+
+        window.location=url;
+
+        }
+
+        });
+
+        });
+
+        });
+
+    </script>
+
+}

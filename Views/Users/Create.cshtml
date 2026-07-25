@@ -1,0 +1,45 @@
+﻿@model LibraryManagement.ViewModels.CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<h2>Create User</h2>
+<div asp-validation-summary="All" class="alert alert-danger"></div>
+<form asp-action="Create">
+
+    <div class="mb-3">
+        <label>Full Name</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label>Role</label>
+
+        <select asp-for="Role"
+                class="form-select"
+                asp-items="new SelectList(ViewBag.Roles)">
+        </select>
+    </div>
+
+    <button class="btn btn-primary">
+        Create User
+    </button>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

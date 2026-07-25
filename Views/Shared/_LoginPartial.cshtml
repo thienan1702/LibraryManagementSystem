@@ -1,0 +1,100 @@
+﻿@using LibraryManagement.Models
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+
+        <li class="nav-item dropdown">
+
+            <a class="nav-link dropdown-toggle d-flex align-items-center"
+               href="#"
+               role="button"
+               data-bs-toggle="dropdown">
+
+                <img src="https://ui-avatars.com/api/?name=@currentUser?.FullName&background=0d6efd&color=fff"
+                     class="rounded-circle me-2"
+                     width="34"
+                     height="34" />
+
+                <div class="text-start">
+
+                    <div style="font-weight:600">
+
+                        @currentUser?.FullName
+
+                    </div>
+
+                    <small class="text-muted">
+
+                        @(User.IsInRole("Admin") ? "Administrator" : "Staff")
+
+                    </small>
+
+                </div>
+
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+
+                <li class="dropdown-header">
+
+                    <strong>@currentUser?.FullName</strong><br />
+
+                    <small>@currentUser?.Email</small>
+
+                </li>
+
+                <li><hr class="dropdown-divider" /></li>
+
+                <li>
+
+                    <a class="dropdown-item"
+                       asp-controller="Account"
+                       asp-action="ChangePassword">
+
+                        <i class="fas fa-key text-warning me-2"></i>
+
+                        Change Password
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a class="dropdown-item text-danger"
+                       asp-controller="Account"
+                       asp-action="Logout">
+
+                        <i class="fas fa-right-from-bracket me-2"></i>
+
+                        Logout
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a asp-controller="Account"
+               asp-action="Login"
+               class="nav-link">
+
+                Login
+
+            </a>
+        </li>
+    }
+
+</ul>
