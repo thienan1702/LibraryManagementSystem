@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibraryManagement.Models
 {
@@ -13,19 +14,16 @@ namespace LibraryManagement.Models
         [EmailAddress]
         public string CustomerEmail { get; set; } = "";
 
-        [Required]
+        public DateTime ReservationDate { get; set; } = DateTime.Now;
+
+        public ReservationStatus Status { get; set; } = ReservationStatus.Waiting;
+
         public int BookId { get; set; }
 
+        [ForeignKey(nameof(BookId))]
         public Book? Book { get; set; }
 
         [Range(1, 100)]
-        public int Quantity { get; set; }
-
-        public DateTime ReservationDate { get; set; } = DateTime.Now;
-
-        public ReservationStatus Status { get; set; }
-            = ReservationStatus.Waiting;
-
-        public string? Note { get; set; }
+        public int Quantity { get; set; } = 1;
     }
 }
