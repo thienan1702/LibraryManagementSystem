@@ -2,16 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagement.ViewModels
 {
-    public class LoginViewModel
+    public class BorrowCreateVM
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
+        public string BorrowerName { get; set; } = "";
 
         [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = "";
+        [EmailAddress]
+        public string BorrowerEmail { get; set; } = "";
 
-        public bool RememberMe { get; set; }
+        [Required]
+        public DateTime BorrowDate { get; set; }
+            = DateTime.Today;
+
+        [Required]
+        public DateTime DueDate { get; set; }
+            = DateTime.Today.AddDays(14);
+
+        public List<BorrowItemVM> Items { get; set; }
+            = new();
     }
 }

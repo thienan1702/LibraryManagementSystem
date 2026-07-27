@@ -1,120 +1,104 @@
-﻿@model LibraryManagement.Models.Borrow
-@using LibraryManagement.Models
+﻿@model LibraryManagement.ViewModels.BorrowCreateVM
 
 @{
-    ViewData["Title"] = "Borrow Book";
+    ViewData["Title"] = "Borrow Books";
     var books = ViewBag.Books as List<LibraryManagement.Models.Book>;
-    var users = ViewBag.Users as List<LibraryManagement.Models.ApplicationUser>;
 }
 
-<div class="page-card mb-4">
+<div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="card shadow border-0">
 
-        <div>
+        <div class="card-header bg-primary text-white">
 
-            <div class="page-title">
-                <i class="fas fa-book-reader text-primary me-2"></i>
-                Borrow Book
-            </div>
+            <h3 class="mb-0">
 
-            <div class="page-subtitle">
-                Create a new borrowing transaction
-            </div>
+                <i class="fas fa-book-reader"></i>
+
+                Borrow Books
+
+            </h3>
 
         </div>
 
-        <a asp-action="Index" class="btn btn-outline-secondary">
+        <div class="card-body">
 
-            <i class="fas fa-arrow-left"></i>
+            <form asp-action="Create" method="post">
 
-            Back
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
 
-        </a>
+                <div class="row">
 
-    </div>
+                    <div class="col-md-6">
 
-</div>
+                        <label class="form-label">
 
-<div class="card shadow-sm border-0">
-
-    <div class="card-body p-4">
-
-        <form asp-controller="Borrows"
-              asp-action="Create"
-              method="post">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly"
-                 class="alert alert-danger"></div>
-
-            <div class="row">
-
-                <div class="col-md-6">
-
-                    <div class="mb-3">
-
-                        <label asp-for="BorrowerName"
-                               class="form-label fw-bold">
-
-                            Customer Name
+                            Borrower Name
 
                         </label>
 
                         <input asp-for="BorrowerName"
-                               class="form-control"
-                               placeholder="Enter customer name" />
+                               class="form-control" />
 
-                        <span asp-validation-for="BorrowerName"
-                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Email
+
+                        </label>
+
+                        <input asp-for="BorrowerEmail"
+                               class="form-control" />
 
                     </div>
 
                 </div>
 
-            <div class="row">
+                <div class="row mt-3">
 
                     <div class="col-md-6">
 
-                        <div class="mb-3">
+                        <label>Borrow Date</label>
 
-                            <label asp-for="BorrowerEmail"
-                                   class="form-label fw-bold">
-
-                                Email
-
-                            </label>
-
-                            <input asp-for="BorrowerEmail"
-                                   class="form-control"
-                                   placeholder="example@gmail.com" />
-
-                            <span asp-validation-for="BorrowerEmail"
-                                  class="text-danger"></span>
-
-                        </div>
+                        <input asp-for="BorrowDate"
+                               class="form-control" />
 
                     </div>
 
-                <div class="col-md-6">
+                    <div class="col-md-6">
 
-                    <div class="mb-3">
+                        <label>Due Date</label>
 
-                        <label class="form-label fw-bold">
+                        <input asp-for="DueDate"
+                               class="form-control" />
 
-                            Book
+                    </div>
 
-                        </label>
+                </div>
 
-                        <select name="BookId"
-                                id="BookSelect"
+                <hr />
+
+                <div class="row">
+
+                    <div class="col-md-7">
+
+                        <label>Book</label>
+
+                        <select id="bookSelect"
                                 class="form-select">
 
-                            @foreach (var book in books)
+                            @foreach (var item in books)
                             {
-                                <option value="@book.Id"
-                                        data-stock="@book.AvailableQuantity">
+                                <option value="@item.Id"
+                                        data-title="@item.Title">
 
-                                    @book.Title
+                                    @item.Title
+                                    (@item.AvailableQuantity)
 
                                 </option>
                             }
@@ -123,298 +107,157 @@
 
                     </div>
 
-                </div>
+                    <div class="col-md-3">
 
-            </div>
+                        <label>Quantity</label>
 
-                <div class="row mt-2">
-
-                    <div class="col-md-4">
-
-                        <div class="card border-success h-100">
-
-                            <div class="card-body text-center">
-
-                                <small class="text-muted">
-
-                                    Available
-
-                                </small>
-
-                                <h3 id="stockText"
-                                    class="text-success mt-2">
-                                </h3>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="mb-3">
-
-                            <label class="form-label fw-bold">
-
-                                Quantity
-
-                            </label>
-
-                            <input type="number"
-                                   id="Quantity"
-                                   name="Quantity"
-                                   class="form-control"
-                                   value="1"
-                                   min="1" />
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="alert alert-info mb-0">
-
-                            <i class="fas fa-envelope"></i>
-
-                            Confirmation email will be sent automatically after creating the borrow transaction.
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="col-md-3">
-
-                    <div class="mb-3">
-
-                        <label asp-for="BorrowDate"
-                               class="form-label fw-bold"></label>
-
-                        <input asp-for="BorrowDate"
-                               type="date"
+                        <input id="qty"
+                               type="number"
+                               value="1"
+                               min="1"
                                class="form-control" />
 
                     </div>
 
-                </div>
+                    <div class="col-md-2 d-flex align-items-end">
 
-                <div class="col-md-3">
+                        <button type="button"
+                                id="btnAdd"
+                                class="btn btn-success w-100">
 
-                    <div class="mb-3">
+                            <i class="fas fa-plus"></i>
 
-                        <label asp-for="DueDate"
-                               class="form-label fw-bold"></label>
-
-                        <input asp-for="DueDate"
-                               type="date"
-                               class="form-control" />
+                        </button>
 
                     </div>
 
                 </div>
 
-            </div>
+                <hr />
 
+                <div class="table-responsive">
 
+                    <table class="table table-hover table-bordered align-middle">
 
-            <hr />
+                        <thead class="table-primary">
 
-            <div class="text-end">
+                            <tr>
 
-                <a asp-action="Index"
-                   class="btn btn-outline-secondary">
+                                <th>Book</th>
 
-                    Cancel
+                                <th width="120">
 
-                </a>
+                                    Qty
 
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-book"></i> Borrow Book
-                </button>
+                                </th>
 
-            </div>
+                                <th width="90">
 
-        </form>
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="borrowTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div id="hiddenInputs">
+                </div>
+
+                <div class="text-end">
+
+                    <button class="btn btn-primary btn-lg">
+
+                        <i class="fas fa-save"></i>
+
+                        Borrow
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
 
     </div>
 
 </div>
+
 @section Scripts {
 
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
 
-        function updateStock(){
+        let index=0;
 
-            let select=document.getElementById("BookSelect");
+        $("#btnAdd").click(function(){
 
-            let stock=select.options[select.selectedIndex]
-                            .getAttribute("data-stock");
+            let id=$("#bookSelect").val();
 
-            document.getElementById("stockText").innerHTML=
-                stock+" copies";
+            let title=$("#bookSelect option:selected").data("title");
 
-            if(parseInt(stock)==0){
+            let qty=$("#qty").val();
 
-                document.getElementById("stockText")
-                .className="text-danger";
+            let row=`
 
-            }
-            else{
+        <tr id="r${index}">
 
-                document.getElementById("stockText")
-                .className="text-success";
+        <td>${title}</td>
 
-            }
+        <td>${qty}</td>
 
-            document.getElementById("Quantity").max=stock;
+        <td>
+
+        <button
+        type="button"
+        class="btn btn-danger btn-sm"
+
+        onclick="removeRow(${index})">
+
+        <i class="fas fa-trash"></i>
+
+        </button>
+
+        </td>
+
+        </tr>
+
+        `;
+
+            $("#borrowTable").append(row);
+
+            let hidden=`
+
+        <input
+        type="hidden"
+        name="Items[${index}].BookId"
+        value="${id}"/>
+
+        <input
+        type="hidden"
+        name="Items[${index}].Quantity"
+        value="${qty}"/>
+
+        `;
+
+            $("#hiddenInputs").append(hidden);
+
+            index++;
+
+        });
+
+        function removeRow(i){
+
+            $("#r"+i).remove();
 
         }
-
-        updateStock();
-
-        document.getElementById("BookSelect")
-            .addEventListener("change",updateStock);
-
-
-        document.getElementById("BorrowerEmail")
-        .addEventListener("blur",function(){
-
-            let email=this.value;
-
-            if(email=="") return;
-
-            fetch("/Borrows/GetBorrowerInfo?email="+encodeURIComponent(email))
-            .then(r=>r.json())
-            .then(data=>{
-
-                if(data.exists){
-
-                    Swal.fire({
-
-                        toast:true,
-
-                        timer:2500,
-
-                        position:"top-end",
-
-                        icon:"info",
-
-                        title:
-                        "Customer has borrowed "+
-                        data.totalBorrow+
-                        " time(s)."
-
-                    });
-
-                }
-
-            });
-
-        });
-
-        document.getElementById("Quantity")
-        .addEventListener("input",function(){
-
-            let max=parseInt(this.max);
-
-            if(parseInt(this.value)>max){
-
-                Swal.fire({
-
-                    icon:"warning",
-
-                    title:"Quantity exceeds stock",
-
-                    text:"Only "+max+" book(s) available."
-
-                });
-
-                this.value=max;
-
-            }
-
-            if(parseInt(this.value)<=0){
-
-                this.value=1;
-
-            }
-
-        });
-
-
-
-
-
-
-        window.onload=function(){
-
-            let today=new Date();
-
-            let yyyy=today.getFullYear();
-
-            let mm=String(today.getMonth()+1).padStart(2,'0');
-
-            let dd=String(today.getDate()).padStart(2,'0');
-
-            let borrow=yyyy+"-"+mm+"-"+dd;
-
-            document.getElementById("BorrowDate").value=borrow;
-
-            let due=new Date();
-
-            due.setDate(due.getDate()+7);
-
-            let dyyyy=due.getFullYear();
-
-            let dmm=String(due.getMonth()+1).padStart(2,'0');
-
-            let ddd=String(due.getDate()).padStart(2,'0');
-
-            document.getElementById("DueDate").value=
-                dyyyy+"-"+dmm+"-"+ddd;
-
-        };
-
-
-
-        document.querySelector("form")
-        .addEventListener("submit",function(e){
-
-            let stock=parseInt(
-                document.getElementById("BookSelect")
-                .options[
-                    document.getElementById("BookSelect").selectedIndex
-                ].getAttribute("data-stock")
-            );
-
-            let qty=parseInt(
-                document.getElementById("Quantity").value
-            );
-
-            if(qty>stock){
-
-                e.preventDefault();
-
-                Swal.fire({
-
-                    icon:"error",
-
-                    title:"Not enough books",
-
-                    text:"Please reduce quantity."
-
-                });
-
-            }
-
-        });
 
     </script>
 

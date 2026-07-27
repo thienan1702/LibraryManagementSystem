@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using LibraryManagement.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -99,148 +100,165 @@ namespace LibraryManagement.Controllers
             return View(borrow);
         }
 
-        // GET: Borrows/Create
-        public IActionResult Create(string? userId = null, int? bookId = null)
+        public IActionResult Create()
         {
-            ViewBag.Users = _context.Users
-                .OrderBy(x => x.FullName)
-                .ToList();
-
             ViewBag.Books = _context.Books
                 .Where(x => x.AvailableQuantity > 0)
                 .OrderBy(x => x.Title)
                 .ToList();
 
-            ViewBag.SelectedUser = userId;
-
-            ViewBag.SelectedBook = bookId;
-
-            return View();
+            return View(new BorrowCreateVM());
         }
 
-        // POST: Borrows/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Borrow borrow,int BookId,int Quantity)
+        public IActionResult Create(BorrowCreateVM vm)
         {
-            
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Users = _context.Users
-                    .OrderBy(x => x.FullName)
-                    .ToList();
-
-                ViewBag.Books = _context.Books
-                    .Where(x => x.AvailableQuantity > 0)
-                    .OrderBy(x => x.Title)
-                    .ToList();
-
-                return View(borrow);
-            }
-
-            var book = await _context.Books.FindAsync(BookId);
-            if (Quantity <= 0)
-            {
-                ModelState.AddModelError("", "Quantity must be greater than zero.");
-            }
-
-            if (borrow.DueDate <= borrow.BorrowDate)
-            {
-                ModelState.AddModelError("", "Due Date must be after Borrow Date.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Users = _context.Users.OrderBy(x => x.FullName).ToList();
-
-                ViewBag.Books = _context.Books
-                    .Where(x => x.AvailableQuantity > 0)
-                    .OrderBy(x => x.Title)
-                    .ToList();
-
-                return View(borrow);
-            }
-
-            if (book == null)
-                return NotFound();
-
-            if (book.AvailableQuantity < Quantity)
-            {
-                ModelState.AddModelError("", "Not enough books.");
-
-                ViewBag.Users = _context.Users
-                    .OrderBy(x => x.FullName)
-                    .ToList();
-
-                ViewBag.Books = _context.Books
-                    .Where(x => x.AvailableQuantity > 0)
-                    .OrderBy(x => x.Title)
-                    .ToList();
-
-                return View(borrow);
-            }
-
-
-            borrow.ReturnDate = null;
-
-            borrow.IsReturned = false;
-
-            _context.Borrows.Add(borrow);
-
-            await _context.SaveChangesAsync();
-
-            BorrowDetail detail = new BorrowDetail()
-            {
-                BorrowId = borrow.Id,
-                BookId = BookId,
-                Quantity = Quantity
-            };
-
-            _context.BorrowDetails.Add(detail);
-
-            book.AvailableQuantity -= Quantity;
-
-            await _context.SaveChangesAsync();
-
-            // ===== GỬI EMAIL =====
-            await _email.SendAsync(
-                borrow.BorrowerEmail, 
-                "Library Borrow Confirmation",
-                $@"
-        <h2>Library Management</h2>
-
-        <p>Hello <b>{borrow.BorrowerName}</b>,</p>
-
-        <p>Your borrowing request has been created successfully.</p>
-
-        <table border='1' cellpadding='8' cellspacing='0'>
-            <tr>
-                <td>Book</td>
-                <td>{book.Title}</td>
-            </tr>
-
-            <tr>
-                <td>Quantity</td>
-                <td>{Quantity}</td>
-            </tr>
-
-            <p><b>Borrow Date:</b> 
-                {borrow.BorrowDate:dd/MM/yyyy}</p>
-
-            <p><b>Due Date:</b> 
-                {borrow.DueDate:dd/MM/yyyy}</p>
-        </table>
-
-        <br/>
-
-        <p>Thank you for using our library.</p>");
-
-            TempData["Success"] = "Borrow created successfully.";
-
-            return RedirectToAction(nameof(Index));
+            return View(vm);
         }
+
+
+        // GET: Borrows/Create
+        //public IActionResult Create(string? userId = null, int? bookId = null)
+        //{
+        //    ViewBag.Users = _context.Users
+        //        .OrderBy(x => x.FullName)
+        //        .ToList();
+
+        //    ViewBag.Books = _context.Books
+        //        .Where(x => x.AvailableQuantity > 0)
+        //        .OrderBy(x => x.Title)
+        //        .ToList();
+
+        //    ViewBag.SelectedUser = userId;
+
+        //    ViewBag.SelectedBook = bookId;
+
+        //    return View();
+        //}
+        //// POST: Borrows/Create
+        //// To protect from overposting attacks, enable the specific properties you want to bind to.
+        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create(Borrow borrow,int BookId,int Quantity)
+        //{
+            
+        //    if (!ModelState.IsValid)
+        //    {
+        //        ViewBag.Users = _context.Users
+        //            .OrderBy(x => x.FullName)
+        //            .ToList();
+
+        //        ViewBag.Books = _context.Books
+        //            .Where(x => x.AvailableQuantity > 0)
+        //            .OrderBy(x => x.Title)
+        //            .ToList();
+
+        //        return View(borrow);
+        //    }
+
+        //    var book = await _context.Books.FindAsync(BookId);
+        //    if (Quantity <= 0)
+        //    {
+        //        ModelState.AddModelError("", "Quantity must be greater than zero.");
+        //    }
+
+        //    if (borrow.DueDate <= borrow.BorrowDate)
+        //    {
+        //        ModelState.AddModelError("", "Due Date must be after Borrow Date.");
+        //    }
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        ViewBag.Users = _context.Users.OrderBy(x => x.FullName).ToList();
+
+        //        ViewBag.Books = _context.Books
+        //            .Where(x => x.AvailableQuantity > 0)
+        //            .OrderBy(x => x.Title)
+        //            .ToList();
+
+        //        return View(borrow);
+        //    }
+
+        //    if (book == null)
+        //        return NotFound();
+
+        //    if (book.AvailableQuantity < Quantity)
+        //    {
+        //        ModelState.AddModelError("", "Not enough books.");
+
+        //        ViewBag.Users = _context.Users
+        //            .OrderBy(x => x.FullName)
+        //            .ToList();
+
+        //        ViewBag.Books = _context.Books
+        //            .Where(x => x.AvailableQuantity > 0)
+        //            .OrderBy(x => x.Title)
+        //            .ToList();
+
+        //        return View(borrow);
+        //    }
+
+
+        //    borrow.ReturnDate = null;
+
+        //    borrow.IsReturned = false;
+
+        //    _context.Borrows.Add(borrow);
+
+        //    await _context.SaveChangesAsync();
+
+        //    BorrowDetail detail = new BorrowDetail()
+        //    {
+        //        BorrowId = borrow.Id,
+        //        BookId = BookId,
+        //        Quantity = Quantity
+        //    };
+
+        //    _context.BorrowDetails.Add(detail);
+
+        //    book.AvailableQuantity -= Quantity;
+
+        //    await _context.SaveChangesAsync();
+
+        //    // ===== GỬI EMAIL =====
+        //    await _email.SendAsync(
+        //        borrow.BorrowerEmail, 
+        //        "Library Borrow Confirmation",
+        //        $@"
+        //<h2>Library Management</h2>
+
+        //<p>Hello <b>{borrow.BorrowerName}</b>,</p>
+
+        //<p>Your borrowing request has been created successfully.</p>
+
+        //<table border='1' cellpadding='8' cellspacing='0'>
+        //    <tr>
+        //        <td>Book</td>
+        //        <td>{book.Title}</td>
+        //    </tr>
+
+        //    <tr>
+        //        <td>Quantity</td>
+        //        <td>{Quantity}</td>
+        //    </tr>
+
+        //    <p><b>Borrow Date:</b> 
+        //        {borrow.BorrowDate:dd/MM/yyyy}</p>
+
+        //    <p><b>Due Date:</b> 
+        //        {borrow.DueDate:dd/MM/yyyy}</p>
+        //</table>
+
+        //<br/>
+
+        //<p>Thank you for using our library.</p>");
+
+        //    TempData["Success"] = "Borrow created successfully.";
+
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         // GET: Borrows/Edit/5
         public async Task<IActionResult> Edit(int? id)

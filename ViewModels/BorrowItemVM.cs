@@ -2,16 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagement.ViewModels
 {
-    public class LoginViewModel
+    public class BorrowItemVM
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
+        public int BookId { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = "";
+        [Range(1, 100)]
+        public int Quantity { get; set; }
 
-        public bool RememberMe { get; set; }
+        public string BookTitle { get; set; } = "";
     }
 }
