@@ -200,4 +200,94 @@ public class ReservationsController : Controller
     }
 
 
+
+    public async Task<IActionResult> BorrowReserved(int id)
+    {
+        var reservation = await _context.Reservations
+            .Include(x => x.Book)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (reservation == null)
+            return NotFound();
+
+        if (reservation.Status != ReservationStatus.Approved)
+            return RedirectToAction(nameof(Index));
+
+        if (reservation.Book.AvailableQuantity < reservation.Quantity)
+        {
+            TempData["Error"] = "Book is no longer available.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var borrow = new Borrow
+        {
+            BorrowerName = reservation.CustomerName,
+            BorrowerEmail = reservation.CustomerEmail,
+            BorrowDate = DateTime.Now,
+            DueDate = DateTime.Now.AddDays(14),
+            IsReturned = false,
+            ReturnDate = null
+        };
+
+        _context.Borrows.Add(borrow);
+
+        await _context.SaveChangesAsync();
+
+        BorrowDetail detail = new BorrowDetail
+        {
+            BorrowId = borrow.Id,
+            BookId = reservation.BookId,
+            Quantity = reservation.Quantity
+        };
+
+        _context.BorrowDetails.Add(detail);
+
+        reservation.Book.AvailableQuantity -= reservation.Quantity;
+
+        reservation.Status = ReservationStatus.Completed;
+
+        await _context.SaveChangesAsync();
+
+        await _email.SendAsync(
+            reservation.CustomerEmail,
+            "Borrow Confirmation",
+    $@"
+<h2>Library Management</h2>
+
+<p>Hello <b>{reservation.CustomerName}</b>,</p>
+
+<p>Your reserved book has been borrowed successfully.</p>
+
+<table border='1' cellpadding='8' cellspacing='0'>
+<tr>
+<td>Book</td>
+<td>{reservation.Book.Title}</td>
+</tr>
+
+<tr>
+<td>Quantity</td>
+<td>{reservation.Quantity}</td>
+</tr>
+
+<tr>
+<td>Borrow Date</td>
+<td>{borrow.BorrowDate:dd/MM/yyyy}</td>
+</tr>
+
+<tr>
+<td>Due Date</td>
+<td>{borrow.DueDate:dd/MM/yyyy}</td>
+</tr>
+</table>
+
+<br/>
+
+<p>Thank you.</p>");
+
+        TempData["Success"] = "Borrow created successfully.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
+
 }
