@@ -24,6 +24,7 @@
             <th>Quantity</th>
             <th>Date</th>
             <th>Status</th>
+            <th width="220">Action</th>
 
         </tr>
 
@@ -80,6 +81,33 @@
                             </span>
 
                             break;
+                    }
+
+                </td>
+
+                <td>
+
+                    @if (item.Status == ReservationStatus.Waiting)
+                    {
+                        <a asp-action="Approve"
+                           asp-route-id="@item.Id"
+                           class="btn btn-success btn-sm">
+
+                            <i class="fas fa-check"></i>
+
+                            Approve
+
+                        </a>
+
+                        <a asp-action="Reject"
+                           asp-route-id="@item.Id"
+                           class="btn btn-danger btn-sm">
+
+                            <i class="fas fa-times"></i>
+
+                            Reject
+
+                        </a>
                     }
 
                 </td>

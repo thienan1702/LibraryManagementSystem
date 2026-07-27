@@ -84,4 +84,115 @@ public class ReservationsController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+
+    public async Task<IActionResult> Approve(int id)
+    {
+        var reservation = await _context.Reservations
+            .Include(x => x.Book)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (reservation == null)
+            return NotFound();
+
+        if (reservation.Book.AvailableQuantity < reservation.Quantity)
+        {
+            TempData["Error"] =
+                "Book is still unavailable.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        reservation.Status = ReservationStatus.Approved;
+
+        reservation.Book.AvailableQuantity -= reservation.Quantity;
+
+        Borrow borrow = new Borrow
+        {
+            BorrowerName = reservation.CustomerName,
+
+            BorrowerEmail = reservation.CustomerEmail,
+
+            BorrowDate = DateTime.Today,
+
+            DueDate = DateTime.Today.AddDays(7),
+
+            ReturnDate = null,
+
+            IsReturned = false
+        };
+
+        _context.Borrows.Add(borrow);
+
+        await _context.SaveChangesAsync();
+
+        BorrowDetail detail = new BorrowDetail
+        {
+            BorrowId = borrow.Id,
+
+            BookId = reservation.BookId,
+
+            Quantity = reservation.Quantity
+        };
+
+        _context.BorrowDetails.Add(detail);
+
+        await _context.SaveChangesAsync();
+
+        await _email.SendAsync(
+
+            reservation.CustomerEmail,
+
+            "Reservation Approved",
+
+    $"""
+<h2>Reservation Approved</h2>
+
+<p>Hello <b>{reservation.CustomerName}</b>,</p>
+
+<p>Your reserved book is now available.</p>
+
+<p>Please come to the library.</p>
+
+""");
+
+        TempData["Success"] =
+            "Reservation approved.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Reject(int id)
+    {
+        var reservation = await _context.Reservations.FindAsync(id);
+
+        if (reservation == null)
+            return NotFound();
+
+        reservation.Status = ReservationStatus.Rejected;
+
+        await _context.SaveChangesAsync();
+
+        await _email.SendAsync(
+
+            reservation.CustomerEmail,
+
+            "Reservation Rejected",
+
+    $"""
+<h2>Reservation Rejected</h2>
+
+<p>Hello <b>{reservation.CustomerName}</b>,</p>
+
+<p>Sorry, your reservation has been rejected.</p>
+
+""");
+
+        TempData["Success"] =
+            "Reservation rejected.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
+
 }
