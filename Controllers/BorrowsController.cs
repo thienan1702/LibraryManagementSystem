@@ -351,13 +351,20 @@ namespace LibraryManagement.Controllers
         public async Task<IActionResult> Return(int id)
         {
             var borrow = await _context.Borrows
+                .Include(x => x.BorrowDetails)
+                .ThenInclude(x => x.Book)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (borrow == null)
                 return NotFound();
 
-            borrow.ReturnDate = DateTime.Now;
+            if (borrow.IsReturned)
+            {
+                TempData["Error"] = "Book already returned.";
+                return RedirectToAction(nameof(Index));
+            }
 
+            borrow.ReturnDate = DateTime.Now;
             borrow.IsReturned = true;
 
             const decimal finePerDay = 10000;
@@ -365,21 +372,23 @@ namespace LibraryManagement.Controllers
             if (borrow.ReturnDate.Value.Date > borrow.DueDate.Date)
             {
                 int overdue =
-                    (borrow.ReturnDate.Value.Date
-                    - borrow.DueDate.Date).Days;
+                    (borrow.ReturnDate.Value.Date - borrow.DueDate.Date).Days;
 
-                borrow.FineAmount =
-                    overdue * finePerDay;
+                borrow.FineAmount = overdue * finePerDay;
             }
             else
             {
                 borrow.FineAmount = 0;
             }
 
+            foreach (var item in borrow.BorrowDetails)
+            {
+                item.Book.AvailableQuantity += item.Quantity;
+            }
+
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-                "Book returned successfully.";
+            TempData["Success"] = "Book returned successfully.";
 
             return RedirectToAction(nameof(Index));
         }

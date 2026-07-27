@@ -5,48 +5,119 @@
     var books = ViewBag.Books as List<LibraryManagement.Models.Book>;
 }
 
-<div class="card">
-    <div class="card-header">
-        <h3>Reserve Book</h3>
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-warning text-dark">
+
+            <h3>
+                <i class="fas fa-clock"></i>
+                Reserve Book
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="CustomerName"></label>
+
+                    <input asp-for="CustomerName"
+                           class="form-control" />
+
+                    <span asp-validation-for="CustomerName"
+                          class="text-danger"></span>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="CustomerEmail"></label>
+
+                    <input asp-for="CustomerEmail"
+                           class="form-control" />
+
+                    <span asp-validation-for="CustomerEmail"
+                          class="text-danger"></span>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Book</label>
+
+                    <select asp-for="BookId"
+                            class="form-select">
+
+                        @foreach (var item in books)
+                        {
+                            if (ViewBag.SelectedBook != null &&
+                            (int)ViewBag.SelectedBook == item.Id)
+                            {
+                                <option selected
+                                        value="@item.Id">
+                                    @item.Title
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id">
+                                    @item.Title
+                                </option>
+                            }
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="Quantity"></label>
+
+                    <input asp-for="Quantity"
+                           class="form-control"
+                           value="1"
+                           min="1" />
+
+                    <span asp-validation-for="Quantity"
+                          class="text-danger"></span>
+
+                </div>
+
+                <button class="btn btn-warning">
+
+                    <i class="fas fa-bookmark"></i>
+
+                    Reserve
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Back
+
+                </a>
+
+            </form>
+
+        </div>
+
     </div>
 
-    <div class="card-body">
-
-        <form asp-action="Create" method="post">
-
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="mb-3">
-                <label>Name</label>
-                <input asp-for="CustomerName" class="form-control" />
-            </div>
-
-            <div class="mb-3">
-                <label>Email</label>
-                <input asp-for="CustomerEmail" class="form-control" />
-            </div>
-
-            <div class="mb-3">
-                <label>Book</label>
-
-                <select asp-for="BookId" class="form-select">
-                    @foreach (var b in books)
-                    {
-                        <option value="@b.Id">@b.Title</option>
-                    }
-                </select>
-
-            </div>
-
-            <button class="btn btn-primary">
-                Reserve
-            </button>
-
-        </form>
-
-    </div>
 </div>
 
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
+
 }

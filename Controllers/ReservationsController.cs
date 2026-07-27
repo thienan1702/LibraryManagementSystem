@@ -42,6 +42,7 @@ public class ReservationsController : Controller
         return View();
     }
 
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Reservation reservation)
@@ -64,20 +65,24 @@ public class ReservationsController : Controller
         await _context.SaveChangesAsync();
 
         await _email.SendAsync(
+
             reservation.CustomerEmail,
-            "Reservation Created",
-            $"""
-            <h2>Reservation Successful</h2>
 
-            <p>Hello <b>{reservation.CustomerName}</b>,</p>
+            "Reservation Successful",
 
-            <p>Your reservation has been received.</p>
+    $"""
+<h2>Library Reservation</h2>
 
-            <p>Status:
-            <b>Waiting</b></p>
+<p>Hello <b>{reservation.CustomerName}</b>,</p>
 
-            <p>We will notify you when the book becomes available.</p>
-            """);
+<p>Your reservation has been created successfully.</p>
+
+<p>Status :
+<b>Waiting</b></p>
+
+<p>We will notify you once the book is available.</p>
+
+""");
 
         TempData["Success"] =
             "Reservation created successfully.";
