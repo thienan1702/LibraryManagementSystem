@@ -1,0 +1,46 @@
+﻿@model IEnumerable<LibraryManagement.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<h2>Reservations</h2>
+
+<table class="table table-bordered">
+
+    <thead>
+
+        <tr>
+
+            <th>Book</th>
+
+            <th>User</th>
+
+            <th>Date</th>
+
+            <th>Status</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.Book?.Title</td>
+
+                <td>@item.User?.FullName</td>
+
+                <td>@item.ReserveDate.ToString("dd/MM/yyyy HH:mm")</td>
+
+                <td>@item.Status</td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace LibraryManagement.Models
 {
     public enum ReservationStatus

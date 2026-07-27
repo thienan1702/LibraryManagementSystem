@@ -67,6 +67,21 @@ namespace LibraryManagement.Controllers
             return View(await borrows.ToListAsync());
         }
 
+
+        [HttpGet]
+        public IActionResult GetBorrowerInfo(string email)
+        {
+            var borrows = _context.Borrows
+                .Where(x => x.BorrowerEmail == email);
+
+            return Json(new
+            {
+                exists = borrows.Any(),
+                totalBorrow = borrows.Count(),
+                borrowing = borrows.Count(x => !x.IsReturned)
+            });
+        }
+
         // GET: Borrows/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -85,13 +100,20 @@ namespace LibraryManagement.Controllers
         }
 
         // GET: Borrows/Create
-        public IActionResult Create()
+        public IActionResult Create(string? userId = null, int? bookId = null)
         {
-            ViewData["BookId"] = new SelectList(
-                _context.Books
-                    .Where(x => x.AvailableQuantity > 0),
-                "Id",
-                "Title");
+            ViewBag.Users = _context.Users
+                .OrderBy(x => x.FullName)
+                .ToList();
+
+            ViewBag.Books = _context.Books
+                .Where(x => x.AvailableQuantity > 0)
+                .OrderBy(x => x.Title)
+                .ToList();
+
+            ViewBag.SelectedUser = userId;
+
+            ViewBag.SelectedBook = bookId;
 
             return View();
         }
@@ -103,17 +125,43 @@ namespace LibraryManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Borrow borrow,int BookId,int Quantity)
         {
+            
             if (!ModelState.IsValid)
             {
-                ViewData["BookId"] = new SelectList(
-                    _context.Books.Where(x => x.AvailableQuantity > 0),
-                    "Id",
-                    "Title");
+                ViewBag.Users = _context.Users
+                    .OrderBy(x => x.FullName)
+                    .ToList();
+
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
 
                 return View(borrow);
             }
 
             var book = await _context.Books.FindAsync(BookId);
+            if (Quantity <= 0)
+            {
+                ModelState.AddModelError("", "Quantity must be greater than zero.");
+            }
+
+            if (borrow.DueDate <= borrow.BorrowDate)
+            {
+                ModelState.AddModelError("", "Due Date must be after Borrow Date.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Users = _context.Users.OrderBy(x => x.FullName).ToList();
+
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
+
+                return View(borrow);
+            }
 
             if (book == null)
                 return NotFound();
@@ -122,10 +170,14 @@ namespace LibraryManagement.Controllers
             {
                 ModelState.AddModelError("", "Not enough books.");
 
-                ViewData["BookId"] = new SelectList(
-                    _context.Books.Where(x => x.AvailableQuantity > 0),
-                    "Id",
-                    "Title");
+                ViewBag.Users = _context.Users
+                    .OrderBy(x => x.FullName)
+                    .ToList();
+
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
 
                 return View(borrow);
             }
