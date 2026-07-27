@@ -1,83 +1,87 @@
 ﻿using LibraryManagement.Data;
 using LibraryManagement.Models;
+using LibraryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace LibraryManagement.Controllers
+namespace LibraryManagement.Controllers;
+
+[Authorize(Roles = "Admin,User")]
+public class ReservationsController : Controller
 {
-    [Authorize]
-    public class ReservationsController : Controller
+    private readonly ApplicationDbContext _context;
+    private readonly IEmailService _email;
+
+    public ReservationsController(
+        ApplicationDbContext context,
+        IEmailService email)
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        _context = context;
+        _email = email;
+    }
 
-        public ReservationsController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+    public async Task<IActionResult> Index()
+    {
+        var list = await _context.Reservations
+            .Include(x => x.Book)
+            .OrderByDescending(x => x.ReservationDate)
+            .ToListAsync();
+
+        return View(list);
+    }
+
+    public IActionResult Create(int? bookId)
+    {
+        ViewBag.Books = _context.Books
+            .OrderBy(x => x.Title)
+            .ToList();
+
+        ViewBag.SelectedBook = bookId;
+
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(Reservation reservation)
+    {
+        if (!ModelState.IsValid)
         {
-            _context = context;
-            _userManager = userManager;
+            ViewBag.Books = _context.Books
+                .OrderBy(x => x.Title)
+                .ToList();
+
+            return View(reservation);
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var reservations = await _context.Reservations
-                .Include(r => r.Book)
-                .Include(r => r.User)
-                .OrderByDescending(r => r.ReserveDate)
-                .ToListAsync();
+        reservation.Status = ReservationStatus.Waiting;
 
-            return View(reservations);
-        }
+        reservation.ReservationDate = DateTime.Now;
 
-        public async Task<IActionResult> Create(int bookId)
-        {
-            var book = await _context.Books.FindAsync(bookId);
+        _context.Reservations.Add(reservation);
 
-            if (book == null)
-                return NotFound();
+        await _context.SaveChangesAsync();
 
-            if (book.AvailableQuantity > 0)
-            {
-                TempData["Warning"] =
-                    "This book is available. Please borrow it directly.";
+        await _email.SendAsync(
+            reservation.CustomerEmail,
+            "Reservation Created",
+            $"""
+            <h2>Reservation Successful</h2>
 
-                return RedirectToAction("Details", "Books", new { id = bookId });
-            }
+            <p>Hello <b>{reservation.CustomerName}</b>,</p>
 
-            string userId = _userManager.GetUserId(User)!;
+            <p>Your reservation has been received.</p>
 
-            bool existed = await _context.Reservations.AnyAsync(x =>
-                    x.BookId == bookId &&
-                    x.UserId == userId &&
-                    x.Status == ReservationStatus.Pending);
+            <p>Status:
+            <b>Waiting</b></p>
 
-            if (existed)
-            {
-                TempData["Warning"] =
-                    "You have already reserved this book.";
+            <p>We will notify you when the book becomes available.</p>
+            """);
 
-                return RedirectToAction("Details", "Books", new { id = bookId });
-            }
+        TempData["Success"] =
+            "Reservation created successfully.";
 
-            Reservation reservation = new Reservation
-            {
-                BookId = bookId,
-                UserId = userId,
-                ReserveDate = DateTime.Now,
-                Status = ReservationStatus.Pending
-            };
-
-            _context.Reservations.Add(reservation);
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] =
-                "Reservation created successfully.";
-
-            return RedirectToAction("Details", "Books", new { id = bookId });
-        }
+        return RedirectToAction(nameof(Index));
     }
 }

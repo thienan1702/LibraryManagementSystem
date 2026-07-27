@@ -6,18 +6,23 @@
 
 <h2>Reservations</h2>
 
-<table class="table table-bordered">
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        New Reservation
+    </a>
+</p>
+
+<table class="table table-bordered table-hover">
 
     <thead>
 
         <tr>
 
+            <th>Customer</th>
+            <th>Email</th>
             <th>Book</th>
-
-            <th>User</th>
-
+            <th>Quantity</th>
             <th>Date</th>
-
             <th>Status</th>
 
         </tr>
@@ -30,13 +35,54 @@
         {
             <tr>
 
+                <td>@item.CustomerName</td>
+
+                <td>@item.CustomerEmail</td>
+
                 <td>@item.Book?.Title</td>
 
-                <td>@item.User?.FullName</td>
+                <td>@item.Quantity</td>
 
-                <td>@item.ReserveDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.ReservationDate.ToString("dd/MM/yyyy")</td>
 
-                <td>@item.Status</td>
+                <td>
+
+                    @switch (item.Status)
+                    {
+                        case ReservationStatus.Waiting:
+
+                            <span class="badge bg-warning">
+                                Waiting
+                            </span>
+
+                            break;
+
+                        case ReservationStatus.Approved:
+
+                            <span class="badge bg-success">
+                                Approved
+                            </span>
+
+                            break;
+
+                        case ReservationStatus.Rejected:
+
+                            <span class="badge bg-danger">
+                                Rejected
+                            </span>
+
+                            break;
+
+                        default:
+
+                            <span class="badge bg-secondary">
+                                Cancelled
+                            </span>
+
+                            break;
+                    }
+
+                </td>
 
             </tr>
         }

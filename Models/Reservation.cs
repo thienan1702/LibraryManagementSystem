@@ -7,16 +7,25 @@ namespace LibraryManagement.Models
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string CustomerName { get; set; } = "";
 
-        public ApplicationUser User { get; set; }
+        [Required]
+        [EmailAddress]
+        public string CustomerEmail { get; set; } = "";
 
+        [Required]
         public int BookId { get; set; }
 
-        public Book Book { get; set; }
+        public Book? Book { get; set; }
 
-        public DateTime ReserveDate { get; set; } = DateTime.Now;
+        [Range(1, 100)]
+        public int Quantity { get; set; }
 
-        public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
+        public DateTime ReservationDate { get; set; } = DateTime.Now;
+
+        public ReservationStatus Status { get; set; }
+            = ReservationStatus.Waiting;
+
+        public string? Note { get; set; }
     }
 }
