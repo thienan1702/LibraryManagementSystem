@@ -22,6 +22,8 @@ namespace LibraryManagement.Data
         public DbSet<BorrowDetail> BorrowDetails { get; set; }
 
         public DbSet<AuditLog> AuditLogs { get; set; }
+
+        public DbSet<Reservation> Reservations { get; set; }
     }
 
 }
