@@ -112,9 +112,136 @@ namespace LibraryManagement.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(BorrowCreateVM vm)
+        public async Task<IActionResult> Create(BorrowCreateVM vm)
         {
-            return View(vm);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
+
+                return View(vm);
+            }
+
+            if (vm.Items == null || vm.Items.Count == 0)
+            {
+                ModelState.AddModelError("", "Please choose at least one book.");
+
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
+
+                return View(vm);
+            }
+
+            foreach (var item in vm.Items)
+            {
+                var book = await _context.Books.FindAsync(item.BookId);
+
+                if (book == null)
+                {
+                    ModelState.AddModelError("", "Book not found.");
+                }
+                else if (book.AvailableQuantity < item.Quantity)
+                {
+                    ModelState.AddModelError("", $"{book.Title} does not have enough quantity.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
+
+                return View(vm);
+            }
+
+            Borrow borrow = new Borrow
+            {
+                BorrowerName = vm.BorrowerName,
+                BorrowerEmail = vm.BorrowerEmail,
+                BorrowDate = vm.BorrowDate,
+                DueDate = vm.DueDate,
+                IsReturned = false,
+                ReturnDate = null
+            };
+
+            _context.Borrows.Add(borrow);
+
+            await _context.SaveChangesAsync();
+
+            foreach (var item in vm.Items)
+            {
+                var book = await _context.Books.FindAsync(item.BookId);
+
+                BorrowDetail detail = new BorrowDetail
+                {
+                    BorrowId = borrow.Id,
+                    BookId = item.BookId,
+                    Quantity = item.Quantity
+                };
+
+                _context.BorrowDetails.Add(detail);
+
+                book.AvailableQuantity -= item.Quantity;
+            }
+
+            await _context.SaveChangesAsync();
+
+            //================ EMAIL ================
+
+            string rows = "";
+
+            foreach (var item in vm.Items)
+            {
+                var book = await _context.Books.FindAsync(item.BookId);
+
+                rows += $@"
+<tr>
+    <td>{book.Title}</td>
+    <td>{item.Quantity}</td>
+</tr>";
+            }
+
+            await _email.SendAsync(
+                vm.BorrowerEmail,
+                "Library Borrow Confirmation",
+                $@"
+<h2>Library Management</h2>
+
+<p>Hello <b>{vm.BorrowerName}</b></p>
+
+<p>Your borrowing request has been created successfully.</p>
+
+<table border='1' cellpadding='8' cellspacing='0' width='100%'>
+
+<tr style='background:#0d6efd;color:white'>
+
+<th>Book</th>
+
+<th>Quantity</th>
+
+</tr>
+
+{rows}
+
+</table>
+
+<br>
+
+<p><b>Borrow Date:</b> {vm.BorrowDate:dd/MM/yyyy}</p>
+
+<p><b>Due Date:</b> {vm.DueDate:dd/MM/yyyy}</p>
+
+<p>Thank you for using our library.</p>");
+
+            TempData["Success"] = "Borrow created successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
 
 
@@ -143,7 +270,7 @@ namespace LibraryManagement.Controllers
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create(Borrow borrow,int BookId,int Quantity)
         //{
-            
+
         //    if (!ModelState.IsValid)
         //    {
         //        ViewBag.Users = _context.Users

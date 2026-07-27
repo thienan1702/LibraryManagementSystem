@@ -232,8 +232,9 @@
         `;
 
             $("#borrowTable").append(row);
+        let hidden=`
 
-            let hidden=`
+        <div id="hidden${index}">
 
         <input
         type="hidden"
@@ -245,6 +246,8 @@
         name="Items[${index}].Quantity"
         value="${qty}"/>
 
+        </div>
+
         `;
 
             $("#hiddenInputs").append(hidden);
@@ -253,12 +256,13 @@
 
         });
 
-        function removeRow(i){
+              function removeRow(i){
 
             $("#r"+i).remove();
 
-        }
+            $("#hidden"+i).remove();
 
+        }
     </script>
 
 }
