@@ -358,12 +358,6 @@ namespace LibraryManagement.Controllers
             if (borrow == null)
                 return NotFound();
 
-            if (borrow.IsReturned)
-            {
-                TempData["Error"] = "Book already returned.";
-                return RedirectToAction(nameof(Index));
-            }
-
             borrow.ReturnDate = DateTime.Now;
             borrow.IsReturned = true;
 
@@ -381,16 +375,64 @@ namespace LibraryManagement.Controllers
                 borrow.FineAmount = 0;
             }
 
-            foreach (var item in borrow.BorrowDetails)
+            foreach (var detail in borrow.BorrowDetails)
             {
-                item.Book.AvailableQuantity += item.Quantity;
+                detail.Book.AvailableQuantity += detail.Quantity;
             }
 
             await _context.SaveChangesAsync();
 
+            foreach (var detail in borrow.BorrowDetails)
+            {
+                await ProcessReservation(detail.BookId);
+            }
+
             TempData["Success"] = "Book returned successfully.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task ProcessReservation(int bookId)
+        {
+            var reservation = await _context.Reservations
+                .Include(x => x.Book)
+                .Where(x =>
+                    x.BookId == bookId &&
+                    x.Status == ReservationStatus.Waiting)
+                .OrderBy(x => x.ReservationDate)
+                .FirstOrDefaultAsync();
+
+            if (reservation == null)
+                return;
+
+            reservation.Status = ReservationStatus.Approved;
+
+            await _context.SaveChangesAsync();
+
+            await _email.SendAsync(
+                reservation.CustomerEmail,
+                "Reservation Approved",
+        $@"
+<h2>Library Management</h2>
+
+<p>Hello <b>{reservation.CustomerName}</b>,</p>
+
+<p>Your reservation has been approved.</p>
+
+<p>The book below is now available:</p>
+
+<table border='1' cellpadding='8' cellspacing='0'>
+<tr>
+<td><b>Book</b></td>
+<td>{reservation.Book.Title}</td>
+</tr>
+</table>
+
+<br/>
+
+<p>Please come to the library to borrow your book.</p>
+
+<p>Thank you.</p>");
         }
 
         public IActionResult Print(int id)

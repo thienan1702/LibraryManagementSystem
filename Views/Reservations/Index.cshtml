@@ -2,119 +2,287 @@
 
 @{
     ViewData["Title"] = "Reservations";
+
+    var waiting = Model.Count(x => x.Status == ReservationStatus.Waiting);
+    var approved = Model.Count(x => x.Status == ReservationStatus.Approved);
+    var rejected = Model.Count(x => x.Status == ReservationStatus.Rejected);
 }
+<div class="container-fluid">
 
-<h2>Reservations</h2>
+    <div class="card shadow-sm border-0 mb-4">
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">
-        New Reservation
-    </a>
-</p>
+        <div class="card-body d-flex justify-content-between align-items-center">
 
-<table class="table table-bordered table-hover">
+            <div>
 
-    <thead>
+                <h3 class="mb-1">
 
-        <tr>
+                    <i class="fas fa-bookmark text-primary"></i>
 
-            <th>Customer</th>
-            <th>Email</th>
-            <th>Book</th>
-            <th>Quantity</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th width="220">Action</th>
+                    Reservations
 
-        </tr>
+                </h3>
 
-    </thead>
+                <small class="text-muted">
 
-    <tbody>
+                    Manage all customer reservations
 
-        @foreach (var item in Model)
-        {
-            <tr>
+                </small>
 
-                <td>@item.CustomerName</td>
+            </div>
+            <a asp-action="Create"
+               class="btn btn-lg shadow-sm text-white"
+               style="
+        background:linear-gradient(135deg,#2563eb,#3b82f6);
+        border:none;
+        border-radius:14px;
+        font-weight:600;
+        padding:10px 24px;
+        transition:.25s;">
 
-                <td>@item.CustomerEmail</td>
+                <i class="fas fa-plus-circle me-2"></i>
 
-                <td>@item.Book?.Title</td>
+                New Reservation
 
-                <td>@item.Quantity</td>
+            </a>
 
-                <td>@item.ReservationDate.ToString("dd/MM/yyyy")</td>
+            <style>
+                .btn:hover {
+                    transform: translateY(-2px);
+                }
+            </style>
 
-                <td>
+        </div>
 
-                    @switch (item.Status)
+    </div>
+
+
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+
+            <div class="small-box bg-warning">
+
+                <div class="inner">
+
+                    <h3>@waiting</h3>
+
+                    <p>Waiting</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-clock"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="small-box bg-success">
+
+                <div class="inner">
+
+                    <h3>@approved</h3>
+
+                    <p>Approved</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-check-circle"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="small-box bg-danger">
+
+                <div class="inner">
+
+                    <h3>@rejected</h3>
+
+                    <p>Rejected</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-times-circle"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="bg-gradient-primary text-white">
+                    <tr>
+
+                        <th>Customer</th>
+
+                        <th>Email</th>
+
+                        <th>Book</th>
+
+                        <th width="90">Qty</th>
+
+                        <th width="120">Reservation Date</th>
+
+                        <th width="120">Status</th>
+
+                        <th width="220" class="text-center">
+
+                            Action
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
                     {
-                        case ReservationStatus.Waiting:
+                        <tr>
 
-                            <span class="badge bg-warning">
-                                Waiting
-                            </span>
+                            <td>
 
-                            break;
+                                <strong>@item.CustomerName</strong>
 
-                        case ReservationStatus.Approved:
+                            </td>
 
-                            <span class="badge bg-success">
-                                Approved
-                            </span>
+                            <td>
 
-                            break;
+                                @item.CustomerEmail
 
-                        case ReservationStatus.Rejected:
+                            </td>
 
-                            <span class="badge bg-danger">
-                                Rejected
-                            </span>
+                            <td>
 
-                            break;
+                                @item.Book?.Title
 
-                        default:
+                            </td>
 
-                            <span class="badge bg-secondary">
-                                Cancelled
-                            </span>
+                            <td>
 
-                            break;
+                                <span class="badge bg-info">
+
+                                    @item.Quantity
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                @item.ReservationDate.ToString("dd/MM/yyyy")
+
+                            </td>
+
+                            <td>
+
+                                @if (item.Status == ReservationStatus.Waiting)
+                                {
+                                    <span class="badge bg-warning">
+
+                                        <i class="fas fa-clock"></i>
+
+                                        Waiting
+
+                                    </span>
+                                }
+                                else if (item.Status == ReservationStatus.Approved)
+                                {
+                                    <span class="badge bg-success">
+
+                                        <i class="fas fa-check"></i>
+
+                                        Approved
+
+                                    </span>
+                                }
+                                else if (item.Status == ReservationStatus.Rejected)
+                                {
+                                    <span class="badge bg-danger">
+
+                                        <i class="fas fa-times"></i>
+
+                                        Rejected
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+
+                                        Cancelled
+
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td class="text-center">
+
+                                @if (item.Status == ReservationStatus.Waiting)
+                                {
+                                    <a asp-action="Approve"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-success btn-sm">
+
+                                        <i class="fas fa-check"></i>
+
+                                    </a>
+
+                                    <a asp-action="Reject"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-danger btn-sm">
+
+                                        <i class="fas fa-times"></i>
+
+                                    </a>
+                                }
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-info btn-sm">
+
+                                    <i class="fas fa-eye"></i>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
                     }
 
-                </td>
+                </tbody>
 
-                <td>
+            </table>
 
-                    @if (item.Status == ReservationStatus.Waiting)
-                    {
-                        <a asp-action="Approve"
-                           asp-route-id="@item.Id"
-                           class="btn btn-success btn-sm">
+        </div>
 
-                            <i class="fas fa-check"></i>
+    </div>
 
-                            Approve
-
-                        </a>
-
-                        <a asp-action="Reject"
-                           asp-route-id="@item.Id"
-                           class="btn btn-danger btn-sm">
-
-                            <i class="fas fa-times"></i>
-
-                            Reject
-
-                        </a>
-                    }
-
-                </td>
-
-            </tr>
-        }
-
-    </tbody>
-
-</table>
+</div>
