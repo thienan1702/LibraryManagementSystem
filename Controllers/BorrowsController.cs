@@ -124,6 +124,65 @@ namespace LibraryManagement.Controllers
                 return View(vm);
             }
 
+            //=========================================================
+            // BUSINESS RULE
+            //=========================================================
+
+            // 1. Người này còn sách chưa trả?
+            bool hasOverdue = await _context.Borrows.AnyAsync(x =>
+               x.BorrowerEmail == vm.BorrowerEmail &&
+               !x.IsReturned &&
+               x.DueDate < DateTime.Today);
+
+            // 2. Người này còn tiền phạt chưa thanh toán?
+            bool hasUnpaidFine = await _context.Borrows.AnyAsync(x =>
+                x.BorrowerEmail == vm.BorrowerEmail &&
+                x.FineAmount > 0 &&
+                !x.IsPaid);
+
+            // 3. Đang giữ bao nhiêu quyển sách?
+            int currentBooks = await _context.BorrowDetails
+                .Include(x => x.Borrow)
+                .Where(x =>
+                    x.Borrow.BorrowerEmail == vm.BorrowerEmail &&
+                    !x.Borrow.IsReturned)
+                .SumAsync(x => x.Quantity);
+
+            // 4. Người dùng đang mượn thêm bao nhiêu quyển?
+            int requestBooks = vm.Items?.Sum(x => x.Quantity) ?? 0;
+
+            if (hasOverdue)
+            {
+                ModelState.AddModelError("",
+                    "Borrower has overdue books.");
+            }
+
+            if (hasUnpaidFine)
+            {
+                ModelState.AddModelError("",
+                    "This borrower still has unpaid fines.");
+            }
+
+            if (currentBooks + requestBooks > 3)
+            {
+                ModelState.AddModelError("",
+                    "A borrower can borrow a maximum of 3 books.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Books = _context.Books
+                    .Where(x => x.AvailableQuantity > 0)
+                    .OrderBy(x => x.Title)
+                    .ToList();
+
+                return View(vm);
+            }
+
+            //=========================================================
+            // Kiểm tra dữ liệu mượn
+            //=========================================================
+
             if (vm.Items == null || vm.Items.Count == 0)
             {
                 ModelState.AddModelError("", "Please choose at least one book.");
@@ -160,6 +219,10 @@ namespace LibraryManagement.Controllers
                 return View(vm);
             }
 
+            //=========================================================
+            // Tạo Borrow
+            //=========================================================
+
             Borrow borrow = new Borrow
             {
                 BorrowerName = vm.BorrowerName,
@@ -167,30 +230,16 @@ namespace LibraryManagement.Controllers
                 BorrowDate = vm.BorrowDate,
                 DueDate = vm.DueDate,
                 IsReturned = false,
-                ReturnDate = null
+                ReturnDate = null,
+                FineAmount = 0,
+                IsPaid = true
             };
 
             _context.Borrows.Add(borrow);
 
             await _context.SaveChangesAsync();
 
-            foreach (var item in vm.Items)
-            {
-                var book = await _context.Books.FindAsync(item.BookId);
-
-                BorrowDetail detail = new BorrowDetail
-                {
-                    BorrowId = borrow.Id,
-                    BookId = item.BookId,
-                    Quantity = item.Quantity
-                };
-
-                _context.BorrowDetails.Add(detail);
-
-                book.AvailableQuantity -= item.Quantity;
-            }
-
-            await _context.SaveChangesAsync();
+            
 
             //================ EMAIL ================
 
@@ -503,22 +552,37 @@ namespace LibraryManagement.Controllers
             if (borrow == null)
                 return NotFound();
 
+            // Đánh dấu đã trả
             borrow.ReturnDate = DateTime.Now;
             borrow.IsReturned = true;
+
+            //==============================
+            // Fine Management
+            //==============================
 
             const decimal finePerDay = 10000;
 
             if (borrow.ReturnDate.Value.Date > borrow.DueDate.Date)
             {
-                int overdue =
+                int overdueDays =
                     (borrow.ReturnDate.Value.Date - borrow.DueDate.Date).Days;
 
-                borrow.FineAmount = overdue * finePerDay;
+                borrow.FineAmount = overdueDays * finePerDay;
+
+                // Có tiền phạt => chưa thanh toán
+                borrow.IsPaid = false;
             }
             else
             {
                 borrow.FineAmount = 0;
+
+                // Không có tiền phạt => xem như đã thanh toán
+                borrow.IsPaid = true;
             }
+
+            //==============================
+            // Cập nhật lại số lượng sách
+            //==============================
 
             foreach (var detail in borrow.BorrowDetails)
             {
@@ -527,16 +591,27 @@ namespace LibraryManagement.Controllers
 
             await _context.SaveChangesAsync();
 
+            //==============================
+            // Xử lý Reservation
+            //==============================
+
             foreach (var detail in borrow.BorrowDetails)
             {
                 await ProcessReservation(detail.BookId);
             }
 
-            TempData["Success"] = "Book returned successfully.";
+            if (borrow.FineAmount > 0)
+            {
+                TempData["Warning"] =
+                    $"Book returned successfully. Fine: {borrow.FineAmount:N0} VND. Please complete payment.";
+            }
+            else
+            {
+                TempData["Success"] = "Book returned successfully.";
+            }
 
             return RedirectToAction(nameof(Index));
         }
-
         private async Task ProcessReservation(int bookId)
         {
             var reservation = await _context.Reservations
@@ -578,6 +653,36 @@ namespace LibraryManagement.Controllers
 <p>Please come to the library to borrow your book.</p>
 
 <p>Thank you.</p>");
+        }
+
+
+
+        public async Task<IActionResult> FineManagement()
+        {
+            var fines = await _context.Borrows
+                .Where(x => x.FineAmount > 0)
+                .OrderByDescending(x => x.ReturnDate)
+                .ToListAsync();
+
+            return View(fines);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PayFine(int id)
+        {
+            var borrow = await _context.Borrows.FindAsync(id);
+
+            if (borrow == null)
+                return NotFound();
+
+            borrow.IsPaid = true;
+            borrow.PaidDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Fine paid successfully.";
+
+            return RedirectToAction(nameof(FineManagement));
         }
 
         public IActionResult Print(int id)

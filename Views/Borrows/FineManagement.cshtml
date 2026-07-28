@@ -1,0 +1,178 @@
+﻿@model IEnumerable<LibraryManagement.Models.Borrow>
+
+@{
+    ViewData["Title"] = "Fine Management";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                <i class="fas fa-money-bill-wave text-danger"></i>
+                Fine Management
+            </h2>
+
+            <small class="text-muted">
+                Manage overdue fines
+            </small>
+        </div>
+
+    </div>
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-danger text-white">
+
+            <i class="fas fa-exclamation-circle"></i>
+
+            Outstanding Fines
+
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Borrower</th>
+
+                        <th>Email</th>
+
+                        <th>Borrow Date</th>
+
+                        <th>Due Date</th>
+
+                        <th>Return Date</th>
+
+                        <th>Fine</th>
+
+                        <th>Status</th>
+
+                        <th width="140"></th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+
+                        <tr>
+
+                            <td>
+
+                                <strong>@item.BorrowerName</strong>
+
+                            </td>
+
+                            <td>
+
+                                @item.BorrowerEmail
+
+                            </td>
+
+                            <td>
+
+                                @item.BorrowDate.ToString("dd/MM/yyyy")
+
+                            </td>
+
+                            <td>
+
+                                @item.DueDate.ToString("dd/MM/yyyy")
+
+                            </td>
+
+                            <td>
+
+                                @(item.ReturnDate?.ToString("dd/MM/yyyy"))
+
+                            </td>
+
+                            <td>
+
+                                <span class="fw-bold text-danger">
+
+                                    @item.FineAmount.ToString("N0") đ
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                @if (item.IsPaid)
+                                {
+                                    <span class="badge bg-success">
+
+                                        Paid
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+
+                                        Unpaid
+
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                @if (!item.IsPaid)
+                                {
+                                    <form asp-action="PayFine"
+                                          method="post">
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@item.Id" />
+
+                                        <button class="btn btn-success btn-sm w-100">
+
+                                            <i class="fas fa-check-circle"></i>
+
+                                            Pay
+
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <small class="text-success">
+
+                                        Paid on
+
+                                        <br />
+
+                                        @item.PaidDate?.ToString("dd/MM/yyyy")
+
+                                    </small>
+                                }
+
+                            </td>
+
+                        </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
