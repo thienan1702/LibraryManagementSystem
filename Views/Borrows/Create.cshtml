@@ -1,104 +1,194 @@
-﻿@model LibraryManagement.ViewModels.BorrowCreateVM
+﻿@model  LibraryManagement.ViewModels.BorrowCreateVM
 
 @{
     ViewData["Title"] = "Borrow Books";
     var books = ViewBag.Books as List<LibraryManagement.Models.Book>;
 }
 
-<div class="container-fluid">
+<div class="container py-4">
 
-    <div class="card shadow border-0">
+    <div class="page-card mb-4">
 
-        <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
 
-            <h3 class="mb-0">
+            <div>
 
-                <i class="fas fa-book-reader"></i>
+                <div class="page-title">
 
-                Borrow Books
+                    <i class="fas fa-book-reader text-primary"></i>
 
-            </h3>
+                    Borrow Books
+
+                </div>
+
+                <div class="page-subtitle">
+
+                    Create a borrowing slip with multiple books
+
+                </div>
+
+            </div>
+
+            <a asp-action="Index" class="btn btn-outline-secondary">
+
+                <i class="fas fa-arrow-left"></i>
+
+                Back
+
+            </a>
 
         </div>
 
-        <div class="card-body">
+    </div>
 
-            <form asp-action="Create" method="post">
+    <form asp-action="Create" method="post">
 
-                <div asp-validation-summary="ModelOnly"
-                     class="text-danger mb-3">
-                </div>
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"></div>
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-primary text-white">
+
+                <i class="fas fa-user"></i>
+
+                Borrower Information
+
+            </div>
+
+            <div class="card-body">
 
                 <div class="row">
 
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
 
-                        <label class="form-label">
-
-                            Borrower Name
-
-                        </label>
+                        <label asp-for="BorrowerName"
+                               class="form-label"></label>
 
                         <input asp-for="BorrowerName"
-                               class="form-control" />
+                               class="form-control"/>
+
+                        <span asp-validation-for="BorrowerName"
+                              class="text-danger"></span>
 
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
 
-                        <label class="form-label">
-
-                            Email
-
-                        </label>
+                        <label asp-for="BorrowerEmail"
+                               class="form-label"></label>
 
                         <input asp-for="BorrowerEmail"
-                               class="form-control" />
+                               class="form-control"/>
+
+                        <span asp-validation-for="BorrowerEmail"
+                              class="text-danger"></span>
 
                     </div>
 
                 </div>
-
-                <div class="row mt-3">
-
-                    <div class="col-md-6">
-
-                        <label>Borrow Date</label>
-
-                        <input asp-for="BorrowDate"
-                               class="form-control" />
-
-                    </div>
-
-                    <div class="col-md-6">
-
-                        <label>Due Date</label>
-
-                        <input asp-for="DueDate"
-                               class="form-control" />
-
-                    </div>
-
-                </div>
-
-                <hr />
 
                 <div class="row">
 
-                    <div class="col-md-7">
+                    <div class="col-md-6">
 
-                        <label>Book</label>
+                        <label asp-for="BorrowDate"
+                               class="form-label"></label>
+
+                        <input asp-for="BorrowDate"
+                               class="form-control"/>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label asp-for="DueDate"
+                               class="form-label"></label>
+
+                        <input asp-for="DueDate"
+                               class="form-control"/>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+
+                <div class="card border-primary">
+
+                    <div class="card-body text-center">
+
+                        <h2 id="bookCount">0</h2>
+
+                        <div>Books</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-success">
+
+                    <div class="card-body text-center">
+
+                        <h2 id="totalQty">0</h2>
+
+                        <div>Total Quantity</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-success text-white">
+
+                <i class="fas fa-plus-circle"></i>
+
+                Add Book
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-8">
+
+                        <label class="form-label">
+
+                            Book
+
+                        </label>
 
                         <select id="bookSelect"
-                                class="form-select">
+                                class="form-select select-book">
 
-                            @foreach (var item in books)
+                            <option value="">
+
+                                Select Book
+
+                            </option>
+
+                            @foreach (var book in books)
                             {
-                                <option value="@item.Id"
-                                        data-title="@item.Title">
+                                <option value="@book.Id">
 
-                                    @item.Title
-                                    (@item.AvailableQuantity)
+                                    @book.Title
+                                    (@book.AvailableQuantity)
 
                                 </option>
                             }
@@ -107,25 +197,35 @@
 
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
 
-                        <label>Quantity</label>
+                        <label class="form-label">
 
-                        <input id="qty"
-                               type="number"
-                               value="1"
-                               min="1"
-                               class="form-control" />
+                            Quantity
+
+                        </label>
+
+                        <input
+                            id="qty"
+                            type="number"
+                            class="form-control"
+                            min="1"
+                            value="1"/>
 
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
+                    <div class="col-md-2 d-grid">
 
-                        <button type="button"
-                                id="btnAdd"
-                                class="btn btn-success w-100">
+                        <label>&nbsp;</label>
+
+                        <button
+                            type="button"
+                            id="btnAdd"
+                            class="btn btn-success">
 
                             <i class="fas fa-plus"></i>
+
+                            Add
 
                         </button>
 
@@ -133,59 +233,66 @@
 
                 </div>
 
-                <hr />
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover table-bordered align-middle">
-
-                        <thead class="table-primary">
-
-                            <tr>
-
-                                <th>Book</th>
-
-                                <th width="120">
-
-                                    Qty
-
-                                </th>
-
-                                <th width="90">
-
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="borrowTable">
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <div id="hiddenInputs">
-                </div>
-
-                <div class="text-end">
-
-                    <button class="btn btn-primary btn-lg">
-
-                        <i class="fas fa-save"></i>
-
-                        Borrow
-
-                    </button>
-
-                </div>
-
-            </form>
+            </div>
 
         </div>
 
-    </div>
+        <div class="card shadow">
+
+            <div class="card-header bg-dark text-white">
+
+                <i class="fas fa-list"></i>
+
+                Borrow List
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <table class="table table-hover mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th width="60">#</th>
+
+                            <th>Book</th>
+
+                            <th width="170">Quantity</th>
+
+                            <th width="120">Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="borrowTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div id="hiddenArea"></div>
+
+        <div class="text-end mt-4">
+
+            <button
+                class="btn btn-success btn-lg px-5">
+
+                <i class="fas fa-save"></i>
+
+                Create Borrow
+
+            </button>
+
+        </div>
+
+    </form>
 
 </div>
 
@@ -195,31 +302,139 @@
 
     <script>
 
-        let index=0;
+        let index = 0;
 
-        $("#btnAdd").click(function(){
+        let selectedBooks = [];
 
-            let id=$("#bookSelect").val();
+        $(function () {
 
-            let title=$("#bookSelect option:selected").data("title");
+            $(".select-book").select2({
+                width: "100%",
+                placeholder: "Search book..."
+            });
 
-            let qty=$("#qty").val();
+            $("#btnAdd").click(function () {
 
-            let row=`
+                addBook();
 
-        <tr id="r${index}">
+            });
 
-        <td>${title}</td>
+        });
 
-        <td>${qty}</td>
+        function updateSummary() {
+
+            $("#bookCount").text(selectedBooks.length);
+
+            let total = 0;
+
+            $("input[id^='qtyHidden']").each(function () {
+
+                total += parseInt($(this).val()) || 0;
+
+            });
+
+            $("#totalQty").text(total);
+
+        }
+
+        function addBook() {
+
+            let id = $("#bookSelect").val();
+
+            if (id == "") {
+
+                alert("Please select a book.");
+
+                return;
+
+            }
+
+            id = parseInt(id);
+
+            if (selectedBooks.includes(id)) {
+
+                alert("This book has already been selected.");
+
+                return;
+
+            }
+
+            let title = $("#bookSelect option:selected").text();
+
+            let qty = parseInt($("#qty").val());
+
+            if (qty <= 0 || isNaN(qty)) {
+
+                alert("Quantity must be greater than zero.");
+
+                return;
+
+            }
+
+            selectedBooks.push(id);
+
+            let row = `
+        <tr id="row${index}">
+
+        <td class="text-center">
+
+        ${index + 1}
+
+        </td>
 
         <td>
 
+        ${title}
+
+        </td>
+
+        <td>
+
+        <div class="input-group input-group-sm">
+
         <button
         type="button"
+        class="btn btn-outline-secondary"
+
+        onclick="minus(${index})">
+
+        -
+
+        </button>
+
+        <input
+        type="text"
+        class="form-control text-center"
+
+        id="qtyDisplay${index}"
+
+        value="${qty}"
+
+        readonly/>
+
+        <button
+        type="button"
+        class="btn btn-outline-secondary"
+
+        onclick="plus(${index})">
+
+        +
+
+        </button>
+
+        </div>
+
+        </td>
+
+        <td class="text-center">
+
+        <button
+
+        type="button"
+
         class="btn btn-danger btn-sm"
 
-        onclick="removeRow(${index})">
+        onclick="removeBook(${index},${id})">
 
         <i class="fas fa-trash"></i>
 
@@ -228,174 +443,306 @@
         </td>
 
         </tr>
-
         `;
 
             $("#borrowTable").append(row);
-        let hidden=`
+
+            $("#hiddenArea").append(`
 
         <div id="hidden${index}">
 
         <input
+
         type="hidden"
+
         name="Items[${index}].BookId"
+
         value="${id}"/>
 
         <input
+
         type="hidden"
+
         name="Items[${index}].Quantity"
+
+        id="qtyHidden${index}"
+
         value="${qty}"/>
 
         </div>
 
-        `;
-
-            $("#hiddenInputs").append(hidden);
+        `);
 
             index++;
 
-        });
+            updateSummary();
 
-              function removeRow(i){
+        }
 
-            $("#r"+i).remove();
+        function plus(i){
+
+            let value=parseInt($("#qtyHidden"+i).val());
+
+            value++;
+
+            $("#qtyHidden"+i).val(value);
+
+            $("#qtyDisplay"+i).val(value);
+
+            updateSummary();
+
+        }
+
+        function minus(i){
+
+            let value=parseInt($("#qtyHidden"+i).val());
+
+            if(value>1){
+
+                value--;
+
+                $("#qtyHidden"+i).val(value);
+
+                $("#qtyDisplay"+i).val(value);
+
+            }
+
+            updateSummary();
+
+        }
+
+        function removeBook(i,id){
+
+            $("#row"+i).remove();
 
             $("#hidden"+i).remove();
 
+            selectedBooks = selectedBooks.filter(x=>x!=id);
+
+            updateSummary();
+
         }
+
     </script>
 
 }
-
 <style>
 
+    body {
+        background: #f5f7fb;
+    }
+
+    /*==============================
+        PAGE
+    ==============================*/
+
     .page-card {
-        background: #fff;
-        border-radius: 14px;
-        padding: 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,.08);
+        background: white;
+        border-radius: 20px;
+        padding: 25px 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,.08);
     }
 
     .page-title {
-        font-size: 28px;
+        font-size: 30px;
         font-weight: 700;
+        color: #1b1b1b;
     }
 
     .page-subtitle {
         color: #6c757d;
-        margin-top: 4px;
+        margin-top: 6px;
     }
+
+    /*==============================
+        CARD
+    ==============================*/
 
     .card {
-        border-radius: 16px;
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        transition: .3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
     }
 
-    .form-label {
-        color: #444;
-        margin-bottom: 8px;
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.10);
+        }
+
+    .card-header {
+        font-size: 17px;
+        font-weight: 600;
+        padding: 14px 20px;
+        border: none;
     }
+
+    /*==============================
+        INPUT
+    ==============================*/
 
     .form-control,
     .form-select {
-        border-radius: 10px;
-        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid #dcdcdc;
+        padding: 11px 14px;
         transition: .25s;
     }
 
         .form-control:focus,
         .form-select:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 .18rem rgba(13,110,253,.15);
+            box-shadow: 0 0 0 .18rem rgba(13,110,253,.18);
         }
 
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    /*==============================
+        BUTTON
+    ==============================*/
+
     .btn {
-        border-radius: 10px;
-        padding: 10px 18px;
+        border-radius: 12px;
+        transition: .25s;
         font-weight: 600;
     }
 
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
     .btn-success {
-        background: #198754;
+        background: #16a34a;
         border: none;
     }
 
-        .btn-success:hover {
-            transform: translateY(-2px);
-            transition: .2s;
-        }
-
-    .btn-outline-secondary:hover {
-        transform: translateY(-2px);
-        transition: .2s;
+    .btn-primary {
+        border: none;
     }
 
-    #stockText {
-        font-size: 28px;
+    .btn-danger {
+        border: none;
+    }
+
+    /*==============================
+        TABLE
+    ==============================*/
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead {
+            background: #f3f6fb;
+        }
+
+            .table thead th {
+                font-weight: 700;
+                color: #444;
+                border: none;
+            }
+
+        .table tbody td {
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: .25s;
+        }
+
+            .table tbody tr:hover {
+                background: #f9fbff;
+            }
+
+    /*==============================
+        SUMMARY
+    ==============================*/
+
+    .border-primary {
+        border: 2px solid #0d6efd !important;
+    }
+
+    .border-success {
+        border: 2px solid #16a34a !important;
+    }
+
+    #bookCount {
+        color: #0d6efd;
+        font-size: 40px;
         font-weight: 700;
     }
 
-    .card.border-success {
-        border-width: 2px !important;
+    #totalQty {
+        color: #16a34a;
+        font-size: 40px;
+        font-weight: 700;
     }
 
-    input[type=date] {
-        cursor: pointer;
+    /*==============================
+        SELECT2
+    ==============================*/
+
+    .select2-container--default .select2-selection--single {
+        height: 46px;
+        border-radius: 12px;
+        border: 1px solid #dcdcdc;
     }
 
-    input[readonly] {
-        background: #f8f9fa;
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 44px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px;
+        }
+
+    /*==============================
+        PLUS MINUS
+    ==============================*/
+
+    .input-group-sm button {
+        width: 42px;
     }
+
+    .input-group-sm input {
+        text-align: center;
+        font-weight: 600;
+    }
+
+    /*==============================
+        ALERT
+    ==============================*/
 
     .alert {
-        border-radius: 10px;
+        border-radius: 12px;
     }
 
-    .text-danger {
-        font-size: .9rem;
+    /*==============================
+        RESPONSIVE
+    ==============================*/
+
+    @@media(max - width:768px) {
+        .page-card
+
+    {
+        padding: 20px;
     }
 
-    @@media(max-width:992px) {
-
-        .page-title {
-            font-size: 22px;
-        }
-
-        .card-body {
-            padding: 18px !important;
-        }
+    .page-title {
+        font-size: 24px;
     }
 
-    @@media(max-width:768px) {
-
-        .text-end {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-            .text-end .btn {
-                width: 100%;
-            }
-
-        #stockText {
-            font-size: 22px;
-        }
+    .text-end {
+        text-align: center !important;
     }
 
-    @@media(max-width:576px) {
-
-        .page-card {
-            padding: 18px;
+        .text-end .btn {
+            width: 100%;
         }
 
-        .page-title {
-            font-size: 20px;
-        }
-
-        .page-subtitle {
-            font-size: 13px;
-        }
     }
-
 </style>

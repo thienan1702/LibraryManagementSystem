@@ -55,7 +55,8 @@ namespace LibraryManagement.Controllers
             for (int i = 1; i <= 12; i++)
             {
                 monthlyBorrow[i - 1] = _context.Borrows
-                    .Count(x => x.BorrowDate.Month == i);
+                    .Count(x => x.BorrowDate.Month == i &&
+                                x.BorrowDate.Year == DateTime.Now.Year);
             }
 
             ViewBag.MonthlyBorrow =
@@ -67,6 +68,80 @@ namespace LibraryManagement.Controllers
                     !x.IsReturned &&
                     x.ReturnDate < DateTime.Now)
                 .ToList();
+
+            ViewBag.RecentBorrow = await _context.Borrows
+            .OrderByDescending(x => x.BorrowDate)
+            .Take(5)
+            .ToListAsync();
+
+
+            ViewBag.TopBorrowers = _context.Borrows
+
+            .GroupBy(x => x.BorrowerName)
+
+            .Select(x => new {
+
+                Name = x.Key,
+
+                Total = x.Count()
+
+            })
+
+            .OrderByDescending(x => x.Total)
+
+            .Take(10)
+
+            .ToList();
+
+            ViewBag.RecentBorrow =
+            _context.Borrows
+            .OrderByDescending(x => x.BorrowDate)
+            .Take(6)
+            .ToList();
+
+            ViewBag.RecentActivities = _context.Borrows
+            .OrderByDescending(x => x.Id)
+            .Take(8)
+            .Select(x => new
+            {
+                x.BorrowerName,
+                x.BorrowDate,
+                x.IsReturned
+            })
+            .ToList();
+
+
+
+            var category = _context.Books
+    .Include(x => x.Category)
+    .GroupBy(x => x.Category.Name)
+    .Select(x => new
+    {
+        Name = x.Key,
+        Total = x.Count()
+    })
+    .ToList();
+
+            ViewBag.CategoryLabel =
+                JsonSerializer.Serialize(category.Select(x => x.Name));
+
+            ViewBag.CategoryValue =
+                JsonSerializer.Serialize(category.Select(x => x.Total));
+
+
+            ViewBag.TodayBorrow =
+_context.Borrows.Count(x => x.BorrowDate.Date == DateTime.Today);
+
+            ViewBag.TodayReturn =
+            _context.Borrows.Count(x => x.ReturnDate != null &&
+            x.ReturnDate.Value.Date == DateTime.Today);
+
+            ViewBag.TotalReservation =
+            _context.Reservations.Count();
+
+            ViewBag.TotalFine =
+            _context.Borrows.Sum(x => x.FineAmount);
+
 
             return View();
         }

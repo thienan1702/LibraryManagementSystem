@@ -38,6 +38,10 @@ namespace LibraryManagement.Models
 
         public decimal FineAmount { get; set; }
 
+        public bool IsPaid { get; set; } = false;
+
+        public DateTime? PaidDate { get; set; }
+
         public ICollection<BorrowDetail> BorrowDetails { get; set; }
             = new List<BorrowDetail>();
     }

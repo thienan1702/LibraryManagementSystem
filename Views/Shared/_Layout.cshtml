@@ -35,6 +35,9 @@
           href="~/css/admin.css"
           asp-append-version="true" />
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -59,7 +62,34 @@
 
                 </li>
 
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link"
+                       href="#"
+                       data-bs-toggle="dropdown">
+
+                        <i class="far fa-bell fa-lg"></i>
+
+                        <span id="notifyCount"
+                              class="badge bg-danger navbar-badge">
+
+                            0
+
+                        </span>
+
+                    </a>
+
+                    <div id="notifyMenu"
+                         class="dropdown-menu dropdown-menu-end notification-menu">
+
+                        Loading...
+
+                    </div>
+
+                </li>
             </ul>
+
+           
 
             <ul class="navbar-nav ms-auto">
 
@@ -164,6 +194,19 @@
                                     <p>Publishers</p>
                                 </a>
                             </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Fines"
+                                   asp-action="Index"
+                                   class="nav-link">
+
+                                    <i class="fas fa-money-bill-wave"></i>
+
+                                    <p>Fine Management</p>
+
+                                </a>
+                            </li>
+
                         }
 
                         @if (User.IsInRole("Admin"))
@@ -257,6 +300,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     @if (TempData["Success"] != null)
     {
         <script>
@@ -279,6 +325,117 @@
 
         </script>
     }
+
+    <script>
+
+        let lastCount = 0;
+
+        function loadNotification(){
+
+            $.get("/Notifications/GetReservationNotification",function(res){
+
+                $("#notifyCount").text(res.total);
+
+                let html="";
+
+                html+=`
+                    <div class="dropdown-header">
+                        Notifications
+                    </div>
+                `;
+
+                if(res.total==0){
+
+                    html+=`
+                        <div class="dropdown-item text-center">
+
+                            No notification
+
+                        </div>
+                    `;
+
+                }
+                else{
+
+                    res.items.forEach(function(i){
+
+                        html+=`
+
+                        <a
+                            class="dropdown-item"
+                            href="/Reservations">
+
+                            <div>
+
+                                <b>${i.customerName}</b>
+
+                            </div>
+
+                            <small>
+
+                                Reserved
+                                ${i.book}
+
+                            </small>
+
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        `;
+
+                    });
+
+                }
+
+                html+=`
+
+                <a
+                    href="/Reservations"
+                    class="dropdown-item text-center">
+
+                    View All
+
+                </a>
+
+                `;
+
+                $("#notifyMenu").html(html);
+
+                if(res.total>lastCount){
+
+                    Swal.fire({
+
+                        toast:true,
+
+                        position:'top-end',
+
+                        icon:'info',
+
+                        title:'New Reservation',
+
+                        timer:2000,
+
+                        showConfirmButton:false
+
+                    });
+
+                    animateBell();
+
+                }
+
+                lastCount=res.total;
+
+            });
+
+        }
+
+        loadNotification();
+
+        setInterval(loadNotification,10000);
+
+    </script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 

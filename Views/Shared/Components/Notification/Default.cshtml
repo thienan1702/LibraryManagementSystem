@@ -1,0 +1,78 @@
+﻿@model List<LibraryManagement.Models.Reservation>
+
+<li class="nav-item dropdown">
+
+    <a class="nav-link"
+       href="#"
+       data-bs-toggle="dropdown">
+
+        <i class="far fa-bell fa-lg"></i>
+
+        @if (ViewBag.Total > 0)
+        {
+            <span class="badge bg-danger navbar-badge">
+
+                @ViewBag.Total
+
+            </span>
+        }
+
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-end shadow-lg notification-menu">
+
+        <h6 class="dropdown-header">
+
+            Notifications
+
+        </h6>
+
+        @if (Model.Count == 0)
+        {
+            <div class="dropdown-item text-center">
+
+                No notification
+
+            </div>
+        }
+
+        @foreach (var item in Model)
+        {
+            <a asp-controller="Reservations"
+               asp-action="Index"
+               class="dropdown-item">
+
+                <div>
+
+                    <strong>
+
+                        @item.CustomerName
+
+                    </strong>
+
+                </div>
+
+                <small>
+
+                    Reserved
+
+                    <b>@item.Book?.Title</b>
+
+                </small>
+
+            </a>
+
+            <div class="dropdown-divider"></div>
+        }
+
+        <a asp-controller="Reservations"
+           asp-action="Index"
+           class="dropdown-item text-center fw-bold">
+
+            View All
+
+        </a>
+
+    </div>
+
+</li>
