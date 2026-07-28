@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Report Center";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+
+        <h2 class="fw-bold">
+            <i class="fas fa-chart-bar text-primary"></i>
+            Report Center
+        </h2>
+
+        <p class="text-muted">
+            Export reports in Excel and PDF format.
+        </p>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Borrow -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow border-0 h-100 report-card">
+
+                <div class="card-body text-center">
+
+                    <i class="fas fa-book-reader fa-4x text-primary mb-3"></i>
+
+                    <h4>Borrow Report</h4>
+
+                    <p class="text-muted">
+                        Borrow history and statistics.
+                    </p>
+
+                    <a asp-action="BorrowReport"
+                       class="btn btn-primary">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Fine -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow border-0 h-100 report-card">
+
+                <div class="card-body text-center">
+
+                    <i class="fas fa-money-bill-wave fa-4x text-success mb-3"></i>
+
+                    <h4>Fine Report</h4>
+
+                    <p class="text-muted">
+                        Paid and unpaid fines.
+                    </p>
+
+                    <a asp-action="FineReport"
+                       class="btn btn-success">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Inventory -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow border-0 h-100 report-card">
+
+                <div class="card-body text-center">
+
+                    <i class="fas fa-boxes fa-4x text-warning mb-3"></i>
+
+                    <h4>Inventory Report</h4>
+
+                    <p class="text-muted">
+                        Available books and stock.
+                    </p>
+
+                    <a asp-action="InventoryReport"
+                       class="btn btn-warning text-white">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Overdue -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow border-0 h-100 report-card">
+
+                <div class="card-body text-center">
+
+                    <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+
+                    <h4>Overdue Report</h4>
+
+                    <p class="text-muted">
+                        Late return information.
+                    </p>
+
+                    <a asp-action="OverdueReport"
+                       class="btn btn-danger">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Top Books -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow border-0 h-100 report-card">
+
+                <div class="card-body text-center">
+
+                    <i class="fas fa-fire fa-4x text-info mb-3"></i>
+
+                    <h4>Top Borrowed Books</h4>
+
+                    <p class="text-muted">
+                        Most borrowed books.
+                    </p>
+
+                    <a asp-action="TopBooksReport"
+                       class="btn btn-info text-white">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    .report-card {
+        transition: .3s;
+        border-radius: 15px;
+    }
+
+        .report-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,.15) !important;
+        }
+
+        .report-card i {
+            transition: .3s;
+        }
+
+        .report-card:hover i {
+            transform: scale(1.15);
+        }
+
+</style>

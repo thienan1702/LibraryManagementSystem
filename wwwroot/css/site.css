@@ -240,3 +240,16 @@ body {
     .quick-btn:hover {
         transform: translateY(-5px);
     }
+
+.table-light th {
+    color: #212529 !important;
+    font-weight: 700;
+    background: #f8f9fa !important;
+}
+.table thead th {
+    color: #212529 !important;
+    font-weight: 700 !important;
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    vertical-align: middle;
+}

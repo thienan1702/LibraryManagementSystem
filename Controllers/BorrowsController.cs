@@ -238,8 +238,29 @@ namespace LibraryManagement.Controllers
             _context.Borrows.Add(borrow);
 
             await _context.SaveChangesAsync();
+            //=========================================================
+            // Tạo BorrowDetail + cập nhật số lượng sách
+            //=========================================================
 
-            
+            foreach (var item in vm.Items)
+            {
+                var book = await _context.Books.FindAsync(item.BookId);
+
+                BorrowDetail detail = new BorrowDetail
+                {
+                    BorrowId = borrow.Id,
+                    BookId = item.BookId,
+                    Quantity = item.Quantity
+                };
+
+                _context.BorrowDetails.Add(detail);
+
+                // Giảm số lượng sách còn lại
+                book.AvailableQuantity -= item.Quantity;
+            }
+
+            await _context.SaveChangesAsync();
+
 
             //================ EMAIL ================
 
