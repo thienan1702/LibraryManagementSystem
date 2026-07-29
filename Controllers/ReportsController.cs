@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using LibraryManagement.Data;
+using LibraryManagement.Reports;
 using LibraryManagement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
 
 namespace LibraryManagement.Controllers
 {
@@ -19,6 +21,23 @@ namespace LibraryManagement.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+
+        public async Task<IActionResult> ExportPdf()
+        {
+            var borrows = await _context.Borrows
+                .OrderByDescending(x => x.BorrowDate)
+                .ToListAsync();
+
+            var document = new BorrowReportPdf(borrows);
+
+            byte[] pdf = document.GeneratePdf();
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"Borrow_Report_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         // Borrow Report
