@@ -9,7 +9,7 @@ public class BorrowReportPdf : IDocument
 {
     private readonly List<Borrow> _borrows;
 
-    public BorrowReportPdf(List<Borrow> borrows)
+    public BorrowReportPdf(List<Borrow> borrows)    
     {
         _borrows = borrows;
     }
@@ -42,20 +42,29 @@ public class BorrowReportPdf : IDocument
             // CONTENT
             //========================
 
-            page.Content().Column(column =>
+            page.Content().Layers(layers =>
             {
-                column.Spacing(20);
+                layers.Layer()
+                    .AlignCenter()
+                    .AlignMiddle()
+                    .Text("LIBRARY")
+                    .FontSize(130)
+                    .FontColor("#EFEFEF")
+                    .Bold();
 
-                ComposeSummary(column);
+                layers.PrimaryLayer()
+                    .Column(column =>
+                    {
+                        column.Spacing(20);
 
-                // PART 2
-                 ComposeTable(column);
+                        ComposeSummary(column);
 
-                // PART 3
-                ComposeFooterSummary(column);
+                        ComposeTable(column);
 
-                // PART 4
-                 ComposeSignature(column);
+                        ComposeFooterSummary(column);
+
+                        ComposeSignature(column);
+                    });
             });
 
             //========================
@@ -79,6 +88,7 @@ public class BorrowReportPdf : IDocument
                                 .FontSize(9)
                                 .FontColor(Colors.Blue.Darken2);
                         });
+
 
                     row.RelativeItem()
                         .AlignCenter()
@@ -123,28 +133,36 @@ public class BorrowReportPdf : IDocument
 
     private void ComposeHeader(ColumnDescriptor column)
     {
-        column.Spacing(10);
+        column.Item().Row(row =>
+        {
+            // Logo
+            //row.ConstantItem(70)
+            //    .Height(70)
+            //    .Image("wwwroot/images/logo.png");
+
+            // Tiêu đề
+            row.RelativeItem().Column(col =>
+            {
+                col.Item()
+                    .Text("LIBRARY MANAGEMENT SYSTEM")
+                    .Bold()
+                    .FontSize(24)
+                    .FontColor(Colors.Blue.Darken3);
+
+                col.Item()
+                    .Text("Borrow Report")
+                    .SemiBold()
+                    .FontSize(17);
+
+                col.Item()
+                    .Text($"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}")
+                    .FontSize(10)
+                    .FontColor(Colors.Grey.Darken2);
+            });
+        });
 
         column.Item()
-            .AlignCenter()
-            .Text("LIBRARY MANAGEMENT SYSTEM")
-            .Bold()
-            .FontSize(24)
-            .FontColor(Colors.Blue.Darken2);
-
-        column.Item()
-            .AlignCenter()
-            .Text("BORROW REPORT")
-            .Bold()
-            .FontSize(17);
-
-        column.Item()
-            .AlignCenter()
-            .Text($"Generated on {DateTime.Now:dd/MM/yyyy HH:mm}")
-            .FontColor(Colors.Grey.Darken2);
-
-        column.Item()
-            .PaddingTop(5)
+            .PaddingTop(8)
             .LineHorizontal(1)
             .LineColor(Colors.Grey.Lighten2);
     }
@@ -176,13 +194,27 @@ public class BorrowReportPdf : IDocument
                 .Padding(10)
                 .Column(c =>
                 {
-                    c.Item().Text("TOTAL BORROW")
+                    c.Item()
+                        .AlignCenter()
+                        .Text("📚")
+                        .FontSize(22);
+
+                    c.Item()
+                        .PaddingTop(3);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text("TOTAL BORROW")
                         .Bold()
-                        .FontSize(10)
                         .FontColor(Colors.Blue.Darken2);
 
-                    c.Item().Text(totalBorrow.ToString())
-                        .FontSize(22)
+                    c.Item()
+                        .PaddingTop(4);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text(totalBorrow.ToString())
+                        .FontSize(24)
                         .Bold();
                 });
 
@@ -191,13 +223,27 @@ public class BorrowReportPdf : IDocument
                 .Padding(10)
                 .Column(c =>
                 {
-                    c.Item().Text("RETURNED")
-                        .Bold()
-                        .FontSize(10)
-                        .FontColor(Colors.Green.Darken2);
+                    c.Item()
+                        .AlignCenter()
+                        .Text("✅")
+                        .FontSize(22);
 
-                    c.Item().Text(returned.ToString())
-                        .FontSize(22)
+                    c.Item()
+                        .PaddingTop(3);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text("RETURNED")
+                        .Bold()
+                        .FontColor(Colors.Blue.Darken2);
+
+                    c.Item()
+                        .PaddingTop(4);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text(returned.ToString())
+                        .FontSize(24)
                         .Bold();
                 });
 
@@ -206,13 +252,27 @@ public class BorrowReportPdf : IDocument
                 .Padding(10)
                 .Column(c =>
                 {
-                    c.Item().Text("BORROWING")
-                        .Bold()
-                        .FontSize(10)
-                        .FontColor(Colors.Orange.Darken2);
+                    c.Item()
+                         .AlignCenter()
+                         .Text("📖")
+                         .FontSize(22);
 
-                    c.Item().Text(borrowing.ToString())
-                        .FontSize(22)
+                    c.Item()
+                        .PaddingTop(3);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text("BORROWING")
+                        .Bold()
+                        .FontColor(Colors.Blue.Darken2);
+
+                    c.Item()
+                        .PaddingTop(4);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text(borrowing.ToString())
+                        .FontSize(24)
                         .Bold();
                 });
 
@@ -221,13 +281,27 @@ public class BorrowReportPdf : IDocument
                 .Padding(10)
                 .Column(c =>
                 {
-                    c.Item().Text("OVERDUE")
-                        .Bold()
-                        .FontSize(10)
-                        .FontColor(Colors.Red.Darken2);
+                    c.Item()
+                        .AlignCenter()
+                        .Text("⚠")
+                        .FontSize(22);
 
-                    c.Item().Text(overdue.ToString())
-                        .FontSize(22)
+                    c.Item()
+                        .PaddingTop(3);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text("OVERDUE")
+                        .Bold()
+                        .FontColor(Colors.Blue.Darken2);
+
+                    c.Item()
+                        .PaddingTop(4);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text(overdue.ToString())
+                        .FontSize(24)
                         .Bold();
                 });
 
@@ -236,13 +310,27 @@ public class BorrowReportPdf : IDocument
                 .Padding(10)
                 .Column(c =>
                 {
-                    c.Item().Text("TOTAL FINE")
-                        .Bold()
-                        .FontSize(10)
-                        .FontColor(Colors.Purple.Darken2);
+                    c.Item()
+                        .AlignCenter()
+                        .Text("💰")
+                        .FontSize(22);
 
-                    c.Item().Text($"{totalFine:N0} đ")
-                        .FontSize(18)
+                    c.Item()
+                        .PaddingTop(3);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text("TOTAL FINE")
+                        .Bold()
+                        .FontColor(Colors.Blue.Darken2);
+
+                    c.Item()
+                        .PaddingTop(4);
+
+                    c.Item()
+                        .AlignCenter()
+                        .Text(totalFine.ToString())
+                        .FontSize(24)
                         .Bold();
                 });
         });
@@ -288,10 +376,11 @@ column.Item().PaddingTop(8);
             table.Header(header =>
             {
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("No.")
@@ -299,10 +388,11 @@ column.Item().PaddingTop(8);
                     .FontColor(Colors.White);
 
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("Borrower")
@@ -310,10 +400,11 @@ column.Item().PaddingTop(8);
                     .FontColor(Colors.White);
 
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("Email")
@@ -321,10 +412,11 @@ column.Item().PaddingTop(8);
                     .FontColor(Colors.White);
 
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("Borrow Date")
@@ -332,10 +424,11 @@ column.Item().PaddingTop(8);
                     .FontColor(Colors.White);
 
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("Due Date")
@@ -343,10 +436,11 @@ column.Item().PaddingTop(8);
                     .FontColor(Colors.White);
 
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("Status")
@@ -354,10 +448,11 @@ column.Item().PaddingTop(8);
                     .FontColor(Colors.White);
 
                 header.Cell()
-                    .Background(Colors.Blue.Darken2)
+                    .Background("#1E3A8A")
                     .Border(1)
                     .BorderColor(Colors.White)
-                    .Padding(7)
+                    .PaddingVertical(10)
+                    .PaddingHorizontal(8)
                     .AlignCenter()
                     .AlignMiddle()
                     .Text("Fine")
@@ -411,10 +506,19 @@ column.Item().PaddingTop(8);
                     status = "Borrowing";
                 }
 
-                string backgroundColor =
-                    number % 2 == 0
-                        ? Colors.Grey.Lighten5
-                        : Colors.White;
+                string backgroundColor;
+
+                if (isOverdue)
+                {
+                    backgroundColor = Colors.Red.Lighten5;
+                }
+                else
+                {
+                    backgroundColor =
+                        number % 2 == 0
+                            ? Colors.Grey.Lighten5
+                            : Colors.White;
+                }
 
                 string statusColor;
 
@@ -495,9 +599,13 @@ column.Item().PaddingTop(8);
                     .Padding(6)
                     .AlignCenter()
                     .AlignMiddle()
+                    .Background(statusColor)
+                    .Padding(4)
+                    .CornerRadius(4)
+                    .AlignCenter()
                     .Text(status)
                     .Bold()
-                    .FontColor(statusColor);
+                    .FontColor(Colors.White);
 
                 // Fine
 
@@ -566,50 +674,30 @@ int returned = _borrows.Count(x => x.IsReturned);
             .Padding(12)
             .Row(row =>
             {
-                row.RelativeItem().Column(col =>
+                column.Item().Table(table =>
                 {
-                    col.Item()
-                        .Text($"Total Borrow: {totalBorrow}")
-                        .FontSize(10);
+                    table.ColumnsDefinition(c =>
+                    {
+                        c.RelativeColumn();
+                        c.ConstantColumn(120);
+                    });
 
-                    col.Item()
-                        .PaddingTop(5)
-                        .Text($"Returned: {returned}")
-                        .FontSize(10);
+                    void Add(string left, string right)
+                    {
+                        table.Cell().Padding(5).Text(left).Bold();
 
-                    col.Item()
-                        .PaddingTop(5)
-                        .Text($"Borrowing: {borrowing}")
-                        .FontSize(10);
-                });
+                        table.Cell().Padding(5).AlignRight().Text(right);
+                    }
 
-                row.RelativeItem().Column(col =>
-                {
-                    col.Item()
-                        .Text($"Overdue: {overdue}")
-                        .FontSize(10)
-                        .FontColor(
-                            overdue > 0
-                                ? Colors.Red.Darken2
-                                : Colors.Grey.Darken2
-                        );
+                    Add("Total Borrow", totalBorrow.ToString());
 
-                    col.Item()
-                        .PaddingTop(5)
-                        .Text($"Total Fine: {totalFine:N0} đ")
-                        .Bold()
-                        .FontSize(11)
-                        .FontColor(
-                            totalFine > 0
-                                ? Colors.Red.Darken2
-                                : Colors.Green.Darken2
-                        );
+                    Add("Returned", returned.ToString());
 
-                    col.Item()
-                        .PaddingTop(5)
-                        .Text($"Report Date: {DateTime.Now:dd/MM/yyyy}")
-                        .FontSize(9)
-                        .FontColor(Colors.Grey.Darken1);
+                    Add("Borrowing", borrowing.ToString());
+
+                    Add("Overdue", overdue.ToString());
+
+                    Add("Total Fine", $"{totalFine:N0} đ");
                 });
             });
 
