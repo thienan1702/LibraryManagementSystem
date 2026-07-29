@@ -1,25 +1,22 @@
-using System.ComponentModel.DataAnnotations;
+using LibraryManagement.Models;
 
-namespace LibraryManagement.ViewModels
+namespace LibraryManagement.ViewModels;
+
+public class InventoryReportVM
 {
-    public class BorrowCreateVM
-    {
-        [Required]
-        public string BorrowerName { get; set; } = "";
+    public string? Keyword { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string BorrowerEmail { get; set; } = "";
+    public List<Book> Books { get; set; } = new();
 
-        [Required]
-        public DateTime BorrowDate { get; set; }
-            = DateTime.Today;
+    public int TotalBooks { get; set; }
 
-        [Required]
-        public DateTime DueDate { get; set; }
-            = DateTime.Today.AddDays(14);
+    public int TotalTitles { get; set; }
 
-        public List<BorrowItemVM> Items { get; set; }
-            = new();
-    }
+    public int AvailableBooks { get; set; }
+
+    public int BorrowedBooks { get; set; }
+
+    public int LowStock { get; set; }
+
+    public int OutOfStock { get; set; }
 }
