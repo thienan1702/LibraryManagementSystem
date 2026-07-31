@@ -2,6 +2,7 @@
 using LibraryManagement.Data;
 using LibraryManagement.Helpers;
 using LibraryManagement.Models;
+using LibraryManagement.Models.ViewModels;
 using LibraryManagement.Reports;
 using LibraryManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -814,13 +815,7 @@ namespace LibraryManagement.Controllers
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 $"Overdue_Report_{DateTime.Now:yyyyMMdd}.xlsx");
         }
-        // Top Borrowed Books
-        public IActionResult TopBooksReport()
-        {
-            return View();
-        }
-
-
+     
 
         public async Task<IActionResult> ReservationReport()
         {
@@ -1018,6 +1013,132 @@ namespace LibraryManagement.Controllers
 
             return query;
         }
+
+
+        // Top Borrowed Books
+        public async Task<IActionResult> TopBooksReport()
+        {
+            var books = await GetTopBooksQuery().ToListAsync();
+
+            return View(books);
+        }
+
+        private IQueryable<TopBookViewModel> GetTopBooksQuery()
+        {
+            return _context.BorrowDetails
+                .Include(x => x.Book)
+                .GroupBy(x => new
+                {
+                    x.Book.Title,
+                    Author = x.Book.Author.Name,
+                    Category = x.Book.Category.Name
+                })
+                .Select(g => new TopBookViewModel
+                {
+                    BookTitle = g.Key.Title,
+                    Author = g.Key.Author,
+                    Category = g.Key.Category,
+                    BorrowCount = g.Sum(x => x.Quantity)
+                })
+                .OrderByDescending(x => x.BorrowCount);
+        }
+
+
+        public async Task<IActionResult> ExportTopBooksPdf()
+        {
+            var books = await GetTopBooksQuery().ToListAsync();
+
+            var document = new TopBooksReportPdf(books);
+
+            var pdf = document.GeneratePdf();
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"TopBooks_Report_{DateTime.Now:yyyyMMdd}.pdf");
+        }
+
+
+        public async Task<IActionResult> ExportTopBooksExcel()
+        {
+            var books = await GetTopBooksQuery().ToListAsync();
+
+            using var workbook = new XLWorkbook();
+
+            var ws = workbook.Worksheets.Add("Top Books");
+
+            ws.Cell("A1").Value = "LIBRARY MANAGEMENT";
+            ws.Cell("A2").Value = "Top Borrowed Books Report";
+            ws.Cell("A3").Value =
+                $"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}";
+
+            ws.Range("A1:D1").Merge();
+            ws.Range("A2:D2").Merge();
+            ws.Range("A3:D3").Merge();
+
+            ws.Cell("A1").Style.Font.Bold = true;
+            ws.Cell("A1").Style.Font.FontSize = 18;
+            ws.Cell("A1").Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            ws.Cell("A2").Style.Font.Bold = true;
+            ws.Cell("A2").Style.Font.FontSize = 14;
+            ws.Cell("A2").Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            ws.Cell(5, 1).Value = "Rank";
+            ws.Cell(5, 2).Value = "Book";
+            ws.Cell(5, 3).Value = "Author";
+            ws.Cell(5, 4).Value = "Category";
+            ws.Cell(5, 5).Value = "Borrow Count";
+
+            var header = ws.Range("A5:E5");
+
+            header.Style.Fill.BackgroundColor = XLColor.DarkBlue;
+            header.Style.Font.FontColor = XLColor.White;
+            header.Style.Font.Bold = true;
+            header.Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            int row = 6;
+
+            int rank = 1;
+
+            foreach (var item in books)
+            {
+                ws.Cell(row, 1).Value = rank++;
+
+                ws.Cell(row, 2).Value = item.BookTitle;
+
+                ws.Cell(row, 3).Value = item.Author;
+
+                ws.Cell(row, 4).Value = item.Category;
+
+                ws.Cell(row, 5).Value = item.BorrowCount;
+
+                row++;
+            }
+
+            ws.Range($"A5:E{row - 1}")
+                .Style.Border.OutsideBorder =
+                XLBorderStyleValues.Thin;
+
+            ws.Range($"A5:E{row - 1}")
+                .Style.Border.InsideBorder =
+                XLBorderStyleValues.Thin;
+
+            ws.Columns().AdjustToContents();
+
+            using var stream = new MemoryStream();
+
+            workbook.SaveAs(stream);
+
+            return File(
+                stream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"TopBooks_Report_{DateTime.Now:yyyyMMdd}.xlsx");
+        }
+
 
     }
 }
