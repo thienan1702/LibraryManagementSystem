@@ -63,7 +63,7 @@
            asp-route-fromDate="@Model.FromDate"
            asp-route-toDate="@Model.ToDate"
            asp-route-keyword="@Model.Keyword"
-           class="btn btn-success">
+           class="btn btn-success export-btn">
 
             <i class="bi bi-file-earmark-excel"></i>
             Export Excel
@@ -74,7 +74,7 @@
            asp-route-fromDate="@Model.FromDate"
            asp-route-toDate="@Model.ToDate"
            asp-route-keyword="@Model.Keyword"
-           class="btn btn-danger">
+           class="btn btn-danger export-btn">
 
             <i class="bi bi-file-earmark-pdf"></i>
             Export PDF
@@ -170,6 +170,8 @@
         <div class="card shadow-sm">
 
             <div class="card-body">
+                @if (Model.Borrows.Any())
+{
 
                 <table class="table table-bordered table-hover align-middle">
 
@@ -246,7 +248,11 @@
                     </tbody>
 
                 </table>
-
+            }
+            else
+            {
+                <partial name="_EmptyState" />
+            }
             </div>
 
         </div>

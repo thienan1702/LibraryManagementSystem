@@ -1,0 +1,325 @@
+/*=========================
+GENERAL
+==========================*/
+
+body.dark-mode {
+    background: #121212;
+    color: #f1f1f1;
+    transition: .25s;
+}
+
+    body.dark-mode a {
+        color: #8ab4f8;
+    }
+
+    /*=========================
+NAVBAR
+==========================*/
+
+    body.dark-mode .navbar {
+        background: #1b1b1b !important;
+        border-bottom: 1px solid #333;
+    }
+
+    body.dark-mode .navbar-brand,
+    body.dark-mode .nav-link {
+        color: white !important;
+    }
+
+    body.dark-mode .dropdown-menu {
+        background: #232323;
+    }
+
+    body.dark-mode .dropdown-item {
+        color: white;
+    }
+
+        body.dark-mode .dropdown-item:hover {
+            background: #333;
+        }
+
+    /*=========================
+CARD
+==========================*/
+
+    body.dark-mode .card {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        color: white;
+    }
+
+    body.dark-mode .card-header {
+        background: #252525;
+        border-bottom: 1px solid #333;
+    }
+
+    body.dark-mode .card-footer {
+        background: #252525;
+    }
+
+    /*=========================
+REPORT CARD
+==========================*/
+
+    body.dark-mode .report-card {
+        background: #1e1e1e;
+    }
+
+        body.dark-mode .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,.45);
+        }
+
+    /*=========================
+TABLE
+==========================*/
+
+    body.dark-mode table {
+        color: white;
+    }
+
+    body.dark-mode .table {
+        color: white;
+    }
+
+        body.dark-mode .table thead {
+            background: #2d2d2d;
+        }
+
+    body.dark-mode .table-striped tbody tr:nth-child(odd) {
+        background: #242424;
+    }
+
+    body.dark-mode .table-striped tbody tr:nth-child(even) {
+        background: #1b1b1b;
+    }
+
+    body.dark-mode .table td,
+    body.dark-mode .table th {
+        border-color: #444;
+    }
+
+    /*=========================
+FORM
+==========================*/
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select {
+        background: #2b2b2b;
+        color: white;
+        border: 1px solid #555;
+    }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            background: #2b2b2b;
+            color: white;
+            border-color: #4dabf7;
+            box-shadow: none;
+        }
+
+    /*=========================
+BUTTON
+==========================*/
+
+    body.dark-mode .btn-outline-secondary {
+        color: white;
+        border-color: #666;
+    }
+
+        body.dark-mode .btn-outline-secondary:hover {
+            background: #444;
+        }
+
+    /*=========================
+BADGE
+==========================*/
+
+    body.dark-mode .badge {
+        color: white;
+    }
+
+    /*=========================
+MODAL
+==========================*/
+
+    body.dark-mode .modal-content {
+        background: #1f1f1f;
+        color: white;
+    }
+
+    body.dark-mode .modal-header {
+        border-bottom: 1px solid #444;
+    }
+
+    body.dark-mode .modal-footer {
+        border-top: 1px solid #444;
+    }
+
+    /*=========================
+PAGINATION
+==========================*/
+
+    body.dark-mode .page-link {
+        background: #1f1f1f;
+        color: white;
+        border-color: #444;
+    }
+
+        body.dark-mode .page-link:hover {
+            background: #333;
+        }
+
+    body.dark-mode .page-item.active .page-link {
+        background: #0d6efd;
+    }
+
+    /*=========================
+TEXT
+==========================*/
+
+    body.dark-mode .text-muted {
+        color: #b8b8b8 !important;
+    }
+
+    /*=========================
+ALERT
+==========================*/
+
+    body.dark-mode .alert {
+        border: none;
+    }
+
+    /*=========================
+FOOTER
+==========================*/
+
+    body.dark-mode footer {
+        background: #1b1b1b;
+        color: white;
+    }
+
+    /*=========================
+SCROLLBAR
+==========================*/
+
+    body.dark-mode::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    body.dark-mode::-webkit-scrollbar-track {
+        background: #111;
+    }
+
+    body.dark-mode::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 10px;
+    }
+
+        body.dark-mode::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+
+
+    body.dark-mode .swal2-popup {
+        background: #1f1f1f !important;
+        color: white !important;
+    }
+
+    body.dark-mode .swal2-title {
+        color: white !important;
+    }
+
+    body.dark-mode .swal2-html-container {
+        color: #d9d9d9 !important;
+    }
+
+    body.dark-mode .swal2-confirm {
+        border: none;
+    }
+
+    body.dark-mode .swal2-cancel {
+        border: none;
+    }
+
+    /*=========================
+TABLE FIX
+==========================*/
+
+    body.dark-mode table td,
+    body.dark-mode table th {
+        color: #f5f5f5 !important;
+    }
+
+    body.dark-mode table tbody tr {
+        background: #2b3035 !important;
+    }
+
+        body.dark-mode table tbody tr:hover {
+            background: #343a40 !important;
+        }
+
+    body.dark-mode table a {
+        color: #4ea8ff !important;
+    }
+
+    body.dark-mode table strong {
+        color: white !important;
+    }
+
+    body.dark-mode input::placeholder {
+        color: #c9c9c9 !important;
+    }
+
+    body.dark-mode select {
+        color: white !important;
+    }
+    body.dark-mode .bg-white {
+        background: #2b3035 !important;
+    }
+
+    body.dark-mode .text-dark {
+        color: white !important;
+    }
+
+    body.dark-mode .text-body {
+        color: white !important;
+    }
+
+.theme-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #6c757d;
+    transition: .25s;
+    cursor: pointer;
+}
+
+    .theme-btn i {
+        font-size: 20px;
+    }
+
+    .theme-btn:hover {
+        background: rgba(13,110,253,.12);
+        color: #0d6efd;
+    }
+
+body.dark-mode .theme-btn {
+    color: #ffd43b;
+}
+
+    body.dark-mode .theme-btn:hover {
+        background: rgba(255,212,59,.15);
+    }
+
+.navbar-nav .nav-item {
+    margin-left: 8px;
+}
+#themeToggle {
+    margin-left: 10px;
+}

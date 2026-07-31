@@ -253,3 +253,49 @@ body {
     border-bottom: 2px solid #dee2e6;
     vertical-align: middle;
 }
+
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+}
+
+.loading-card {
+    width: 380px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 35px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,.18);
+}
+
+.loading-book {
+    font-size: 70px;
+    color: #0d6efd;
+    animation: floatBook 1.2s infinite ease-in-out;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 30px;
+}
+
+@keyframes floatBook {
+
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}

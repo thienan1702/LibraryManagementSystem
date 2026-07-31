@@ -83,24 +83,27 @@
                 </a>
 
                 <a asp-action="ExportExcel"
-                   class="btn btn-success">
+                   id="btnExcel"
+                   class="btn btn-success export-btn">
 
                     <i class="fas fa-file-excel"></i>
-
                     Export Excel
 
                 </a>
 
                 <a asp-action="ExportPdf"
-                   class="btn btn-danger">
+                   id="btnPdf"
+                   class="btn btn-danger export-btn">
+
                     <i class="fas fa-file-pdf"></i>
                     Export PDF
-                </a>
 
+                </a>
             </div>
 
             <div class="table-responsive">
-
+                @if (Model.Borrows.Any())
+{
                 <table class="table table-hover table-bordered align-middle">
 
                     <thead class="table-dark">
@@ -208,6 +211,12 @@
                     </tbody>
 
                 </table>
+
+                }
+                else
+                {
+                    <partial name="_EmptyState" />
+                }
 
             </div>
 

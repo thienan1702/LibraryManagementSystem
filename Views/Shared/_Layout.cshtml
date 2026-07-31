@@ -38,13 +38,22 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 
+    <link rel="stylesheet" href="~/css/darkmode.css" />
+
+
 </head>
 
+
+
 <body class="hold-transition sidebar-mini">
+
+   
 
     <div class="wrapper">
 
         <!-- Navbar -->
+
+
 
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
@@ -89,7 +98,18 @@
                 </li>
             </ul>
 
-           
+
+            <li class="nav-item ms-3">
+
+                <button id="themeToggle"
+                        class="theme-btn"
+                        title="Dark Mode">
+
+                    <i id="themeIcon" class="fas fa-moon"></i>
+
+                </button>
+
+            </li>
 
             <ul class="navbar-nav ms-auto">
 
@@ -321,23 +341,46 @@
     @if (TempData["Success"] != null)
     {
         <script>
-
             Swal.fire({
-
-                toast: true,
-
-                position: 'top-end',
-
                 icon: 'success',
-
-                title: '@TempData["Success"]',
-
-                showConfirmButton: false,
-
-                timer: 2500
-
+                title: 'Success',
+                text: '@Html.Raw(TempData["Success"])',
+                timer: 2200,
+                showConfirmButton: false
             });
+        </script>
+    }
 
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '@Html.Raw(TempData["Error"])'
+            });
+        </script>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: '@Html.Raw(TempData["Warning"])'
+            });
+        </script>
+    }
+
+    @if (TempData["Info"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'info',
+                title: 'Information',
+                text: '@Html.Raw(TempData["Info"])'
+            });
         </script>
     }
 
@@ -451,9 +494,213 @@
 
     </script>
 
+    <script>
+        
+
+        function showLoading() {
+
+            document.getElementById("loading-overlay").style.display = "flex";
+
+            setTimeout(function () {
+
+                hideLoading();
+
+            }, 2000);
+
+        }
+
+        function hideLoading() {
+
+            document.getElementById("loading-overlay").style.display = "none";
+
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            document.querySelectorAll(".export-btn")
+                .forEach(function (btn) {
+
+                    btn.addEventListener("click", function () {
+
+                        showLoading();
+
+                    });
+
+                });
+
+        });
+
+    </script>
+
+
+
+
+    <script>
+        const btn = document.getElementById("themeToggle");
+        const icon = document.getElementById("themeIcon");
+
+               function updateThemeIcon() {
+
+            if (document.body.classList.contains("dark-mode")) {
+
+                icon.className = "fas fa-sun";
+
+            } else {
+
+                icon.className = "fas fa-moon";
+
+            }
+
+        }
+
+        if (btn && icon) {
+
+            if (localStorage.getItem("theme") === "dark") {
+
+                document.body.classList.add("dark-mode");
+
+            }
+
+            updateThemeIcon();
+
+            btn.addEventListener("click", function () {
+
+                document.body.classList.toggle("dark-mode");
+
+                localStorage.setItem(
+                    "theme",
+                    document.body.classList.contains("dark-mode")
+                        ? "dark"
+                        : "light"
+                );
+
+                updateThemeIcon();
+
+            });
+
+        }
+
+                function getSwalTheme() {
+
+            return document.body.classList.contains("dark-mode")
+                ? "dark"
+                : "light";
+
+        }
+
+        function showSuccess(title, text) {
+
+            Swal.fire({
+
+                icon: "success",
+
+                title: title,
+
+                text: text,
+
+                confirmButtonColor: "#0d6efd",
+
+                background: getSwalTheme() == "dark"
+                    ? "#1f1f1f"
+                    : "#ffffff",
+
+                color: getSwalTheme() == "dark"
+                    ? "#ffffff"
+                    : "#212529"
+
+            });
+
+        }
+
+        function showError(title, text) {
+
+            Swal.fire({
+
+                icon: "error",
+
+                title: title,
+
+                text: text,
+
+                confirmButtonColor: "#dc3545",
+
+                background: getSwalTheme() == "dark"
+                    ? "#1f1f1f"
+                    : "#ffffff",
+
+                color: getSwalTheme() == "dark"
+                    ? "#ffffff"
+                    : "#212529"
+
+            });
+
+        }
+
+        function showWarning(title, text) {
+
+            Swal.fire({
+
+                icon: "warning",
+
+                title: title,
+
+                text: text,
+
+                confirmButtonColor: "#f59f00",
+
+                background: getSwalTheme() == "dark"
+                    ? "#1f1f1f"
+                    : "#ffffff",
+
+                color: getSwalTheme() == "dark"
+                    ? "#ffffff"
+                    : "#212529"
+
+            });
+
+        }
+
+    </script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>
+
+
+<div id="loading-overlay">
+
+    <div class="loading-card">
+
+        <div class="loading-book">
+
+            <i class="fas fa-book-open"></i>
+
+        </div>
+
+        <h4 class="mt-4 fw-bold">
+            Generating Report...
+        </h4>
+
+        <p class="text-muted mb-3">
+            Please wait a moment
+        </p>
+
+        <div class="progress">
+
+            <div class="progress-bar progress-bar-striped
+                        progress-bar-animated bg-primary"
+                 style="width:100%">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
 
 </html>

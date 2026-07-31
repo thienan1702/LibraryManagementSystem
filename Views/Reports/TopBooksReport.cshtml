@@ -15,22 +15,24 @@
 
         <div>
 
-            <a asp-action="ExportTopBooksPdf"
-               class="btn btn-danger">
-
-                <i class="fas fa-file-pdf"></i>
-                PDF
-
-            </a>
 
             <a asp-action="ExportTopBooksExcel"
-               class="btn btn-success">
+               class="btn btn-success export-btn">
 
                 <i class="fas fa-file-excel"></i>
-                Excel
+                Export Excel
 
             </a>
 
+            <a asp-action="ExportTopBooksPdf"
+               class="btn btn-danger export-btn">
+
+                <i class="fas fa-file-pdf"></i>
+                Export PDF
+
+            </a>
+
+           
         </div>
 
     </div>

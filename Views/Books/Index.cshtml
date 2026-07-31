@@ -328,12 +328,22 @@
                                 Detail
                             </a>
 
-                            <button class="btn btn-app btn-delete"
-                                    data-url="@Url.Action("Delete", "Books", new { id = item.Id })">
+                            <form asp-action="Delete"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="d-inline delete-form">
 
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-app btn-delete">
+
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+
+                                </button>
+
+                            </form>
 
                         </div>
 
@@ -410,35 +420,48 @@ else
 
     <script>
 
-        document.querySelectorAll(".btn-delete").forEach(btn=>{
+               document.querySelectorAll(".delete-form").forEach(form => {
 
-        btn.addEventListener("click",function(){
+            form.addEventListener("submit", function (e) {
 
-        let url=this.dataset.url;
-
+                e.preventDefault();
         Swal.fire({
 
-        title:"Delete this item?",
+            title: "Delete this record?",
 
-        text:"This action cannot be undone.",
+            text: "This action cannot be undone!",
 
-        icon:"warning",
+            icon: "warning",
 
-        showCancelButton:true,
+            showCancelButton: true,
 
-        confirmButtonText:"Delete"
+            confirmButtonColor: "#dc3545",
+
+            cancelButtonColor: "#6c757d",
+
+            confirmButtonText: "Delete",
+
+            cancelButtonText: "Cancel",
+
+            background: getSwalTheme() == "dark"
+                ? "#1f1f1f"
+                : "#ffffff",
+
+            color: getSwalTheme() == "dark"
+                ? "#ffffff"
+                : "#212529"
 
         }).then((result)=>{
 
-        if(result.isConfirmed){
+            if(result.isConfirmed){
 
-        window.location=url;
+                form.submit();
 
-        }
-
-        });
+            }
 
         });
+
+            });
 
         });
 

@@ -14,23 +14,24 @@
 
         <div>
 
-            <a asp-action="ExportOverduePdf"
-               asp-route-keyword="@Context.Request.Query["keyword"]"
-               class="btn btn-danger">
-
-                <i class="bi bi-file-earmark-pdf"></i>
-                Export PDF
-
-            </a>
-
             <a asp-action="ExportOverdueExcel"
                asp-route-keyword="@Context.Request.Query["keyword"]"
-               class="btn btn-success">
+               class="btn btn-success export-btn">
 
                 <i class="bi bi-file-earmark-excel"></i>
                 Export Excel
 
             </a>
+
+
+            <a asp-action="ExportOverduePdf"
+               asp-route-keyword="@Context.Request.Query["keyword"]"
+               class="btn btn-danger  export-btn">
+
+                <i class="bi bi-file-earmark-pdf"></i>
+                Export PDF
+
+            </a>           
 
         </div>
 

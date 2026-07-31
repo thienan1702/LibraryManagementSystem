@@ -373,31 +373,41 @@
 
                 e.preventDefault();
 
-                Swal.fire({
+                       Swal.fire({
 
-                    title: "Delete borrow?",
+            title: "Delete this record?",
 
-                    text: "This action cannot be undone.",
+            text: "This action cannot be undone!",
 
-                    icon: "warning",
+            icon: "warning",
 
-                    showCancelButton: true,
+            showCancelButton: true,
 
-                    confirmButtonColor: "#dc3545",
+            confirmButtonColor: "#dc3545",
 
-                    cancelButtonColor: "#6c757d",
+            cancelButtonColor: "#6c757d",
 
-                    confirmButtonText: "Delete"
+            confirmButtonText: "Delete",
 
-                }).then(result => {
+            cancelButtonText: "Cancel",
 
-                    if (result.isConfirmed) {
+            background: getSwalTheme() == "dark"
+                ? "#1f1f1f"
+                : "#ffffff",
 
-                        form.submit();
+            color: getSwalTheme() == "dark"
+                ? "#ffffff"
+                : "#212529"
 
-                    }
+        }).then((result)=>{
 
-                });
+            if(result.isConfirmed){
+
+                form.submit();
+
+            }
+
+        });
 
             });
 
