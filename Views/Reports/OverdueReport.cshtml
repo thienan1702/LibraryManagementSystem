@@ -1,0 +1,146 @@
+﻿@model List<LibraryManagement.Models.Borrow>
+
+@{
+    ViewData["Title"] = "Overdue Report";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2 class="fw-bold text-danger">
+            Overdue Report
+        </h2>
+
+        <div>
+
+            <a asp-action="ExportOverduePdf"
+               asp-route-keyword="@Context.Request.Query["keyword"]"
+               class="btn btn-danger">
+
+                <i class="bi bi-file-earmark-pdf"></i>
+                Export PDF
+
+            </a>
+
+            <a asp-action="ExportOverdueExcel"
+               asp-route-keyword="@Context.Request.Query["keyword"]"
+               class="btn btn-success">
+
+                <i class="bi bi-file-earmark-excel"></i>
+                Export Excel
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <form method="get">
+
+        <div class="row mb-3">
+
+            <div class="col-md-4">
+
+                <input name="keyword"
+                       value="@Context.Request.Query["keyword"]"
+                       class="form-control"
+                       placeholder="Borrower name / Email" />
+
+            </div>
+
+            <div class="col-md-2">
+
+                <button class="btn btn-primary w-100">
+
+                    Search
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+    <table class="table table-bordered table-hover align-middle">
+
+        <thead class="table-danger">
+
+            <tr>
+
+                <th>No</th>
+
+                <th>Borrower</th>
+
+                <th>Email</th>
+
+                <th>Book</th>
+
+                <th>Due Date</th>
+
+                <th>Late Days</th>
+
+                <th>Fine</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @{
+                int no = 1;
+            }
+
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>@no</td>
+
+                    <td>@item.BorrowerName</td>
+
+                    <td>@item.BorrowerEmail</td>
+
+                    <td>
+
+                        @string.Join(", ",
+                        item.BorrowDetails
+                        .Where(x => x.Book != null)
+                        .Select(x => x.Book!.Title))
+
+                </td>
+
+                <td>
+
+                    @item.DueDate.ToString("dd/MM/yyyy")
+
+                </td>
+
+                <td>
+
+                    <span class="badge bg-danger">
+
+                        @item.OverdueDays days
+
+                    </span>
+
+                </td>
+
+                <td class="text-end">
+
+                    @item.FineAmount.ToString("N0") đ
+
+                </td>
+
+            </tr>
+
+                        no++;
+            }
+
+        </tbody>
+
+    </table>
+
+</div>

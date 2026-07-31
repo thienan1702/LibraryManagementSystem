@@ -1,0 +1,254 @@
+﻿@model LibraryManagement.ViewModels.FineReportVM
+
+@{
+    ViewData["Title"] = "Fine Report";
+}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        Fine Report
+    </h2>
+
+    <form asp-action="FineReport" method="get">
+
+        <div class="row mb-3">
+
+            <div class="col-md-3">
+
+                <label>From Date</label>
+
+                <input asp-for="FromDate"
+                       type="date"
+                       class="form-control"/>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label>To Date</label>
+
+                <input asp-for="ToDate"
+                       type="date"
+                       class="form-control"/>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label>Borrower</label>
+
+                <input asp-for="Keyword"
+                       class="form-control"
+                       placeholder="Name or Email"/>
+
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+
+                <button class="btn btn-primary w-100">
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+
+    <div class="mb-3">
+
+        <a asp-action="ExportFineExcel"
+           asp-route-fromDate="@Model.FromDate"
+           asp-route-toDate="@Model.ToDate"
+           asp-route-keyword="@Model.Keyword"
+           class="btn btn-success">
+
+            <i class="bi bi-file-earmark-excel"></i>
+            Export Excel
+
+        </a>
+
+        <a asp-action="ExportFinePdf"
+           asp-route-fromDate="@Model.FromDate"
+           asp-route-toDate="@Model.ToDate"
+           asp-route-keyword="@Model.Keyword"
+           class="btn btn-danger">
+
+            <i class="bi bi-file-earmark-pdf"></i>
+            Export PDF
+
+        </a>
+
+    </div>
+
+
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+
+                <div class="card border-primary shadow-sm">
+
+                    <div class="card-body">
+
+                        <h6>Total Fine</h6>
+
+                        <h3 class="text-danger">
+
+                            @Model.TotalFine.ToString("N0") đ
+
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-success shadow-sm">
+
+                    <div class="card-body">
+
+                        <h6>Total Borrow</h6>
+
+                        <h3>
+
+                            @Model.TotalBorrow
+
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-warning shadow-sm">
+
+                    <div class="card-body">
+
+                        <h6>Returned</h6>
+
+                        <h3>
+
+                            @Model.TotalReturned
+
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-danger shadow-sm">
+
+                    <div class="card-body">
+
+                        <h6>Late Returns</h6>
+
+                        <h3 class="text-danger">
+
+                            @Model.TotalLate
+
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>Borrower</th>
+
+                            <th>Email</th>
+
+                            <th>Borrow Date</th>
+
+                            <th>Due Date</th>
+
+                            <th>Returned</th>
+
+                            <th>Fine</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @{
+                            int no = 1;
+                        }
+
+                        @foreach (var item in Model.Borrows)
+                        {
+                            <tr>
+
+                                <td>@no</td>
+
+                                <td>@item.BorrowerName</td>
+
+                                <td>@item.BorrowerEmail</td>
+
+                                <td>@item.BorrowDate.ToString("dd/MM/yyyy")</td>
+
+                                <td>@item.DueDate.ToString("dd/MM/yyyy")</td>
+
+                                <td>
+
+                                    @if (item.IsReturned)
+                                    {
+                                        <span class="badge bg-success">
+                                            Returned
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+                                            Borrowing
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td class="text-end">
+
+                                    @item.FineAmount.ToString("N0") đ
+
+                                </td>
+
+                            </tr>
+
+                            no++;
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
