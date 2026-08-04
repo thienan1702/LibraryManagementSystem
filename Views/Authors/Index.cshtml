@@ -1,4 +1,7 @@
-﻿@model IEnumerable<LibraryManagement.Models.Author>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@model IPagedList<LibraryManagement.Models.Author>
 
 @{
     ViewData["Title"] = "Author Management";
@@ -81,7 +84,7 @@
 
             <div class="inner">
 
-                <h3>@Model.Count()</h3>
+                <h3>@Model.TotalItemCount</h3>
 
                 <p>Total Authors</p>
 
@@ -123,11 +126,9 @@
             </thead>
 
             <tbody>
-
                 @{
-                    int stt = 1;
+                    int stt = (Model.PageNumber - 1) * Model.PageSize + 1;
                 }
-
                 @foreach (var item in Model)
                 {
                     <tr>
@@ -224,6 +225,40 @@
         </table>
 
     </div>
+
+</div>
+<div class="d-flex justify-content-center mt-4">
+
+    @Html.PagedListPager(
+
+    Model,
+
+    page => Url.Action("Index", new
+    {
+        page,
+        search = ViewBag.Search
+    }),
+
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "Previous",
+            LinkToNextPageFormat = "Next",
+            LinkToLastPageFormat = ">>",
+
+            MaximumPageNumbersToDisplay = 5,
+
+            UlElementClasses = new[] { "pagination" },
+
+            LiElementClasses = new[] { "page-item" },
+
+            PageClasses = new[] { "page-link" }
+        })
 
 </div>
 @section Scripts {

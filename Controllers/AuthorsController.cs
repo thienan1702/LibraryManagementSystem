@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Data;
+﻿using DocumentFormat.OpenXml.InkML;
+using LibraryManagement.Data;
 using LibraryManagement.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers
 {
@@ -22,18 +25,26 @@ namespace LibraryManagement.Controllers
         }
 
         // GET: Authors
-        public async Task<IActionResult> Index(string search)
+
+        public IActionResult Index(string search, int? page)
         {
-            var data = _context.Authors.AsQueryable();
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
+            var authors = _context.Authors.AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
             {
-                data = data.Where(x => x.Name.Contains(search));
+                authors = authors.Where(x =>
+                    x.Name.Contains(search) ||
+                    x.Biography.Contains(search));
             }
 
             ViewBag.Search = search;
 
-            return View(await data.ToListAsync());
+            return View(authors
+                .OrderBy(x => x.Name)
+                .ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Authors/Details/5

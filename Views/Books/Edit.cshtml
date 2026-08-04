@@ -1,121 +1,572 @@
 ﻿@model LibraryManagement.Models.Book
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Book";
 }
 
-<h1>Edit</h1>
+<div class="page-card mb-4">
 
-<h4>Book</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ISBN" class="control-label"></label>
-                <input asp-for="ISBN" class="form-control" />
-                <span asp-validation-for="ISBN" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AvailableQuantity" class="control-label"></label>
-                <input asp-for="AvailableQuantity" class="form-control" />
-                <span asp-validation-for="AvailableQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ImageFile" class="form-label"></label>
-                <input asp-for="ImageFile" class="form-control" type="file" accept="image/*" />
-                <img id="previewImage"
-                     src="#"
-                     style="display:none;width:150px"
-                     class="mt-3 rounded border" />
+    <div class="d-flex justify-content-between align-items-center">
 
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl"
-                         width="120"
-                         class="mt-2 rounded border" />
-                }
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="CategoryId" class="form-label"></label>
-                <select asp-for="CategoryId"
-                        class="form-select"
-                        asp-items="ViewBag.CategoryId">
-                </select>
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-book-open text-warning me-2"></i>
+
+                Edit Book
+
             </div>
 
-            <div class="mb-3">
-                <label asp-for="AuthorId" class="form-label"></label>
-                <select asp-for="AuthorId"
-                        class="form-select"
-                        asp-items="ViewBag.AuthorId">
-                </select>
+            <div class="page-subtitle">
+
+                Update book information and inventory.
+
             </div>
 
-            <div class="mb-3">
-                <label asp-for="PublisherId" class="form-label"></label>
-                <select asp-for="PublisherId"
-                        class="form-select"
-                        asp-items="ViewBag.PublisherId">
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-app btn-detail">
+
+            <i class="fas fa-arrow-left"></i>
+
+            Back
+
+        </a>
+
     </div>
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<form asp-action="Edit"
+      enctype="multipart/form-data">
+
+    <div asp-validation-summary="ModelOnly"
+         class="alert alert-danger"></div>
+
+    <input asp-for="Id" type="hidden"/>
+
+    <div class="row">
+
+        <!-- LEFT -->
+
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0 mb-4">
+
+                <div class="card-header bg-primary text-white">
+
+                    <i class="fas fa-book me-2"></i>
+
+                    General Information
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-8">
+
+                            <div class="mb-3">
+
+                                <label asp-for="Title"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control form-control-lg"/>
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label asp-for="ISBN"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <input asp-for="ISBN"
+                                       class="form-control"/>
+
+                                <span asp-validation-for="ISBN"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="Quantity"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <input asp-for="Quantity"
+                                       class="form-control"/>
+
+                                <span asp-validation-for="Quantity"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="AvailableQuantity"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <input asp-for="AvailableQuantity"
+                                       class="form-control"/>
+
+                                <span asp-validation-for="AvailableQuantity"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="Description"
+                               class="form-label fw-bold">
+
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  rows="6"
+                                  class="form-control"></textarea>
+
+                        <span asp-validation-for="Description"
+                              class="text-danger"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-success text-white">
+
+                    <i class="fas fa-tags me-2"></i>
+
+                    Classification
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label asp-for="CategoryId"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <select asp-for="CategoryId"
+                                        class="form-select form-select-lg"
+                                        asp-items="ViewBag.CategoryId">
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label asp-for="AuthorId"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <select asp-for="AuthorId"
+                                        class="form-select form-select-lg"
+                                        asp-items="ViewBag.AuthorId">
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label asp-for="PublisherId"
+                                       class="form-label fw-bold">
+
+                                </label>
+
+                                <select asp-for="PublisherId"
+                                        class="form-select form-select-lg"
+                                        asp-items="ViewBag.PublisherId">
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="col-lg-4">
+
+            <!-- COVER -->
+
+            <div class="card shadow border-0 mb-4">
+
+                <div class="card-header bg-warning text-dark">
+
+                    <i class="fas fa-image me-2"></i>
+
+                    Book Cover
+
+                </div>
+
+                <div class="card-body text-center">
+
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img id="previewImage"
+                             src="@Model.ImageUrl"
+                             class="img-fluid rounded shadow"
+                             style="height:330px;width:100%;object-fit:cover;">
+                    }
+                    else
+                    {
+                        <img id="previewImage"
+                             src="https://placehold.co/260x330/e9ecef/6c757d?text=No+Cover"
+                             class="img-fluid rounded shadow"
+                             style="height:330px;width:100%;object-fit:cover;">
+                    }
+
+                    <div class="mt-4">
+
+                        <label asp-for="ImageFile"
+                               class="form-label fw-bold">
+
+                            Upload New Cover
+
+                        </label>
+
+                        <input asp-for="ImageFile"
+                               id="ImageFile"
+                               class="form-control"
+                               accept="image/*">
+
+                    </div>
+
+                    <div class="mt-3">
+
+                        <label asp-for="ImageUrl"
+                               class="form-label fw-bold">
+
+                        </label>
+
+                        <input asp-for="ImageUrl"
+                               class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- INVENTORY -->
+
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-info text-white">
+
+                    <i class="fas fa-chart-bar me-2"></i>
+
+                    Inventory Summary
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span>Total Books</span>
+
+                        <span class="badge bg-primary">
+
+                            @Model.Quantity
+
+                        </span>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span>Available</span>
+
+                        <span class="badge bg-success">
+
+                            @Model.AvailableQuantity
+
+                        </span>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+
+                        <span>Borrowed</span>
+
+                        <span class="badge bg-danger">
+
+                            @(Model.Quantity - Model.AvailableQuantity)
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <hr class="my-4" />
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-6">
+
+                    <h5 class="mb-1">
+
+                        <i class="fas fa-info-circle text-primary"></i>
+
+                        Before Saving
+
+                    </h5>
+
+                    <small class="text-muted">
+
+                        Please review the information carefully before updating the book.
+
+                    </small>
+
+                </div>
+
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary btn-lg me-2">
+
+                        <i class="fas fa-arrow-left"></i>
+
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-success btn-lg px-4">
+
+                        <i class="fas fa-save me-2"></i>
+
+                        Save Changes
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+<style>
+.page-card{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:0 8px 30px rgba(0,0,0,.08);
+
+}
+
+.page-title{
+
+    font-size:28px;
+
+    font-weight:700;
+
+}
+
+.page-subtitle{
+
+    color:#6c757d;
+
+    margin-top:4px;
+
+}
+
+.card{
+
+    border:none;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+}
+
+.card-header{
+
+    font-weight:600;
+
+    font-size:16px;
+
+}
+
+.form-control,
+.form-select{
+
+    min-height:48px;
+
+    border-radius:12px;
+
+}
+
+textarea.form-control{
+
+    min-height:150px;
+
+}
+
+.form-control:focus,
+.form-select:focus{
+
+    border-color:#0d6efd;
+
+    box-shadow:0 0 0 .2rem rgba(13,110,253,.15);
+
+}
+
+#previewImage{
+
+    transition:.35s;
+
+    border-radius:16px;
+
+}
+
+#previewImage:hover{
+
+    transform:scale(1.03);
+
+}
+
+.btn-success{
+
+    transition:.3s;
+
+}
+
+.btn-success:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(25,135,84,.35);
+
+}
+</style>
 
 @section Scripts {
 
     <script>
 
-        document.querySelector('input[type=file]')
-            .addEventListener('change', function(e){
+        const imageInput = document.getElementById("ImageFile");
+        const preview = document.getElementById("previewImage");
 
-                const file = e.target.files[0];
+        imageInput?.addEventListener("change", function (e) {
 
-                if(!file) return;
+            const file = e.target.files[0];
 
-                const reader = new FileReader();
+            if (!file) return;
 
-                reader.onload = function(ev){
+            const reader = new FileReader();
 
-                    let img=document.getElementById("previewImage");
+            reader.onload = function (ev) {
 
-                    img.src=ev.target.result;
+                preview.src = ev.target.result;
 
-                    img.style.display="block";
+                preview.classList.add("shadow-lg");
 
-                }
+                preview.style.opacity = "0";
 
-                reader.readAsDataURL(file);
+                setTimeout(function () {
+
+                    preview.style.opacity = "1";
+
+                }, 80);
+
+            }
+
+            reader.readAsDataURL(file);
+
+        });
+
+        document.querySelector("form")
+            .addEventListener("submit", function () {
+
+                const btn = document.querySelector("button[type=submit]");
+
+                btn.disabled = true;
+
+                btn.innerHTML =
+                `<span class="spinner-border spinner-border-sm me-2"></span>
+                 Saving...`;
 
             });
 
