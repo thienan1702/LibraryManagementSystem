@@ -33,39 +33,161 @@
 
             </div>
 
+            <div class="card mt-4 shadow-sm">
+
+                <div class="card-header bg-dark text-white">
+
+                    <i class="fas fa-barcode me-2"></i>
+
+                    Barcode
+
+                </div>
+
+                <div class="card-body text-center">
+
+                    <img src="@Url.Action("Barcode", "Books", new { isbn = Model.ISBN })"
+                         class="img-fluid"
+                         style="max-height:100px;" />
+
+                    <div class="mt-3">
+
+                        <strong>@Model.ISBN</strong>
+
+                    </div>
+
+                    <hr />
+                    <a href="@Url.Action("Barcode", "Books", new { isbn = Model.ISBN })"
+                       download="@($"{Model.ISBN}.png")"
+                       class="btn btn-success btn-sm">
+
+                        <i class="fas fa-download"></i>
+
+                        Download
+
+                    </a>
+
+                    <a target="_blank"
+                       href="@Url.Action("PrintBarcode", "Books", new { isbn = Model.ISBN })"
+                       class="btn btn-primary btn-sm">
+
+                        <i class="fas fa-print"></i>
+
+                        Print
+
+                    </a>
+
+                </div>
+
+            </div>
+
             <div class="col-md-8">
 
-                <table class="table table-bordered">
-
+                <table class="table table-hover align-middle">
                     <tr>
-                        <th width="180">ISBN</th>
+                    
+
+                        <th width="180">
+
+                            <i class="fas fa-barcode text-secondary me-2"></i>
+
+                            ISBN
+
+                        </th>
+
                         <td>@Model.ISBN</td>
+
+                    
                     </tr>
 
                     <tr>
-                        <th>Author</th>
+
+                        <th>
+
+                            <i class="fas fa-user text-primary me-2"></i>
+
+                            Author
+
+                        </th>
+
                         <td>@Model.Author?.Name</td>
+
                     </tr>
 
+
                     <tr>
-                        <th>Category</th>
+
+                        <th>
+
+                            <i class="fas fa-tags text-success me-2"></i>
+
+                            Category
+
+                        </th>
+
                         <td>@Model.Category?.Name</td>
+
                     </tr>
 
+
                     <tr>
-                        <th>Publisher</th>
+
+                        <th>
+
+                            <i class="fas fa-building text-warning me-2"></i>
+
+                            Publisher
+
+                        </th>
+
                         <td>@Model.Publisher?.Name</td>
+
                     </tr>
 
-                    <tr>
-                        <th>Total Quantity</th>
-                        <td>@Model.Quantity</td>
-                    </tr>
+
+                    
+                        <td>
+
+                            <span class="badge bg-primary">
+
+                                @Model.Quantity
+
+                            </span>
+
+                        </td>
+
+
+                    <td>
+
+                        <span class="badge bg-success">
+
+                            @Model.AvailableQuantity
+
+                        </span>
+
+                    </td>
 
                     <tr>
-                        <th>Available</th>
-                        <td>@Model.AvailableQuantity</td>
+
+                        <th>
+
+                            <i class="fas fa-book-reader text-danger me-2"></i>
+
+                            Borrowed
+
+                        </th>
+
+                        <td>
+
+                            <span class="badge bg-danger">
+
+                                @(Model.Quantity - Model.AvailableQuantity)
+
+                            </span>
+
+                        </td>
+
                     </tr>
+
 
                     <tr>
                         <th>Description</th>
@@ -82,14 +204,16 @@
 
     <hr />
 
-    <h5 class="text-primary mb-3">
+    <h4 class="mb-4">
 
-        📖 Borrow History
+        <i class="fas fa-history text-primary"></i>
 
-    </h5>
+        Borrow History
+
+    </h4>
     @if (Model.BorrowDetails.Any())
     {
-        <table class="table table-bordered table-striped">
+        <table class="table table-hover align-middle">
 
             <thead class="table-dark">
 
@@ -166,11 +290,13 @@
         </div>
     }
 
-    <div class="card-footer">
+    <div class="card-footer text-end">
 
         <a asp-action="Edit"
            asp-route-id="@Model.Id"
            class="btn btn-warning">
+
+            <i class="fas fa-edit"></i>
 
             Edit
 
@@ -178,6 +304,8 @@
 
         <a asp-action="Index"
            class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left"></i>
 
             Back
 
