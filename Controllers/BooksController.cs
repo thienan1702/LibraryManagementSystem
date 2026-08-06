@@ -1,11 +1,14 @@
 ﻿using ClosedXML.Excel;
 using LibraryManagement.Data;
 using LibraryManagement.Models;
+using LibraryManagement.Services;
+using LibraryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rotativa.AspNetCore;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +16,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList;
 using X.PagedList.Extensions;
-using LibraryManagement.Services.Interfaces;
+using ZXing;
+using ZXing.Common;
+using ZXing.SkiaSharp.Rendering;
 
 namespace LibraryManagement.Controllers
 {
@@ -23,17 +28,17 @@ namespace LibraryManagement.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly IAuditService _audit;
+        private readonly BarcodeService _barcodeService;
 
-        
 
         public BooksController(
             ApplicationDbContext context,
-            IWebHostEnvironment environment, IAuditService audit)
+            IWebHostEnvironment environment, IAuditService audit, BarcodeService barcodeService)
         {
             _context = context;
             _environment = environment;
             _audit = audit;
-
+            _barcodeService = barcodeService;
         }
 
         // GET: Books
@@ -125,7 +130,7 @@ namespace LibraryManagement.Controllers
              .FirstOrDefaultAsync(x => x.Id == id);
 
             if (book == null)
-                return NotFound();
+                return NotFound(); 
 
             return View(book);
         }
@@ -145,7 +150,7 @@ namespace LibraryManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,ISBN,Quantity,AvailableQuantity,Description,ImageUrl,CategoryId,AuthorId,PublisherId")] Book book)
+        public async Task<IActionResult> Create([Bind("Id,Title,ISBN,Quantity,AvailableQuantity,Description,ImageUrl,ImageFile,CategoryId,AuthorId,PublisherId")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -194,7 +199,7 @@ namespace LibraryManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ISBN,Quantity,AvailableQuantity,Description,ImageUrl,CategoryId,AuthorId,PublisherId")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ISBN,Quantity,AvailableQuantity,Description,ImageUrl,ImageFile,CategoryId,AuthorId,PublisherId")] Book book)
         {
             if (id != book.Id)
             {
@@ -413,6 +418,63 @@ namespace LibraryManagement.Controllers
                 FileName = "Books.pdf",
                 PageOrientation = Rotativa.AspNetCore.Options.Orientation.Landscape
             };
+        }
+
+
+        public IActionResult Barcode(string isbn)
+        {
+            if (string.IsNullOrWhiteSpace(isbn))
+                return BadRequest();
+
+            var writer = new BarcodeWriter<SKBitmap>
+            {
+                Format = BarcodeFormat.CODE_128,
+                Options = new EncodingOptions
+                {
+                    Width = 500,
+                    Height = 120,
+                    Margin = 10,
+                    PureBarcode = false
+                },
+                Renderer = new SKBitmapRenderer()
+            };
+
+            using var bitmap = writer.Write(isbn);
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+
+            return File(data.ToArray(), "image/png");
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> FindByISBN(string isbn)
+        {
+            if (string.IsNullOrWhiteSpace(isbn))
+                return Json(null);
+
+            var book = await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .Include(b => b.Publisher)
+                .FirstOrDefaultAsync(x => x.ISBN == isbn);
+
+            if (book == null)
+                return Json(null);
+
+            return Json(new
+            {
+                id = book.Id,
+                title = book.Title,
+                isbn = book.ISBN,
+                available = book.AvailableQuantity,
+                quantity = book.Quantity,
+                author = book.Author?.Name,
+                category = book.Category?.Name,
+                publisher = book.Publisher?.Name,
+                image = book.ImageUrl
+            });
         }
 
 

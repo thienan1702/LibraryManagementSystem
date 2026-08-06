@@ -41,6 +41,116 @@
 
     </div>
 
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+                <i class="fas fa-barcode"></i>
+                Scan / Enter ISBN
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="input-group">
+
+                <input id="isbnInput"
+                       class="form-control form-control-lg"
+                       placeholder="Scan barcode or enter ISBN..." />
+
+                <button id="btnSearchBook"
+                        type="button"
+                        class="btn btn-primary">
+
+                    <i class="fas fa-search"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+
+            <button type="button"
+                    id="btnCamera"
+                    class="btn btn-success">
+
+                <i class="fas fa-camera"></i>
+
+                Scan by Camera
+
+            </button>
+
+        </div>
+
+        <div id="reader"
+             style="width:400px;display:none;"
+             class="mt-3">
+        </div>
+
+    </div>
+    <div id="bookInfo"
+         class="card shadow-sm mb-4"
+         style="display:none;">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-3 text-center">
+
+                    <img id="bookImage"
+                         class="img-fluid rounded border"
+                         style="max-height:180px;" />
+
+                </div>
+
+                <div class="col-md-9">
+
+                    <h4 id="bookTitle"></h4>
+
+                    <table class="table">
+
+                        <tr>
+                            <th>ISBN</th>
+                            <td id="bookISBN"></td>
+                        </tr>
+
+                        <tr>
+                            <th>Author</th>
+                            <td id="bookAuthor"></td>
+                        </tr>
+
+                        <tr>
+                            <th>Category</th>
+                            <td id="bookCategory"></td>
+                        </tr>
+
+                        <tr>
+                            <th>Publisher</th>
+                            <td id="bookPublisher"></td>
+                        </tr>
+
+                        <tr>
+                            <th>Available</th>
+                            <td id="bookAvailable"></td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <form asp-action="Create" method="post">
 
         <div asp-validation-summary="ModelOnly"
@@ -185,14 +295,19 @@
 
                             @foreach (var book in books)
                             {
-                                <option value="@book.Id">
+                                <option value="@book.Id"
+                                        data-isbn="@book.ISBN"
+                                        data-title="@book.Title"
+                                        data-author="@book.Author?.Name"
+                                        data-category="@book.Category?.Name"
+                                        data-publisher="@book.Publisher?.Name"
+                                        data-image="@book.ImageUrl"
+                                        data-available="@book.AvailableQuantity">
 
-                                    @book.Title
-                                    (@book.AvailableQuantity)
+                                    @book.Title (@book.AvailableQuantity)
 
                                 </option>
                             }
-
                         </select>
 
                     </div>
@@ -296,11 +411,27 @@
 
 </div>
 
+
+<audio id="beepSound">
+    <source src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" type="audio/ogg">
+</audio>
+
+
+
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
 
+
+
+
     <script>
+
+                function playBeep() {
+
+            document.getElementById("beepSound").play();
+
+        }
 
         let index = 0;
 
@@ -523,7 +654,133 @@
 
         }
 
+                $("#btnSearchBook").click(function () {
+
+            let isbn = $("#isbnInput").val().trim();
+
+            if (isbn === "")
+                return;
+
+            let option = $("#bookSelect option").filter(function () {
+
+                return $(this).data("isbn") == isbn;
+
+            });
+
+            if (option.length == 0) {
+
+                Swal.fire(
+                    "Not found",
+                    "Book not found.",
+                    "error");
+
+                return;
+            }
+
+            $("#bookSelect").val(option.val());
+
+            $("#bookInfo").show();
+
+            $("#bookTitle").text(option.data("title"));
+
+            $("#bookISBN").text(option.data("isbn"));
+
+            $("#bookAuthor").text(option.data("author"));
+
+            $("#bookCategory").text(option.data("category"));
+
+            $("#bookPublisher").text(option.data("publisher"));
+
+            $("#bookAvailable").text(option.data("available"));
+
+            $("#bookImage").attr("src", option.data("image"));
+
+            $("#btnAdd").click();
+
+
+
+        });
+                $("#isbnInput").keypress(function (e) {
+
+            if (e.which == 13) {
+
+                e.preventDefault();
+
+                $("#btnSearchBook").click();
+
+                playBeep();
+
+            }
+
+        });
+
+
+
+                let html5QrCode;
+
+        $("#btnCamera").click(function () {
+
+            $("#reader").show();
+
+            html5QrCode = new Html5Qrcode("reader");
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+
+                function (decodedText) {
+
+        $("#isbnInput").val(decodedText);
+
+        $("#btnSearchBook").click();
+
+        $("#btnAdd").click();
+                Swal.fire({
+
+            toast: true,
+
+            position: "top-end",
+
+            icon: "success",
+
+            title: "Book Added",
+
+            showConfirmButton: false,
+
+            timer: 1200
+
+        });
+
+        playBeep();
+
+        html5QrCode.stop();
+
+        $("#reader").hide();
+        
+        $("#isbnInput").val("");
+
+        $("#isbnInput").focus();
+
+                },
+
+                function () {
+
+                }
+
+            );
+
+        });
+
+
+
+
+
+
     </script>
+
 
 }
 <style>

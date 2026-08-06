@@ -1,5 +1,6 @@
 ﻿using LibraryManagement.Data;
 using LibraryManagement.Models;
+using LibraryManagement.Services;
 using LibraryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +22,18 @@ namespace LibraryManagement.Controllers
         private readonly IEmailService _email;
         private readonly IPdfService _pdf;
         private readonly IConfiguration _configuration;
+        private readonly BorrowReceiptService _receiptService;
 
-        public BorrowsController(ApplicationDbContext context,IEmailService email,IPdfService pdf, IConfiguration configuration)
+
+        public BorrowsController(ApplicationDbContext context,IEmailService email,IPdfService pdf, IConfiguration configuration, BorrowReceiptService receiptService)
 
         {
             _context = context;
             _email = email;
             _pdf = pdf;
             _configuration = configuration;
+            _receiptService = receiptService;
+
 
         }
 
@@ -103,13 +108,15 @@ namespace LibraryManagement.Controllers
         public IActionResult Create()
         {
             ViewBag.Books = _context.Books
+                .Include(x => x.Author)
+                .Include(x => x.Category)
+                .Include(x => x.Publisher)
                 .Where(x => x.AvailableQuantity > 0)
                 .OrderBy(x => x.Title)
                 .ToList();
 
             return View(new BorrowCreateVM());
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BorrowCreateVM vm)
@@ -311,7 +318,9 @@ namespace LibraryManagement.Controllers
 
             TempData["Success"] = "Borrow created successfully.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(
+                nameof(BorrowReceipt),
+                new { id = borrow.Id });
         }
 
 
@@ -715,6 +724,47 @@ namespace LibraryManagement.Controllers
                 "application/pdf",
                 $"Borrow_{id}.pdf");
         }
+
+
+        public async Task<IActionResult> PrintReceipt(int id)
+        {
+            var borrow = await _context.Borrows
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (borrow == null)
+                return NotFound();
+
+            var pdf = _receiptService.Generate(borrow);
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"Borrow_{borrow.Id}.pdf");
+        }
+
+
+        public IActionResult BorrowReceipt(int id)
+        {
+            var borrow = _context.Borrows
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                        .ThenInclude(x => x.Author)
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                        .ThenInclude(x => x.Category)
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                        .ThenInclude(x => x.Publisher)
+                .FirstOrDefault(x => x.Id == id);
+
+            if (borrow == null)
+                return NotFound();
+
+            return View(borrow);
+        }
+
 
         private bool BorrowExists(int id)
         {

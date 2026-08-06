@@ -1,0 +1,422 @@
+﻿@model LibraryManagement.Models.Borrow
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <title>Borrow Receipt</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    <style>
+
+        body {
+            background: #f5f5f5;
+            padding: 40px;
+        }
+
+        .receipt {
+            background: white;
+            width: 900px;
+            margin: auto;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,.1);
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        table td,
+        table th {
+            padding: 10px !important;
+        }
+
+        @@media print {
+            body
+
+        {
+            background: white;
+            padding: 0;
+        }
+
+        .receipt {
+            box-shadow: none;
+            width: 100%;
+        }
+
+        .no-print {
+            display: none;
+        }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="receipt">
+
+        <div class="row mb-4">
+
+            <div class="col-8">
+
+                <div class="logo">
+
+                    📚 Library Management
+
+                </div>
+
+                <div class="text-muted">
+
+                    Borrow Receipt
+
+                </div>
+
+            </div>
+
+            <div class="col-4 text-end">
+
+                <h3>
+
+                    BR@(Model.Id.ToString("000000"))
+
+                </h3>
+
+            </div>
+
+        </div>
+
+        <hr />
+        <div class="row mt-4">
+
+            <div class="col-md-6">
+
+                <table class="table table-borderless">
+
+                    <tr>
+
+                        <th width="170">Borrower</th>
+
+                        <td>@Model.BorrowerName</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Email</th>
+
+                        <td>@Model.BorrowerEmail</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Borrow Date</th>
+
+                        <td>@Model.BorrowDate.ToString("dd/MM/yyyy")</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>Due Date</th>
+
+                        <td>@Model.DueDate.ToString("dd/MM/yyyy")</td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="col-md-6 text-end">
+
+                <div class="border rounded p-3">
+
+                    <h5 class="text-primary">
+
+                        Current Status
+
+                    </h5>
+
+                    <h2 class="text-success">
+
+                        Borrowing
+
+                    </h2>
+
+                    <small class="text-muted">
+
+                        Please return before due date
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4" />
+
+        <h4 class="mb-3">
+
+            Borrowed Books
+
+        </h4>
+
+        <table class="table table-bordered">
+
+            <thead class="table-primary">
+
+                <tr>
+
+                    <th width="60">#</th>
+
+                    <th>Book</th>
+
+                    <th width="170">Author</th>
+
+                    <th width="120">ISBN</th>
+
+                    <th width="80">Qty</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @{
+
+                    int stt = 1;
+
+                }
+
+                @foreach (var item in Model.BorrowDetails)
+
+                {
+
+                    <tr>
+
+                        <td class="text-center">
+
+                            @stt
+
+                        </td>
+
+                        <td>
+
+                            <strong>
+
+                                @item.Book.Title
+
+                            </strong>
+
+                            <br />
+
+                            <small class="text-muted">
+
+                                @item.Book.Category?.Name
+
+                            </small>
+
+                        </td>
+
+                        <td>
+
+                            @item.Book.Author?.Name
+
+                        </td>
+
+                        <td>
+
+                            @item.Book.ISBN
+
+                        </td>
+
+                        <td class="text-center">
+
+                            @item.Quantity
+
+                        </td>
+
+                    </tr>
+
+                    stt++;
+
+                }
+
+            </tbody>
+
+        </table>
+        <hr class="my-4" />
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <h5 class="text-primary">
+
+                    Summary
+
+                </h5>
+
+                <table class="table table-borderless">
+
+                    <tr>
+
+                        <th width="180">
+
+                            Total Book Titles
+
+                        </th>
+
+                        <td>
+
+                            @Model.BorrowDetails.Count
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>
+
+                            Total Quantity
+
+                        </th>
+
+                        <td>
+
+                            @Model.BorrowDetails.Sum(x => x.Quantity)
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="col-md-6 text-end">
+
+                <img src="@Url.Action("Barcode", "Books", new { isbn = "BR" + Model.Id.ToString("000000") })"
+                     style="height:90px;" />
+
+                <div class="mt-2">
+
+                    <strong>
+
+                        BR@(Model.Id.ToString("000000"))
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr class="my-5" />
+
+        <div class="row text-center">
+
+            <div class="col-6">
+
+                <strong>
+
+                    Borrower Signature
+
+                </strong>
+
+                <br /><br /><br /><br />
+
+                _______________________
+
+            </div>
+
+            <div class="col-6">
+
+                <strong>
+
+                    Librarian Signature
+
+                </strong>
+
+                <br /><br /><br /><br />
+
+                _______________________
+
+            </div>
+
+        </div>
+
+        <div class="text-center mt-5 text-muted">
+
+            <small>
+
+                Generated at @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+
+            </small>
+
+        </div>
+
+        <div class="text-center mt-4 no-print">
+
+            <button class="btn btn-primary"
+                    onclick="window.print()">
+
+                <i class="fas fa-print"></i>
+
+                Print
+
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        window.onload = function () {
+
+            setTimeout(function(){
+
+                window.print();
+
+            },500);
+
+        };
+
+    </script>
+
+</body>
+
+</html>

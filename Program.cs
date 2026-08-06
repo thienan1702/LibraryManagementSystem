@@ -3,6 +3,7 @@ using LibraryManagement.Data;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories.Implementations;
 using LibraryManagement.Repositories.Interfaces;
+using LibraryManagement.Services;
 using LibraryManagement.Services.Implementations;
 using LibraryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,8 @@ builder.Services.Configure<EmailSettings>(
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddSingleton<BarcodeService>();
+builder.Services.AddScoped<BorrowReceiptService>();
 
 var app = builder.Build();
 
