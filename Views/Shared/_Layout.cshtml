@@ -279,6 +279,23 @@
 
                                 </a>
                             </li>
+
+
+                            <li class="nav-item">
+
+                                <a asp-controller="StockIns"
+                                   asp-action="Index"
+                                   class="nav-link">
+
+                                    <i class="fas fa-boxes-stacked"></i>
+
+                                    <span>Stock In</span>
+
+                                </a>
+
+                            </li>
+
+
                         }
 
                     </ul>
@@ -337,7 +354,6 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     @if (TempData["Success"] != null)
     {
         <script>
@@ -354,10 +370,19 @@
     @if (TempData["Error"] != null)
     {
         <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: '@Html.Raw(TempData["Error"])'
+            window.addEventListener('load', function () {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '@Html.Raw(TempData["Error"])',
+                    confirmButtonText: 'OK',
+                    showConfirmButton: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showCloseButton: false
+                });
+
             });
         </script>
     }
@@ -368,7 +393,9 @@
             Swal.fire({
                 icon: 'warning',
                 title: 'Warning',
-                text: '@Html.Raw(TempData["Warning"])'
+                text: '@Html.Raw(TempData["Warning"])',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false
             });
         </script>
     }
@@ -379,66 +406,61 @@
             Swal.fire({
                 icon: 'info',
                 title: 'Information',
-                text: '@Html.Raw(TempData["Info"])'
+                text: '@Html.Raw(TempData["Info"])',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false
             });
         </script>
     }
 
     <script>
 
-        let lastCount = 0;
+        let lastCount = null;
 
-        function loadNotification(){
+               function loadNotification() {
 
-            $.get("/Notifications/GetReservationNotification",function(res){
+            $.get("/Notifications/GetReservationNotification", function (res) {
 
                 $("#notifyCount").text(res.total);
 
-                let html="";
+                let html = "";
 
-                html+=`
+                html += `
                     <div class="dropdown-header">
                         Notifications
                     </div>
                 `;
 
-                if(res.total==0){
+                if (res.total == 0) {
 
-                    html+=`
+                    html += `
                         <div class="dropdown-item text-center">
-
                             No notification
-
                         </div>
                     `;
 
                 }
-                else{
+                else {
 
-                    res.items.forEach(function(i){
+                    res.items.forEach(function (i) {
 
-                        html+=`
+                        html += `
 
-                        <a
-                            class="dropdown-item"
-                            href="/Reservations">
+                            <a
+                                class="dropdown-item"
+                                href="/Reservations">
 
-                            <div>
+                                <div>
+                                    <b>${i.customerName}</b>
+                                </div>
 
-                                <b>${i.customerName}</b>
+                                <small>
+                                    Reserved ${i.book}
+                                </small>
 
-                            </div>
+                            </a>
 
-                            <small>
-
-                                Reserved
-                                ${i.book}
-
-                            </small>
-
-                        </a>
-
-                        <div class="dropdown-divider"></div>
+                            <div class="dropdown-divider"></div>
 
                         `;
 
@@ -446,35 +468,53 @@
 
                 }
 
-                html+=`
+                html += `
 
-                <a
-                    href="/Reservations"
-                    class="dropdown-item text-center">
+                    <a
+                        href="/Reservations"
+                        class="dropdown-item text-center">
 
-                    View All
+                        View All
 
-                </a>
+                    </a>
 
                 `;
 
                 $("#notifyMenu").html(html);
 
-                if(res.total>lastCount){
+
+                // ==============================
+                // FIRST LOAD
+                // ==============================
+
+                if (lastCount === null) {
+
+                    lastCount = res.total;
+
+                    return;
+
+                }
+
+
+                // ==============================
+                // NEW NOTIFICATION
+                // ==============================
+
+                if (res.total > lastCount) {
 
                     Swal.fire({
 
-                        toast:true,
+                        toast: true,
 
-                        position:'top-end',
+                        position: "top-end",
 
-                        icon:'info',
+                        icon: "info",
 
-                        title:'New Reservation',
+                        title: "New Reservation",
 
-                        timer:2000,
+                        timer: 2000,
 
-                        showConfirmButton:false
+                        showConfirmButton: false
 
                     });
 
@@ -482,7 +522,8 @@
 
                 }
 
-                lastCount=res.total;
+
+                lastCount = res.total;
 
             });
 
@@ -490,7 +531,7 @@
 
         loadNotification();
 
-        setInterval(loadNotification,10000);
+        setInterval(loadNotification, 10000);
 
     </script>
 

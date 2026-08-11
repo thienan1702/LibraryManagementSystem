@@ -23,6 +23,15 @@ namespace LibraryManagement.Repositories.Implementations
                 .Where(x => x.Name.Contains(keyword))
                 .ToListAsync();
         }
+
+
+        public async Task<bool> HasBooksAsync(int id)
+        {
+            return await _context.Books
+                .AnyAsync(x => x.CategoryId == id);
+        }
+
+
         public async Task<IPagedList<Category>> GetPagedAsync(
             string? search,
             string? sortOrder,

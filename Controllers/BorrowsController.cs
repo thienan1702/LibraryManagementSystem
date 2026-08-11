@@ -547,27 +547,33 @@ namespace LibraryManagement.Controllers
             if (borrow == null)
                 return NotFound();
 
-            // Nếu chưa trả sách thì cộng lại số lượng
+            // Chưa trả sách → không được xóa
             if (!borrow.IsReturned)
             {
-                foreach (var item in borrow.BorrowDetails)
-                {
-                    var book = await _context.Books.FindAsync(item.BookId);
+                TempData["Error"] =
+                    "Cannot delete this borrow because the books have not been returned.";
 
-                    if (book != null)
-                    {
-                        book.AvailableQuantity += item.Quantity;
-                    }
-                }
+                return RedirectToAction(nameof(Index));
             }
 
+            // Chưa thanh toán fine → không được xóa
+            if (!borrow.IsPaid)
+            {
+                TempData["Error"] =
+                    "Cannot delete this borrow because the fine has not been paid.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Xóa BorrowDetail
             _context.BorrowDetails.RemoveRange(borrow.BorrowDetails);
 
+            // Xóa Borrow
             _context.Borrows.Remove(borrow);
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Borrow deleted.";
+            TempData["Success"] = "Borrow deleted successfully.";
 
             return RedirectToAction(nameof(Index));
         }

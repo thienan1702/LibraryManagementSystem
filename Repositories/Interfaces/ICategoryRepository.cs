@@ -24,5 +24,7 @@ namespace LibraryManagement.Repositories.Interfaces
         Task DeleteAsync(int id);
 
         Task SaveAsync();
+
+        Task<bool> HasBooksAsync(int id);
     }
 }

@@ -152,6 +152,10 @@ namespace LibraryManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,ISBN,Quantity,AvailableQuantity,Description,ImageUrl,ImageFile,CategoryId,AuthorId,PublisherId")] Book book)
         {
+            if (_context.Books.Any(x => x.ISBN == book.ISBN))
+            {
+                ModelState.AddModelError("ISBN", "This ISBN already exists.");
+            }
             if (ModelState.IsValid)
             {
                 book.ImageUrl = await UploadImage(book.ImageFile);
@@ -199,38 +203,112 @@ namespace LibraryManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ISBN,Quantity,AvailableQuantity,Description,ImageUrl,ImageFile,CategoryId,AuthorId,PublisherId")] Book book)
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,Title,ISBN,Quantity,Description,ImageUrl,ImageFile,CategoryId,AuthorId,PublisherId")]
+    Book book)
         {
             if (id != book.Id)
             {
                 return NotFound();
             }
 
+            // Không cho Quantity âm
+            if (book.Quantity < 0)
+            {
+                ModelState.AddModelError(
+                    "Quantity",
+                    "Quantity cannot be negative.");
+            }
+
+            // Kiểm tra ISBN trùng
+            if (_context.Books.Any(x =>
+                x.ISBN == book.ISBN &&
+                x.Id != book.Id))
+            {
+                ModelState.AddModelError(
+                    "ISBN",
+                    "This ISBN already exists.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var existingBook = await _context.Books
+                        .FirstOrDefaultAsync(x => x.Id == id);
+
+                    if (existingBook == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Số sách đang được mượn
+                    int borrowedQuantity =
+                        existingBook.Quantity -
+                        existingBook.AvailableQuantity;
+
+                    // Không cho Quantity nhỏ hơn số sách đang được mượn
+                    if (book.Quantity < borrowedQuantity)
+                    {
+                        ModelState.AddModelError(
+                            "Quantity",
+                            $"Quantity cannot be less than {borrowedQuantity} because these books are currently borrowed.");
+
+                        ViewData["AuthorId"] = new SelectList(
+                            _context.Authors,
+                            "Id",
+                            "Name",
+                            book.AuthorId);
+
+                        ViewData["CategoryId"] = new SelectList(
+                            _context.Categories,
+                            "Id",
+                            "Name",
+                            book.CategoryId);
+
+                        ViewData["PublisherId"] = new SelectList(
+                            _context.Publishers,
+                            "Id",
+                            "Name",
+                            book.PublisherId);
+
+                        return View(book);
+                    }
+
+                    // Giữ lại số sách đang được mượn
+                    int newAvailableQuantity =
+                        book.Quantity - borrowedQuantity;
+
+                    existingBook.Title = book.Title;
+                    existingBook.ISBN = book.ISBN;
+                    existingBook.Quantity = book.Quantity;
+                    existingBook.AvailableQuantity = newAvailableQuantity;
+                    existingBook.Description = book.Description;
+                    existingBook.CategoryId = book.CategoryId;
+                    existingBook.AuthorId = book.AuthorId;
+                    existingBook.PublisherId = book.PublisherId;
+
+                    // Upload ảnh mới
                     if (book.ImageFile != null)
                     {
-                        var oldBook = await _context.Books
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync(x => x.Id == book.Id);
+                        DeleteImage(existingBook.ImageUrl);
 
-                        if (oldBook != null)
-                            DeleteImage(oldBook.ImageUrl);
-
-                        book.ImageUrl = await UploadImage(book.ImageFile);
+                        existingBook.ImageUrl =
+                            await UploadImage(book.ImageFile);
                     }
-                    _context.Update(book);
+
                     await _context.SaveChangesAsync();
+
                     await _audit.SaveAsync(
                         User.Identity?.Name ?? "System",
                         "Edit",
                         "Book",
-                        book.Id,
-                        $"Updated book '{book.Title}'");
+                        existingBook.Id,
+                        $"Updated book '{existingBook.Title}'");
 
-                    TempData["Success"] = "Book updated successfully.";
+                    TempData["Success"] =
+                        "Book updated successfully.";
 
                     return RedirectToAction(nameof(Index));
                 }
@@ -240,16 +318,29 @@ namespace LibraryManagement.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Authors, "Id", "Name", book.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", book.CategoryId);
-            ViewData["PublisherId"] = new SelectList(_context.Publishers, "Id", "Name", book.PublisherId);
+
+            ViewData["AuthorId"] = new SelectList(
+                _context.Authors,
+                "Id",
+                "Name",
+                book.AuthorId);
+
+            ViewData["CategoryId"] = new SelectList(
+                _context.Categories,
+                "Id",
+                "Name",
+                book.CategoryId);
+
+            ViewData["PublisherId"] = new SelectList(
+                _context.Publishers,
+                "Id",
+                "Name",
+                book.PublisherId);
+
             return View(book);
         }
 
@@ -279,27 +370,35 @@ namespace LibraryManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+                .Include(b => b.BorrowDetails)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (book != null)
+            if (book == null)
+                return NotFound();
+
+            // Không cho xóa sách đã từng được mượn
+            if (book.BorrowDetails != null &&
+                book.BorrowDetails.Any())
             {
-                string title = book.Title;
+                TempData["Error"] =
+                    "Cannot delete this book because it has borrow history.";
 
-                DeleteImage(book.ImageUrl);
-
-                _context.Books.Remove(book);
-
-                await _context.SaveChangesAsync();
-
-                await _audit.SaveAsync(
-                    User.Identity?.Name ?? "System",
-                    "Delete",
-                    "Book",
-                    id,
-                    $"Deleted book '{title}'");
-
-                TempData["Success"] = "Book deleted successfully.";
+                return RedirectToAction(nameof(Index));
             }
+
+            _context.Books.Remove(book);
+
+            await _context.SaveChangesAsync();
+
+            await _audit.SaveAsync(
+                User.Identity?.Name ?? "System",
+                "Delete",
+                "Book",
+                book.Id,
+                $"Deleted book '{book.Title}'");
+
+            TempData["Success"] = "Book deleted successfully.";
 
             return RedirectToAction(nameof(Index));
         }

@@ -48,10 +48,17 @@ namespace LibraryManagement.Services.Implementations
             await _repository.SaveAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
+            if (await _repository.HasBooksAsync(id))
+            {
+                return false;
+            }
+
             await _repository.DeleteAsync(id);
             await _repository.SaveAsync();
+
+            return true;
         }
 
         public async Task<IEnumerable<Category>> SearchAsync(string keyword)

@@ -51,6 +51,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddSingleton<BarcodeService>();
 builder.Services.AddScoped<BorrowReceiptService>();
+builder.Services.AddScoped<IStockInRepository, StockInRepository>();
+builder.Services.AddScoped<IStockInService, StockInService>();
 
 var app = builder.Build();
 

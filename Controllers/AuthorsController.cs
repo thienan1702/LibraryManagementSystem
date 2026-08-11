@@ -164,14 +164,27 @@ namespace LibraryManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (author != null)
+            var author = await _context.Authors
+                .Include(a => a.Books)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (author == null)
+                return NotFound();
+
+            if (author.Books.Any())
             {
-                _context.Authors.Remove(author);
+                TempData["Error"] =
+                    "Cannot delete this author because it is being used by one or more books.";
+
+                return RedirectToAction(nameof(Index));
             }
 
+            _context.Authors.Remove(author);
+
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Author updated successfully.";
+
+            TempData["Success"] = "Author deleted successfully.";
+
             return RedirectToAction(nameof(Index));
         }
 

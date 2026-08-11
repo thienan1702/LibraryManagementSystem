@@ -153,13 +153,27 @@ namespace LibraryManagement.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var publisher = await _context.Publishers.FindAsync(id);
-            if (publisher != null)
+
+            if (publisher == null)
+                return NotFound();
+
+            var hasBooks = await _context.Books
+                .AnyAsync(x => x.PublisherId == id);
+
+            if (hasBooks)
             {
-                _context.Publishers.Remove(publisher);
+                TempData["Error"] =
+                    "Cannot delete this publisher because it is being used by one or more books.";
+
+                return RedirectToAction(nameof(Index));
             }
 
+            _context.Publishers.Remove(publisher);
+
             await _context.SaveChangesAsync();
+
             TempData["Success"] = "Publisher deleted successfully.";
+
             return RedirectToAction(nameof(Index));
         }
 

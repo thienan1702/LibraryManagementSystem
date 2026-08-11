@@ -1,7 +1,8 @@
 ﻿using LibraryManagement.Models;
 using LibraryManagement.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Controllers
 {
@@ -114,7 +115,16 @@ namespace LibraryManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _service.DeleteAsync(id);
+            var deleted = await _service.DeleteAsync(id);
+
+            if (!deleted)
+            {
+                TempData["Error"] =
+                    "Cannot delete this category because it is being used by one or more books.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
             TempData["Success"] = "Category deleted successfully.";
 
             return RedirectToAction(nameof(Index));

@@ -1,0 +1,181 @@
+﻿@model LibraryManagement.Models.StockIn
+
+@{
+    ViewData["Title"] = "Stock In";
+}
+
+<div class="container py-4">
+
+    <div class="page-card mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="page-title">
+                    <i class="fas fa-boxes-stacked text-primary"></i>
+                    Stock In
+                </div>
+
+                <div class="page-subtitle">
+                    Add books to library inventory
+                </div>
+            </div>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="fas fa-arrow-left"></i>
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                <i class="fas fa-truck-ramp-box"></i>
+
+                Stock In Information
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label asp-for="BookId"
+                           class="form-label">
+
+                        Book
+
+                    </label>
+
+                    <select asp-for="BookId"
+                            class="form-select"
+                            asp-items="ViewBag.BookId">
+
+                        <option value="">
+                            -- Select Book --
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="BookId"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label asp-for="Quantity"
+                           class="form-label">
+
+                        Quantity
+
+                    </label>
+
+                    <input asp-for="Quantity"
+                           type="number"
+                           min="1"
+                           class="form-control"
+                           placeholder="Enter quantity..." />
+
+                    <span asp-validation-for="Quantity"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label asp-for="StockInDate"
+                           class="form-label">
+
+                        Stock In Date
+
+                    </label>
+
+                    <input asp-for="StockInDate"
+                           type="datetime-local"
+                           class="form-control" />
+
+                    <span asp-validation-for="StockInDate"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label asp-for="Note"
+                           class="form-label">
+
+                        Note
+
+                    </label>
+
+                    <textarea asp-for="Note"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Optional note...">
+                    </textarea>
+
+                    <span asp-validation-for="Note"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="text-end">
+
+                    <button type="submit"
+                            class="btn btn-success px-4">
+
+                        <i class="fas fa-boxes-stacked"></i>
+
+                        Stock In
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
+}
