@@ -1,5 +1,7 @@
-﻿@model IEnumerable<LibraryManagement.Models.AuditLog>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
 
+@model IPagedList<LibraryManagement.Models.AuditLog>
 @{
     ViewData["Title"] = "Audit Logs";
 }
@@ -38,8 +40,7 @@
 
             <div class="inner">
 
-                <h3>@Model.Count()</h3>
-
+                <h3>@Model.TotalItemCount</h3>
                 <p>Total Logs</p>
 
             </div>
@@ -67,6 +68,10 @@
                 <thead class="table-dark">
 
                     <tr>
+
+                        <th width="70">
+                            #
+                        </th>
 
                         <th width="180">
 
@@ -108,10 +113,28 @@
 
                 <tbody>
 
+                    
+                    @{
+                        int stt = (Model.PageNumber - 1) * Model.PageSize + 1;
+                    }
+
                     @foreach (var item in Model)
                     {
                         <tr>
 
+                            <!-- STT -->
+                            <td>
+
+                                <span class="badge bg-primary">
+
+                                    @stt
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Time -->
                             <td>
 
                                 @item.Time.ToString("dd/MM/yyyy")
@@ -126,6 +149,8 @@
 
                             </td>
 
+
+                            <!-- User -->
                             <td>
 
                                 <div class="d-flex align-items-center">
@@ -152,6 +177,8 @@
 
                             </td>
 
+
+                            <!-- Action -->
                             <td>
 
                             @switch (item.Action)
@@ -168,6 +195,7 @@
 
                                         break;
 
+
                                     case "Update":
 
                                     case "Edit":
@@ -182,6 +210,7 @@
 
                                         break;
 
+
                                     case "Delete":
 
                                         <span class="badge bg-danger">
@@ -193,6 +222,7 @@
                                         </span>
 
                                         break;
+
 
                                     case "Login":
 
@@ -206,6 +236,7 @@
 
                                         break;
 
+
                                     case "Logout":
 
                                         <span class="badge bg-secondary">
@@ -217,6 +248,7 @@
                                         </span>
 
                                         break;
+
 
                                     default:
 
@@ -231,6 +263,8 @@
 
                             </td>
 
+
+                            <!-- Entity -->
                             <td>
 
                                 <span class="badge bg-light text-dark border">
@@ -241,6 +275,8 @@
 
                             </td>
 
+
+                            <!-- Description -->
                             <td>
 
                                 <div class="bg-light rounded p-2">
@@ -252,13 +288,16 @@
                             </td>
 
                         </tr>
+
+                        stt++;
                     }
+
 
                     @if (!Model.Any())
                     {
                         <tr>
 
-                            <td colspan="5" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
 
                                 <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
 
@@ -278,6 +317,7 @@
 
                         </tr>
                     }
+                    
 
                 </tbody>
 
@@ -286,5 +326,38 @@
         </div>
 
     </div>
+
+</div>
+<div class="d-flex justify-content-center mt-4">
+
+    @Html.PagedListPager(
+
+    Model,
+
+    page => Url.Action("Index", new
+    {
+        page
+    }),
+
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "Previous",
+            LinkToNextPageFormat = "Next",
+            LinkToLastPageFormat = ">>",
+
+            MaximumPageNumbersToDisplay = 5,
+
+            UlElementClasses = new[] { "pagination" },
+
+            LiElementClasses = new[] { "page-item" },
+
+            PageClasses = new[] { "page-link" }
+        })
 
 </div>

@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList.Extensions;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers
 {
@@ -22,18 +25,32 @@ namespace LibraryManagement.Controllers
         }
 
         // GET: Publishers
-        public async Task<IActionResult> Index(string search)
+        public async Task<IActionResult> Index(
+     string? search,
+     int? page)
         {
-            var data = _context.Publishers.AsQueryable();
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
 
-            if (!string.IsNullOrEmpty(search))
+            var query = _context.Publishers
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                data = data.Where(x => x.Name.Contains(search));
+                query = query.Where(x =>
+                    x.Name.Contains(search) ||
+                    x.Address.Contains(search));
             }
+
+            query = query.OrderBy(x => x.Name);
+
+            var publishers = query.ToPagedList(
+                pageNumber,
+                pageSize);
 
             ViewBag.Search = search;
 
-            return View(await data.ToListAsync());
+            return View(publishers);
         }
 
         // GET: Publishers/Details/5

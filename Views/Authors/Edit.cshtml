@@ -1,39 +1,215 @@
 ﻿@model LibraryManagement.Models.Author
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Author";
 }
 
-<h1>Edit</h1>
+<div class="container-fluid py-4">
 
-<h4>Author</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    
+    <div class="page-card mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <div class="page-title">
+
+                    <i class="fas fa-user-edit text-primary"></i>
+
+                    Edit Author
+
+                </div>
+
+                <div class="page-subtitle">
+
+                    Update author information
+
+                </div>
+
             </div>
-            <div class="form-group">
-                <label asp-for="Biography" class="control-label"></label>
-                <input asp-for="Biography" class="form-control" />
-                <span asp-validation-for="Biography" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                <i class="fas fa-arrow-left me-1"></i>
+
+                Back to Authors
+
+            </a>
+
+        </div>
+
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-primary text-white py-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <i class="fas fa-user-pen fa-lg me-3"></i>
+
+                        <div>
+
+                            <h5 class="mb-0">
+
+                                Author Information
+
+                            </h5>
+
+                            <small class="opacity-75">
+
+                                Modify the information below and save your changes
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+                        <input type="hidden"
+                               asp-for="Id" />
+
+
+                        <!-- Name -->
+
+                        <div class="mb-4">
+
+                            <label asp-for="Name"
+                                   class="form-label fw-semibold">
+
+                                <i class="fas fa-user text-primary me-1"></i>
+
+                                Author Name
+
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="Name"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter author name..."
+                                   autocomplete="off" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Biography -->
+
+                        <div class="mb-4">
+
+                            <label asp-for="Biography"
+                                   class="form-label fw-semibold">
+
+                                <i class="fas fa-align-left text-primary me-1"></i>
+
+                                Biography
+
+                            </label>
+
+                            <textarea asp-for="Biography"
+                                      class="form-control"
+                                      rows="7"
+                                      placeholder="Enter author's biography..."></textarea>
+
+                            <span asp-validation-for="Biography"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert alert-light border mb-4">
+
+                            <div class="d-flex align-items-center">
+
+                                <i class="fas fa-circle-info
+                                      text-primary fa-lg me-3">
+                                </i>
+
+                                <div>
+
+                                    <strong>
+                                        Editing author
+                                    </strong>
+
+                                    <div class="small text-muted">
+
+                                        Make sure the author's information is accurate before saving.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+
+                        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary px-4">
+
+                                <i class="fas fa-xmark me-1"></i>
+
+                                Cancel
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="fas fa-save me-1"></i>
+
+                                Save Changes
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
 }

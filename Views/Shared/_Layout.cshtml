@@ -242,6 +242,18 @@
                                 </a>
                             </li>
 
+                            <li class="="nav-item">
+                            <a asp-controller="Borrows"
+                               asp-action="PaymentHistory"
+                               class="nav-link">
+
+                                <i class="fas fa-clock-rotate-left"></i>
+
+                                <span>Payment History</span>
+
+                            </a>
+                            </li>
+
                         }
 
                         @if (User.IsInRole("Admin"))

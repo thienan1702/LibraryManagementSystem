@@ -4,6 +4,7 @@ using LibraryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers;
 
@@ -21,14 +22,28 @@ public class ReservationsController : Controller
         _email = email;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? page)
     {
-        var list = await _context.Reservations
+        int pageNumber = page ?? 1;
+        int pageSize = 10;
+
+        var reservations = await _context.Reservations
             .Include(x => x.Book)
             .OrderByDescending(x => x.ReservationDate)
             .ToListAsync();
 
-        return View(list);
+        var waiting = reservations.Count(x => x.Status == ReservationStatus.Waiting);
+        var approved = reservations.Count(x => x.Status == ReservationStatus.Approved);
+        var rejected = reservations.Count(x => x.Status == ReservationStatus.Rejected);
+
+        ViewBag.Waiting = waiting;
+        ViewBag.Approved = approved;
+        ViewBag.Rejected = rejected;
+
+        var pagedReservations =
+            reservations.ToPagedList(pageNumber, pageSize);
+
+        return View(pagedReservations);
     }
 
     public IActionResult Create(int? bookId)

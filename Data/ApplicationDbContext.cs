@@ -27,6 +27,8 @@ namespace LibraryManagement.Data
 
         public DbSet<StockIn> StockIns { get; set; }
 
+        public DbSet<FinePayment> FinePayments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -51,6 +53,14 @@ namespace LibraryManagement.Data
                 .WithMany(p => p.Books)
                 .HasForeignKey(b => b.PublisherId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Borrow>()
+                .Property(x => x.FineAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<FinePayment>()
+                .Property(x => x.Amount)
+                .HasPrecision(18, 2);
         }
     }
 

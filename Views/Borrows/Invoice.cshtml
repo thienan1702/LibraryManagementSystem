@@ -1,0 +1,266 @@
+﻿@model LibraryManagement.Models.Borrow
+
+@{
+    ViewData["Title"] = "Payment Invoice";
+}
+
+<div class="container py-4">
+
+    <div class="invoice-card">
+
+        <div class="invoice-header">
+
+            <div>
+
+                <h2 class="fw-bold mb-1">
+
+                    <i class="fas fa-book-open text-primary"></i>
+
+                    Library Management
+
+                </h2>
+
+                <span class="text-muted">
+                    Fine Payment Receipt
+                </span>
+
+            </div>
+
+            <div class="text-end">
+
+                <div class="text-muted">
+                    Invoice No.
+                </div>
+
+                <strong>
+                    @Model.InvoiceNumber
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <hr />
+
+
+        <div class="row mb-4">
+
+            <div class="col-md-6">
+
+                <small class="text-muted">
+                    CUSTOMER
+                </small>
+
+                <h5 class="fw-bold">
+                    @Model.BorrowerName
+                </h5>
+
+                <div>
+                    @Model.BorrowerEmail
+                </div>
+
+            </div>
+
+            <div class="col-md-6 text-md-end">
+
+                <small class="text-muted">
+                    PAYMENT DATE
+                </small>
+
+                <h6 class="fw-bold">
+
+                    @Model.PaidDate?.ToString("dd/MM/yyyy HH:mm")
+
+                </h6>
+
+            </div>
+
+        </div>
+
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Description
+                    </th>
+
+                    <th>
+                        Borrow Date
+                    </th>
+
+                    <th>
+                        Return Date
+                    </th>
+
+                    <th class="text-end">
+                        Amount
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Late Return Fine
+                    </td>
+
+                    <td>
+                        @Model.BorrowDate.ToString("dd/MM/yyyy")
+                    </td>
+
+                    <td>
+                        @Model.ReturnDate?.ToString("dd/MM/yyyy")
+                    </td>
+
+                    <td class="text-end fw-bold text-danger">
+
+                        @Model.FineAmount.ToString("N0") đ
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+
+        <div class="invoice-summary">
+
+            <div>
+
+                Payment Method
+
+                <strong>
+                    @Model.PaymentMethod
+                </strong>
+
+            </div>
+
+            <div>
+
+                Total
+
+                <strong class="total">
+
+                    @Model.FineAmount.ToString("N0") đ
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="paid-stamp">
+
+            <i class="fas fa-circle-check"></i>
+
+            PAYMENT COMPLETED
+
+        </div>
+
+
+        <div class="invoice-footer">
+
+            <button onclick="window.print()"
+                    class="btn btn-primary">
+
+                <i class="fas fa-print"></i>
+
+                Print Invoice
+
+            </button>
+
+            <a asp-action="FineManagement"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+<style>
+
+    .invoice-card {
+        max-width: 950px;
+        margin: auto;
+        background: white;
+        border-radius: 18px;
+        padding: 35px;
+        box-shadow: 0 5px 25px rgba(0,0,0,.08);
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .invoice-summary {
+        margin-top: 25px;
+        margin-left: auto;
+        max-width: 350px;
+    }
+
+        .invoice-summary > div {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .invoice-summary .total {
+            color: #dc3545;
+            font-size: 22px;
+        }
+
+    .paid-stamp {
+        margin: 30px auto;
+        width: fit-content;
+        padding: 10px 20px;
+        border: 2px solid #198754;
+        border-radius: 10px;
+        color: #198754;
+        font-weight: 700;
+        transform: rotate(-2deg);
+    }
+
+    .invoice-footer {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    @@media print {
+        body
+
+    {
+        background: white !important;
+    }
+
+    .invoice-card {
+        box-shadow: none;
+        max-width: 100%;
+    }
+
+    .invoice-footer {
+        display: none;
+    }
+
+    }
+</style>

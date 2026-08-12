@@ -42,6 +42,16 @@ namespace LibraryManagement.Models
 
         public DateTime? PaidDate { get; set; }
 
+        public string? PaymentMethod { get; set; }
+
+        public string? TransactionCode { get; set; }
+
+        public string? InvoiceNumber { get; set; }
+
+        public string? PaidBy { get; set; }
+
+
+
         public ICollection<BorrowDetail> BorrowDetails { get; set; }
             = new List<BorrowDetail>();
     }

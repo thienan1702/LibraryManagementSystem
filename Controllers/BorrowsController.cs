@@ -2,16 +2,18 @@
 using LibraryManagement.Models;
 using LibraryManagement.Services;
 using LibraryManagement.Services.Interfaces;
+using LibraryManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using LibraryManagement.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers
 {
@@ -693,33 +695,159 @@ namespace LibraryManagement.Controllers
 
 
 
-        public async Task<IActionResult> FineManagement()
+        public async Task<IActionResult> FineManagement(int? page)
         {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
+
             var fines = await _context.Borrows
                 .Where(x => x.FineAmount > 0)
                 .OrderByDescending(x => x.ReturnDate)
                 .ToListAsync();
 
-            return View(fines);
-        }
+            // Statistics
+            ViewBag.TotalFines = fines.Count;
+            ViewBag.TotalFineAmount = fines.Sum(x => x.FineAmount);
+            ViewBag.PaidFines = fines.Count(x => x.IsPaid);
+            ViewBag.UnpaidFines = fines.Count(x => !x.IsPaid);
 
+            var pagedFines = fines.ToPagedList(
+                pageNumber,
+                pageSize
+            );
+
+            return View(pagedFines);
+        }
         [HttpPost]
-        public async Task<IActionResult> PayFine(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PayFine(
+            int id,
+            string paymentMethod)
         {
-            var borrow = await _context.Borrows.FindAsync(id);
+            var borrow = await _context.Borrows
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (borrow == null)
                 return NotFound();
 
+            if (borrow.IsPaid)
+            {
+                TempData["Warning"] = "This fine has already been paid.";
+                return RedirectToAction(nameof(FineManagement));
+            }
+
+            if (borrow.FineAmount <= 0)
+            {
+                TempData["Warning"] = "This borrow has no fine.";
+                return RedirectToAction(nameof(FineManagement));
+            }
+
+            var paymentCode =
+                "PAY-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            var invoiceNumber =
+                "INV-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            var payment = new FinePayment
+            {
+                PaymentCode = paymentCode,
+
+                BorrowId = borrow.Id,
+
+                CustomerName = borrow.BorrowerName,
+
+                CustomerEmail = borrow.BorrowerEmail,
+
+                Amount = borrow.FineAmount,
+
+                PaymentMethod = paymentMethod,
+
+                PaymentDate = DateTime.Now,
+
+                PaidBy = User.Identity?.Name ?? "System",
+
+                InvoiceNumber = invoiceNumber
+            };
+
             borrow.IsPaid = true;
+
             borrow.PaidDate = DateTime.Now;
+
+            _context.FinePayments.Add(payment);
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Fine paid successfully.";
+            TempData["Success"] =
+                $"Payment successful. Invoice: {invoiceNumber}";
 
             return RedirectToAction(nameof(FineManagement));
         }
+
+
+
+
+        public async Task<IActionResult> PaymentHistory(
+         string? search,
+         string? paymentMethod,
+         int page = 1)
+        {
+            int pageSize = 10;
+
+            IQueryable<FinePayment> query = _context.FinePayments
+                .OrderByDescending(x => x.PaymentDate);
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.CustomerName.Contains(search) ||
+                    x.CustomerEmail.Contains(search) ||
+                    x.PaymentCode.Contains(search) ||
+                    (x.InvoiceNumber != null &&
+                     x.InvoiceNumber.Contains(search)));
+            }
+
+            // Filter payment method
+            if (!string.IsNullOrWhiteSpace(paymentMethod))
+            {
+                query = query.Where(x =>
+                    x.PaymentMethod == paymentMethod);
+            }
+
+            var payments = query.ToPagedList(page, pageSize);
+            ViewBag.Search = search;
+            ViewBag.PaymentMethod = paymentMethod;
+
+            ViewBag.TotalAmount = await query.SumAsync(x => (decimal?)x.Amount) ?? 0;
+
+            ViewBag.TotalPayments = await query.CountAsync();
+
+            return View(payments);
+        }
+
+
+        public async Task<IActionResult> Invoice(int id)
+        {
+            var borrow = await _context.Borrows
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (borrow == null)
+            {
+                return NotFound();
+            }
+
+            if (!borrow.IsPaid)
+            {
+                return RedirectToAction(nameof(FineManagement));
+            }
+
+            return View(borrow);
+        }
+
+
+
 
         public IActionResult Print(int id)
         {

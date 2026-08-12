@@ -1,194 +1,968 @@
-﻿@model IEnumerable<LibraryManagement.Models.Borrow>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@model IPagedList<LibraryManagement.Models.Borrow>
 
 @{
     ViewData["Title"] = "Fine Management";
+
+    var totalFines = ViewBag.TotalFines ?? 0;
+    var totalFineAmount = ViewBag.TotalFineAmount ?? 0m;
+    var paidFines = ViewBag.PaidFines ?? 0;
+    var unpaidFines = ViewBag.UnpaidFines ?? 0;
+    // ===== BANK INFORMATION =====
+    var bankCode = "VCB";              
+    var bankAccount = "0123456789";     
+    var accountName = "LIBRARY MANAGEMENT";
+}
 }
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header -->
 
-        <div>
-            <h2 class="fw-bold">
-                <i class="fas fa-money-bill-wave text-danger"></i>
-                Fine Management
-            </h2>
+    <div class="page-card mb-4">
 
-            <small class="text-muted">
-                Manage overdue fines
-            </small>
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <div class="page-title">
+
+                    <i class="fas fa-money-bill-wave text-danger"></i>
+
+                    Fine Management
+
+                </div>
+
+                <div class="page-subtitle">
+
+                    Manage overdue fines and payment status
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
+
+
+    <!-- Statistics -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+
+            <div class="small-box bg-primary">
+
+                <div class="inner">
+
+                    <h3>@totalFines</h3>
+
+                    <p>Total Fines</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-file-invoice-dollar"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="small-box bg-danger">
+
+                <div class="inner">
+
+                    <h3>
+                        @Convert.ToDecimal(totalFineAmount).ToString("N0") đ
+                    </h3>
+
+                    <p>Total Fine Amount</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-money-bill-wave"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="small-box bg-success">
+
+                <div class="inner">
+
+                    <h3>@paidFines</h3>
+
+                    <p>Paid</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-circle-check"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="small-box bg-warning">
+
+                <div class="inner">
+
+                    <h3>@unpaidFines</h3>
+
+                    <p>Unpaid</p>
+
+                </div>
+
+                <div class="icon">
+
+                    <i class="fas fa-clock"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <a asp-action="PaymentHistory"
+       class="btn btn-app btn-detail">
+
+        <i class="fas fa-clock-rotate-left"></i>
+
+        Payment History
+
+    </a>
+
+
+    <!-- Fine Table -->
 
     <div class="card shadow border-0">
 
         <div class="card-header bg-danger text-white">
 
-            <i class="fas fa-exclamation-circle"></i>
+            <i class="fas fa-exclamation-circle me-2"></i>
 
             Outstanding Fines
 
         </div>
 
-        <div class="card-body table-responsive">
 
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
+        <div class="card-body p-0">
 
-                    <tr>
+            <div class="table-responsive">
 
-                        <th>Borrower</th>
+                <table class="table table-hover align-middle mb-0">
 
-                        <th>Email</th>
-
-                        <th>Borrow Date</th>
-
-                        <th>Due Date</th>
-
-                        <th>Return Date</th>
-
-                        <th>Fine</th>
-
-                        <th>Status</th>
-
-                        <th width="140"></th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @foreach (var item in Model)
-                    {
+                    <thead class="table-dark">
 
                         <tr>
 
-                            <td>
+                            <th width="60">#</th>
 
-                                <strong>@item.BorrowerName</strong>
+                            <th>Borrower</th>
 
-                            </td>
+                            <th>Email</th>
 
-                            <td>
+                            <th>Borrow Date</th>
 
-                                @item.BorrowerEmail
+                            <th>Due Date</th>
 
-                            </td>
+                            <th>Return Date</th>
 
-                            <td>
+                            <th>Fine</th>
 
-                                @item.BorrowDate.ToString("dd/MM/yyyy")
+                            <th>Status</th>
 
-                            </td>
+                            <th width="140">Action</th>
 
-                            <td>
+                        </tr>
 
-                                @item.DueDate.ToString("dd/MM/yyyy")
+                    </thead>
 
-                            </td>
 
-                            <td>
+                    <tbody>
 
-                                @(item.ReturnDate?.ToString("dd/MM/yyyy"))
+                        @{
+                            int stt =
+                            (Model.PageNumber - 1)
+                            * Model.PageSize + 1;
+                        }
 
-                            </td>
 
-                            <td>
+                        @foreach (var item in Model)
+                        {
 
-                                <span class="fw-bold text-danger">
+                            <tr>
 
-                                    @item.FineAmount.ToString("N0") đ
+                                <!-- STT -->
 
-                                </span>
+                                <td>
 
-                            </td>
+                                    <span class="badge bg-primary">
 
-                            <td>
-
-                                @if (item.IsPaid)
-                                {
-                                    <span class="badge bg-success">
-
-                                        Paid
+                                        @stt
 
                                     </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">
 
-                                        Unpaid
+                                </td>
+
+
+                                <!-- Borrower -->
+
+                                <td>
+
+                                    <div class="d-flex align-items-center">
+
+                                        <div class="avatar-circle">
+
+                                            @(string.IsNullOrEmpty(item.BorrowerName)
+                                                                                    ? "?"
+                                                                                    : item.BorrowerName
+                                                                                    .Substring(0, 1)
+                                                                                    .ToUpper())
+
+                                    </div>
+
+                                        <div class="ms-2">
+
+                                            <strong>
+
+                                                @item.BorrowerName
+
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- Email -->
+
+                                <td>
+
+                                    @item.BorrowerEmail
+
+                                </td>
+
+
+                                <!-- Borrow Date -->
+
+                                <td>
+
+                                    <i class="far fa-calendar me-1"></i>
+
+                                    @item.BorrowDate.ToString("dd/MM/yyyy")
+
+                                </td>
+
+
+                                <!-- Due Date -->
+
+                                <td>
+
+                                    <i class="far fa-calendar-xmark text-danger me-1"></i>
+
+                                    @item.DueDate.ToString("dd/MM/yyyy")
+
+                                </td>
+
+
+                                <!-- Return Date -->
+
+                                <td>
+                                @if (item.ReturnDate.HasValue)
+                                    {
+                                        <div class="fw-semibold">
+                                            @item.ReturnDate.Value.ToString("dd/MM/yyyy")
+                                        </div>
+
+                                        <small class="text-muted">
+                                            @item.ReturnDate.Value.ToString("HH:mm")
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Not return
+                                        </span>
+                                    }
+                                </td>
+
+
+                                <!-- Fine -->
+
+                                <td>
+
+                                    <span class="fw-bold text-danger">
+
+                                        @item.FineAmount.ToString("N0") đ
 
                                     </span>
-                                }
 
-                            </td>
+                                </td>
 
-                            <td>
 
-                                @if (!item.IsPaid)
-                                {
-                                    <form asp-action="PayFine"
-                                          method="post">
+                                <!-- Status -->
 
-                                        <input type="hidden"
-                                               name="id"
-                                               value="@item.Id" />
+                                <td>
 
-                                        <button class="btn btn-success btn-sm w-100">
+                                    @if (item.IsPaid)
+                                    {
+                                        <span class="badge bg-success">
 
                                             <i class="fas fa-check-circle"></i>
+
+                                            Paid
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+
+                                            <i class="fas fa-clock"></i>
+
+                                            Unpaid
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- Action -->
+
+                                <td>
+
+                                    @if (!item.IsPaid)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-success btn-sm w-100"
+                                                onclick="showPaymentModal(
+                                                    @item.Id,
+                                                    @item.FineAmount,
+                                                    '@item.BorrowerName'
+                                                )">
+
+                                            <i class="fas fa-money-bill-wave"></i>
 
                                             Pay
 
                                         </button>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-success">
 
-                                    </form>
-                                }
-                                else
-                                {
-                                    <small class="text-success">
+                                            <i class="fas fa-circle-check"></i>
 
-                                        Paid on
+                                            Paid
 
-                                        <br />
+                                            <br />
 
-                                        @item.PaidDate?.ToString("dd/MM/yyyy")
+                                            @item.PaidDate?.ToString("dd/MM/yyyy HH:mm")
 
-                                    </small>
-                                }
+                                        </small>
+                                    }
 
-                            </td>
+                                </td>
 
-                        </tr>
+                            </tr>
 
-                    }
+                            stt++;
+                        }
 
-                </tbody>
 
-            </table>
+                        @if (!Model.Any())
+                        {
+
+                            <tr>
+
+                                <td colspan="9"
+                                    class="text-center py-5">
+
+                                    <i class="fas fa-circle-check fa-3x text-success mb-3"></i>
+
+                                    <h5>No fines found</h5>
+
+                                    <p class="text-muted mb-0">
+
+                                        There are currently no overdue fines.
+
+                                    </p>
+
+                                </td>
+
+                            </tr>
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+    <!-- Pagination -->
+
+    <div class="d-flex justify-content-center mt-4">
+
+        @Html.PagedListPager(
+
+        Model,
+
+        page => Url.Action("FineManagement", new
+        {
+            page
+        }),
+
+                new PagedListRenderOptions
+                {
+                    DisplayLinkToFirstPage =
+                PagedListDisplayMode.Always,
+
+                    DisplayLinkToLastPage =
+                PagedListDisplayMode.Always,
+
+                    DisplayLinkToPreviousPage =
+                PagedListDisplayMode.Always,
+
+                    DisplayLinkToNextPage =
+                PagedListDisplayMode.Always,
+
+                    LinkToFirstPageFormat = "<<",
+
+                    LinkToPreviousPageFormat = "Previous",
+
+                    LinkToNextPageFormat = "Next",
+
+                    LinkToLastPageFormat = ">>",
+
+                    MaximumPageNumbersToDisplay = 5,
+
+                    UlElementClasses =
+                new[] { "pagination" },
+
+                    LiElementClasses =
+                new[] { "page-item" },
+
+                    PageClasses =
+                new[] { "page-link" }
+                })
+
+    </div>
+
+
+
+
+    <!-- PAYMENT MODAL -->
+    <div class="modal fade"
+         id="paymentModal"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content border-0 shadow-lg">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title fw-bold">
+
+                        <i class="fas fa-money-bill-wave text-success"></i>
+
+                        Fine Payment
+
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="text-center mb-4">
+
+                        <div class="text-muted">
+                            Borrower
+                        </div>
+
+                        <h5 id="paymentBorrower"
+                            class="fw-bold">
+                        </h5>
+
+                        <div class="text-muted">
+                            Fine Amount
+                        </div>
+
+                        <h3 id="paymentAmount"
+                            class="text-danger fw-bold">
+                        </h3>
+
+                    </div>
+
+
+                    <!-- PAYMENT METHOD -->
+
+                    <label class="form-label fw-bold">
+
+                        Payment Method
+
+                    </label>
+
+                    <div class="row g-2 mb-3">
+
+                        <div class="col-6">
+
+                            <button type="button"
+                                    id="cashBtn"
+                                    class="btn btn-outline-success w-100 payment-method-btn"
+                                    onclick="selectPaymentMethod('Cash')">
+
+                                <i class="fas fa-money-bill-wave"></i>
+
+                                Cash
+
+                            </button>
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <button type="button"
+                                    id="transferBtn"
+                                    class="btn btn-outline-primary w-100 payment-method-btn"
+                                    onclick="selectPaymentMethod('Bank Transfer')">
+
+                                <i class="fas fa-building-columns"></i>
+
+                                Bank Transfer
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QR PAYMENT -->
+
+                    <div id="qrPayment"
+                         class="text-center"
+                         style="display:none;">
+
+                        <div class="alert alert-primary">
+
+                            <i class="fas fa-qrcode"></i>
+
+                            Scan QR to transfer
+
+                        </div>
+
+                        <img id="paymentQR"
+                             src=""
+                             class="img-fluid rounded shadow-sm"
+                             style="max-width:280px;" />
+
+                        <div class="mt-3">
+
+                            <strong>
+                                @accountName
+                            </strong>
+
+                            <br />
+
+                            Account:
+
+                            <strong>
+                                @bankAccount
+                            </strong>
+
+                        </div>
+
+                        <div class="mt-2">
+
+                            <small class="text-muted">
+
+                                Transfer content:
+
+                            </small>
+
+                            <br />
+
+                            <strong id="transferContent">
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div id="paymentWarning"
+                         class="alert alert-warning mt-3">
+
+                        <i class="fas fa-circle-info"></i>
+
+                        Please select a payment method.
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <form asp-action="PayFine"
+                          method="post"
+                          id="paymentForm">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               id="paymentId" />
+
+                        <input type="hidden"
+                               name="paymentMethod"
+                               id="paymentMethod" />
+
+                        <button type="submit"
+                                id="confirmPaymentBtn"
+                                class="btn btn-success"
+                                disabled>
+
+                            <i class="fas fa-check-circle"></i>
+
+                            Confirm Payment
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
 
+
+    <style>
+
+        .card-header.bg-danger {
+            font-weight: 600;
+        }
+
+        .table thead th {
+            background: #343a40 !important;
+            color: #fff !important;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+        }
+
+        .payment-modal {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+            .payment-modal .modal-header {
+                background: #f8f9fa;
+                border-bottom: 1px solid #eee;
+                padding: 18px 22px;
+            }
+
+        .customer-payment-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+            .customer-payment-info label {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: .5px;
+            }
+
+        .fine-amount-box {
+            margin-top: 15px;
+            padding: 20px;
+            text-align: center;
+            border-radius: 14px;
+            background: #fff5f5;
+            border: 1px solid #ffd6d6;
+        }
+
+            .fine-amount-box small {
+                color: #6c757d;
+            }
+
+            .fine-amount-box h2 {
+                color: #dc3545;
+                font-weight: 700;
+                margin: 5px 0 0;
+            }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .payment-method {
+            cursor: pointer;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            transition: .2s;
+        }
+
+            .payment-method:hover {
+                border-color: #198754;
+                background: #f8fff9;
+            }
+
+            .payment-method input {
+                display: none;
+            }
+
+            .payment-method div {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 4px;
+            }
+
+            .payment-method i {
+                font-size: 26px;
+                color: #198754;
+                margin-bottom: 5px;
+            }
+
+            .payment-method small {
+                color: #6c757d;
+            }
+
+            .payment-method:has(input:checked) {
+                border-color: #198754;
+                background: #eaf8ef;
+                box-shadow: 0 0 0 2px rgba(25,135,84,.1);
+            }
+
+        .paid-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+    </style>
+
+
+
 </div>
-<style>
-    .card-header.bg-danger {
-        font-weight: 600;
+
+@section Scripts {
+
+    <script>
+
+        document
+            .querySelectorAll('[data-bs-target="#paymentModal"]')
+            .forEach(button => {
+
+                button.addEventListener("click", function () {
+
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+                    const email = this.dataset.email;
+                    const fine = this.dataset.fine;
+
+                    document.getElementById("paymentBorrowId").value = id;
+
+                    document.getElementById("paymentCustomer")
+                        .innerText = name;
+
+                    document.getElementById("paymentEmail")
+                        .innerText = email;
+
+                    document.getElementById("paymentFine")
+                        .innerText = fine + " đ";
+
+                });
+
+            });
+
+    </script>
+
+    <script>
+
+        let currentPaymentId = 0;
+        let currentAmount = 0;
+
+        function showPaymentModal(id, amount, borrower) {
+
+            currentPaymentId = id;
+            currentAmount = amount;
+
+            $("#paymentId").val(id);
+
+            $("#paymentBorrower").text(borrower);
+
+            $("#paymentAmount").text(
+                new Intl.NumberFormat('vi-VN').format(amount) + " đ"
+            );
+
+            $("#paymentMethod").val("");
+
+            $("#qrPayment").hide();
+
+            $("#paymentWarning").show();
+
+            $("#confirmPaymentBtn").prop("disabled", true);
+
+            $(".payment-method-btn")
+                .removeClass("active btn-success btn-primary")
+                .addClass("btn-outline-success");
+
+            $("#transferBtn")
+                .removeClass("btn-outline-success")
+                .addClass("btn-outline-primary");
+
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById("paymentModal")
+                );
+
+            modal.show();
+        }
+
+
+        function selectPaymentMethod(method) {
+
+            $("#paymentMethod").val(method);
+
+            $("#confirmPaymentBtn")
+                .prop("disabled", false);
+
+            $("#paymentWarning").hide();
+
+
+            if (method === "Bank Transfer") {
+
+                $("#cashBtn")
+                    .removeClass("btn-success")
+                    .addClass("btn-outline-success");
+
+                $("#transferBtn")
+                    .removeClass("btn-outline-primary")
+                    .addClass("btn-primary");
+
+
+                // VietQR
+                const bankCode = "@bankCode";
+
+                const accountNumber = "@bankAccount";
+
+                const amount =
+                    Math.round(currentAmount);
+
+                const content =
+                    "FINE" + currentPaymentId;
+
+
+                const qrUrl =
+                    "https://img.vietqr.io/image/"
+                    + bankCode
+                    + "-"
+                    + accountNumber
+                    + "-compact2.png"
+                    + "?amount="
+                    + amount
+                    + "&addInfo="
+                    + encodeURIComponent(content)
+                    + "&accountName="
+                    + encodeURIComponent("@accountName");
+
+
+                $("#paymentQR").attr("src", qrUrl);
+
+                $("#transferContent").text(content);
+
+                $("#qrPayment").fadeIn();
+
+            }
+            else {
+
+                $("#transferBtn")
+                    .removeClass("btn-primary")
+                    .addClass("btn-outline-primary");
+
+                $("#cashBtn")
+                    .removeClass("btn-outline-success")
+                    .addClass("btn-success");
+
+                $("#qrPayment").hide();
+
+            }
+
+        }
+
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    .table thead th {
-        background: #343a40 !important;
-        color: #fff !important;
-        font-weight: 600;
-        text-align: center;
-        vertical-align: middle;
-    }
 
-    .table tbody td {
-        vertical-align: middle;
-    }
-</style>
+}

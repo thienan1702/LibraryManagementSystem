@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers
 {
@@ -27,11 +29,33 @@ namespace LibraryManagement.Controllers
         }
 
         // GET: StockIns
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
-            var stockIns = await _service.GetAllAsync();
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
 
-            return View(stockIns);
+            var stockIns = await _context.StockIns
+                .Include(x => x.Book)
+                .OrderByDescending(x => x.StockInDate)
+                .ToListAsync();
+
+            // Statistics - tính trên toàn bộ dữ liệu
+            ViewBag.TotalEntries = stockIns.Count;
+
+            ViewBag.TotalBooks = stockIns.Sum(x => x.Quantity);
+
+            ViewBag.TotalBooksRestocked = stockIns
+                .Select(x => x.BookId)
+                .Distinct()
+                .Count();
+
+            // Pagination
+            var pagedStockIns = stockIns.ToPagedList(
+                pageNumber,
+                pageSize
+            );
+
+            return View(pagedStockIns);
         }
 
         // GET: StockIns/Create

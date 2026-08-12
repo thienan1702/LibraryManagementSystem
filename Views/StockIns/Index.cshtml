@@ -1,9 +1,15 @@
-﻿@model IEnumerable<LibraryManagement.Models.StockIn>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@model IPagedList<LibraryManagement.Models.StockIn>
 
 @{
     ViewData["Title"] = "Stock In Management";
-}
 
+    var totalEntries = ViewBag.TotalEntries ?? 0;
+    var totalBooks = ViewBag.TotalBooks ?? 0;
+    var totalBooksRestocked = ViewBag.TotalBooksRestocked ?? 0;
+}
 <div class="page-card mb-4">
 
     <div class="d-flex justify-content-between align-items-center">
@@ -50,8 +56,7 @@
 
             <div class="inner">
 
-                <h3>@Model.Count()</h3>
-
+                <h3>@totalEntries</h3>
                 <p>Total Stock-In Entries</p>
 
             </div>
@@ -73,9 +78,7 @@
 
             <div class="inner">
 
-                <h3>
-                    @Model.Sum(x => x.Quantity)
-                </h3>
+                <h3>@totalBooks</h3>
 
                 <p>Total Books Stocked In</p>
 
@@ -98,10 +101,7 @@
 
             <div class="inner">
 
-                <h3>
-                    @Model.Select(x => x.BookId).Distinct().Count()
-                </h3>
-
+                <h3>@totalBooksRestocked</h3>
                 <p>Books Restocked</p>
 
             </div>
@@ -209,7 +209,7 @@
                     <tbody>
 
                         @{
-                            int stt = 1;
+                            int stt = (Model.PageNumber - 1) * Model.PageSize + 1;
                         }
 
                         @foreach (var item in Model)
@@ -225,7 +225,6 @@
                                     </span>
 
                                 </td>
-
 
                                 <td>
 
@@ -256,7 +255,6 @@
 
                                 </td>
 
-
                                 <td>
 
                                     <span class="badge bg-success fs-6">
@@ -267,29 +265,25 @@
 
                                 </td>
 
-
                                 <td>
 
                                     <i class="far fa-calendar"></i>
 
-                                    @item.StockInDate.ToString(
-                                    "dd/MM/yyyy HH:mm")
+                                    @item.StockInDate.ToString("dd/MM/yyyy HH:mm")
 
-                        </td>
+                                </td>
 
+                                <td>
 
-                        <td>
+                                    <span class="badge bg-secondary">
 
-                            <span class="badge bg-secondary">
-
-                                @(string.IsNullOrWhiteSpace(item.CreatedBy)
-                                                                ? "System"
-                                                                : item.CreatedBy)
+                                        @(string.IsNullOrWhiteSpace(item.CreatedBy)
+                                                                        ? "System"
+                                                                        : item.CreatedBy)
 
                             </span>
 
                                 </td>
-
 
                                 <td>
 
@@ -328,5 +322,39 @@
         }
 
     </div>
+
+</div>
+
+<div class="d-flex justify-content-center mt-4">
+
+    @Html.PagedListPager(
+
+    Model,
+
+    page => Url.Action("Index", new
+    {
+        page
+    }),
+
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "Previous",
+            LinkToNextPageFormat = "Next",
+            LinkToLastPageFormat = ">>",
+
+            MaximumPageNumbersToDisplay = 5,
+
+            UlElementClasses = new[] { "pagination" },
+
+            LiElementClasses = new[] { "page-item" },
+
+            PageClasses = new[] { "page-link" }
+        })
 
 </div>
