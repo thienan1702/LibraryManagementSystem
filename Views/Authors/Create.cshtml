@@ -1,38 +1,236 @@
 ﻿@model LibraryManagement.Models.Author
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Author";
 }
 
-<h1>Create</h1>
+<div class="container-fluid">
 
-<h4>Author</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+    <!-- HEADER -->
+    <div class="page-card mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="page-title">
+
+                    <i class="fas fa-user-pen text-primary me-2"></i>
+
+                    Create Author
+
+                </div>
+
+                <div class="page-subtitle">
+
+                    Add a new author to the library system
+
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Biography" class="control-label"></label>
-                <input asp-for="Biography" class="form-control" />
-                <span asp-validation-for="Biography" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+
+            <a asp-action="Index"
+               class="btn btn-app btn-detail">
+
+                <i class="fas fa-arrow-left me-1"></i>
+
+                Back to Authors
+
+            </a>
+
+        </div>
+
     </div>
+
+
+    <!-- FORM CARD -->
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="card shadow-sm border-0 author-form-card">
+
+                <div class="card-header bg-primary text-white">
+
+                    <div class="d-flex align-items-center">
+
+                        <i class="fas fa-user-plus me-2"></i>
+
+                        <strong>Author Information</strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <form asp-action="Create"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+
+                        <!-- NAME -->
+                        <div class="mb-4">
+
+                            <label asp-for="Name"
+                                   class="form-label fw-semibold">
+
+                                <i class="fas fa-user text-primary me-1"></i>
+
+                                Author Name
+
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input asp-for="Name"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter author name..."
+                                   autocomplete="off" />
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- BIOGRAPHY -->
+                        <div class="mb-4">
+
+                            <label asp-for="Biography"
+                                   class="form-label fw-semibold">
+
+                                <i class="fas fa-align-left text-primary me-1"></i>
+
+                                Biography
+
+                            </label>
+
+                            <textarea asp-for="Biography"
+                                      class="form-control"
+                                      rows="6"
+                                      placeholder="Enter author's biography...">
+                            </textarea>
+
+                            <span asp-validation-for="Biography"
+                                  class="text-danger small">
+                            </span>
+
+                            <div class="form-text">
+
+                                <i class="fas fa-circle-info me-1"></i>
+
+                                Provide a brief description or biography
+                                of the author.
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+                        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary">
+
+                                <i class="fas fa-xmark me-1"></i>
+
+                                Cancel
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="fas fa-plus me-1"></i>
+
+                                Create Author
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+
+    .author-form-card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .author-form-card .card-header {
+            padding: 15px 20px;
+            border: none;
+        }
+
+        .author-form-card .card-body {
+            background: #fff;
+        }
+
+    .form-label {
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        transition: all .2s ease;
+    }
+
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .1);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 140px;
+    }
+
+    .form-text {
+        margin-top: 7px;
+        font-size: 13px;
+    }
+
+    .btn {
+        border-radius: 7px;
+    }
+
+    .btn-primary {
+        font-weight: 600;
+    }
+
+    .gap-2 {
+        gap: .5rem;
+    }
+
+</style>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
 }

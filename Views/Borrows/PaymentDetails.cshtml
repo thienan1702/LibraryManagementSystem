@@ -1,0 +1,326 @@
+﻿@model LibraryManagement.Models.FinePayment
+
+@{
+    ViewData["Title"] = "Payment Details";
+}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+
+    <div class="page-card mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <div class="page-title">
+
+                    <i class="fas fa-receipt text-primary"></i>
+
+                    Payment Details
+
+                </div>
+
+                <div class="page-subtitle">
+
+                    View detailed information about this payment
+
+                </div>
+
+            </div>
+
+            <div>
+
+                <a asp-action="Invoice"
+                   asp-route-id="@Model.Id"
+                   target="_blank"
+                   class="btn btn-info me-2">
+
+                    <i class="fas fa-eye"></i>
+
+                    View Invoice
+
+                </a>
+
+                <a asp-action="DownloadInvoice"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-success me-2">
+
+                    <i class="fas fa-file-pdf"></i>
+
+                    Download PDF
+
+                </a>
+
+
+                <a asp-action="PaymentHistory"
+                   class="btn btn-secondary">
+
+                    <i class="fas fa-arrow-left"></i>
+
+                    Back
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+
+        <!-- Payment Information -->
+
+        <div class="col-md-8">
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-primary text-white">
+
+                    <i class="fas fa-money-bill-wave me-2"></i>
+
+                    Payment Information
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+
+                            <label class="text-muted">
+                                Payment Code
+                            </label>
+
+                            <div class="fw-bold text-primary fs-5">
+
+                                @Model.PaymentCode
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="text-muted">
+                                Invoice Number
+                            </label>
+
+                            <div class="fw-bold">
+
+                                @(string.IsNullOrWhiteSpace(Model.InvoiceNumber)
+                                                                ? "N/A"
+                                                                : Model.InvoiceNumber)
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+
+                            <label class="text-muted">
+                                Payment Date
+                            </label>
+
+                            <div>
+
+                                <i class="far fa-calendar me-1"></i>
+
+                                @Model.PaymentDate.ToString("dd/MM/yyyy HH:mm:ss")
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="text-muted">
+                                Paid By
+                            </label>
+
+                            <div>
+
+                                <span class="badge bg-secondary">
+
+                                    @(string.IsNullOrWhiteSpace(Model.PaidBy)
+                                                                        ? "System"
+                                                                        : Model.PaidBy)
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+
+                            <label class="text-muted">
+                                Payment Method
+                            </label>
+
+                            <div>
+
+                                @if (Model.PaymentMethod == "Cash")
+                                {
+                                    <span class="badge bg-success fs-6">
+
+                                        <i class="fas fa-money-bill-wave"></i>
+
+                                        Cash
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary fs-6">
+
+                                        <i class="fas fa-building-columns"></i>
+
+                                        Bank Transfer
+
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="text-muted">
+                                Payment Status
+                            </label>
+
+                            <div>
+
+                                <span class="badge bg-success fs-6">
+
+                                    <i class="fas fa-check-circle"></i>
+
+                                    Paid
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <div class="text-center py-3">
+
+                        <div class="text-muted">
+
+                            Total Paid
+
+                        </div>
+
+                        <div class="display-5 fw-bold text-success">
+
+                            @Model.Amount.ToString("N0") đ
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Customer -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-dark text-white">
+
+                    <i class="fas fa-user me-2"></i>
+
+                    Customer Information
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="text-center mb-4">
+
+                        <div class="avatar-circle mx-auto mb-2"
+                             style="width:65px;height:65px;font-size:28px;">
+
+                            @(string.IsNullOrEmpty(Model.CustomerName)
+                                                        ? "?"
+                                                        : Model.CustomerName.Substring(0, 1).ToUpper())
+
+                        </div>
+
+                        <h5 class="mb-1">
+
+                            @Model.CustomerName
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Customer
+
+                        </small>
+
+                    </div>
+
+
+                    <div class="border-top pt-3">
+
+                        <div class="mb-3">
+
+                            <small class="text-muted">
+
+                                Email
+
+                            </small>
+
+                            <div>
+
+                                <i class="fas fa-envelope me-2"></i>
+
+                                @Model.CustomerEmail
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

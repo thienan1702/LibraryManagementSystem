@@ -1,4 +1,6 @@
-﻿using LibraryManagement.Models;
+﻿using LibraryManagement.Data;
+using LibraryManagement.Models;
+using LibraryManagement.Services;
 using LibraryManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,20 +12,25 @@ namespace LibraryManagement.Controllers
     public class CategoriesController : Controller
     {
         private readonly ICategoryService _service;
+        private readonly ApplicationDbContext _context;
 
-        public CategoriesController(ICategoryService service)
+        public CategoriesController(
+            ICategoryService service,
+            ApplicationDbContext context)
         {
             _service = service;
+            _context = context;
         }
 
-        // GET
+        // =========================
+        // GET: Categories
+        // =========================
         public async Task<IActionResult> Index(
-     string? search,
-     string? sortOrder,
-     int page = 1)
+            string? search,
+            string? sortOrder,
+            int page = 1)
         {
             ViewBag.Search = search;
-
             ViewBag.SortOrder = sortOrder;
 
             ViewBag.NameSort =
@@ -40,7 +47,9 @@ namespace LibraryManagement.Controllers
             return View(model);
         }
 
-        // GET
+        // =========================
+        // GET: Categories/Details/5
+        // =========================
         public async Task<IActionResult> Details(int id)
         {
             var category = await _service.GetByIdAsync(id);
@@ -51,13 +60,17 @@ namespace LibraryManagement.Controllers
             return View(category);
         }
 
-        // GET
+        // =========================
+        // GET: Categories/Create
+        // =========================
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST
+        // =========================
+        // POST: Categories/Create
+        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
@@ -66,12 +79,35 @@ namespace LibraryManagement.Controllers
                 return View(category);
 
             await _service.AddAsync(category);
-            TempData["Success"] = "Category added successfully.";
+
+            // =========================
+            // AUDIT LOG - CREATE
+            // =========================
+            var userName = User.Identity?.Name ?? "System";
+
+            var auditLog = new AuditLog
+            {
+                UserName = userName,
+                Action = "Create",
+                Entity = "Category",
+                EntityId = category.Id,
+                Time = DateTime.Now,
+                Description =
+                    $"Created category '{category.Name}'."
+            };
+
+            _context.AuditLogs.Add(auditLog);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Category added successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET
+        // =========================
+        // GET: Categories/Edit/5
+        // =========================
         public async Task<IActionResult> Edit(int id)
         {
             var category = await _service.GetByIdAsync(id);
@@ -82,10 +118,14 @@ namespace LibraryManagement.Controllers
             return View(category);
         }
 
-        // POST
+        // =========================
+        // POST: Categories/Edit/5
+        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Category category)
+        public async Task<IActionResult> Edit(
+       int id,
+       Category category)
         {
             if (id != category.Id)
                 return NotFound();
@@ -93,13 +133,46 @@ namespace LibraryManagement.Controllers
             if (!ModelState.IsValid)
                 return View(category);
 
+            // Lấy dữ liệu cũ bằng AsNoTracking
+            var oldCategory = await _context.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (oldCategory == null)
+                return NotFound();
+
+            var oldName = oldCategory.Name;
+
+            // Update
             await _service.UpdateAsync(category);
-            TempData["Success"] = "Category updated successfully.";
+
+            // Audit
+            var userName = User.Identity?.Name ?? "System";
+
+            var auditLog = new AuditLog
+            {
+                UserName = userName,
+                Action = "Update",
+                Entity = "Category",
+                EntityId = category.Id,
+                Time = DateTime.Now,
+                Description =
+                    $"Updated category from '{oldName}' to '{category.Name}'."
+            };
+
+            _context.AuditLogs.Add(auditLog);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Category updated successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET
+        // =========================
+        // GET: Categories/Delete/5
+        // =========================
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _service.GetByIdAsync(id);
@@ -110,12 +183,24 @@ namespace LibraryManagement.Controllers
             return View(category);
         }
 
-        // POST
+        // =========================
+        // POST: Categories/Delete/5
+        // =========================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var deleted = await _service.DeleteAsync(id);
+            // Lấy thông tin category trước khi xóa
+            var category =
+                await _service.GetByIdAsync(id);
+
+            if (category == null)
+                return NotFound();
+
+            var categoryName = category.Name;
+
+            var deleted =
+                await _service.DeleteAsync(id);
 
             if (!deleted)
             {
@@ -125,9 +210,29 @@ namespace LibraryManagement.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Success"] = "Category deleted successfully.";
+            // =========================
+            // AUDIT LOG - DELETE
+            // =========================
+            var userName = User.Identity?.Name ?? "System";
+
+            var auditLog = new AuditLog
+            {
+                UserName = userName,
+                Action = "Delete",
+                Entity = "Category",
+                EntityId = id,
+                Time = DateTime.Now,
+                Description =
+                    $"Deleted category '{categoryName}'."
+            };
+
+            _context.AuditLogs.Add(auditLog);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Category deleted successfully.";
 
             return RedirectToAction(nameof(Index));
         }
     }
-}
+}   

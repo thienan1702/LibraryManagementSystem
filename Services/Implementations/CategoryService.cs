@@ -1,4 +1,4 @@
-using LibraryManagement.Models;
+﻿using LibraryManagement.Models;
 using LibraryManagement.Repositories.Interfaces;
 using LibraryManagement.Services.Interfaces;
 using X.PagedList;
@@ -14,6 +14,9 @@ namespace LibraryManagement.Services.Implementations
             _repository = repository;
         }
 
+        // =========================
+        // GET PAGED
+        // =========================
         public async Task<IPagedList<Category>> GetPagedAsync(
             string? search,
             string? sortOrder,
@@ -26,44 +29,61 @@ namespace LibraryManagement.Services.Implementations
                 page,
                 pageSize);
         }
-        public async Task<IEnumerable<Category>> GetAllAsync()
-        {
-            return await _repository.GetAllAsync();
-        }
 
+        // =========================
+        // GET BY ID
+        // =========================
         public async Task<Category?> GetByIdAsync(int id)
         {
             return await _repository.GetByIdAsync(id);
         }
 
+        // =========================
+        // CREATE
+        // =========================
         public async Task AddAsync(Category category)
         {
             await _repository.AddAsync(category);
-            await _repository.SaveAsync();
         }
 
+        // =========================
+        // UPDATE
+        // =========================
         public async Task UpdateAsync(Category category)
         {
-            await _repository.UpdateAsync(category);
+            var existing = await _repository.GetByIdAsync(category.Id);
+
+            if (existing == null)
+                return;
+
+            existing.Name = category.Name;
+            existing.Description = category.Description;
+
+            // existing đang được EF Core tracking
+            // nên chỉ cần SaveChanges
             await _repository.SaveAsync();
         }
 
+        // =========================
+        // DELETE
+        // =========================
         public async Task<bool> DeleteAsync(int id)
         {
-            if (await _repository.HasBooksAsync(id))
-            {
+            var category = await _repository.GetByIdAsync(id);
+
+            if (category == null)
                 return false;
-            }
+
+            var hasBooks = await _repository.HasBooksAsync(id);
+
+            if (hasBooks)
+                return false;
 
             await _repository.DeleteAsync(id);
+
             await _repository.SaveAsync();
 
             return true;
-        }
-
-        public async Task<IEnumerable<Category>> SearchAsync(string keyword)
-        {
-            return await _repository.SearchAsync(keyword);
         }
     }
 }

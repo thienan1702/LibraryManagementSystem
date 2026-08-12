@@ -37,6 +37,14 @@
 
         </div>
 
+        <a asp-action="FineManagement"
+           class="btn btn-app btn-detail">
+
+            <i class="fas fa-money-bill-wave"></i>
+
+            Fine Management
+
+        </a>
     </div>
 
 </div>
@@ -275,6 +283,9 @@
 
                             <th>Paid By</th>
 
+                            <th style="width: 250px;" class="text-center">
+                                Action
+                            </th>
                         </tr>
 
                     </thead>
@@ -424,8 +435,43 @@
                                                                     ? "System"
                                                                     : item.PaidBy)
 
-                            </span>
+                                  </span>
 
+                                </td>
+
+
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center gap-1 flex-nowrap">
+
+                                        <a asp-action="PaymentDetails"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-info btn-sm payment-action-btn">
+
+                                            <i class="fas fa-eye"></i>
+                                            <span>Details</span>
+
+                                        </a>
+
+                                        <a asp-action="Invoice"
+                                           asp-route-id="@item.Id"
+                                           target="_blank"
+                                           class="btn btn-primary btn-sm payment-action-btn">
+
+                                            <i class="fas fa-file-invoice"></i>
+                                            <span>Invoice</span>
+
+                                        </a>
+
+                                        <a asp-action="DownloadInvoice"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-success btn-sm payment-action-btn">
+
+                                            <i class="fas fa-file-pdf"></i>
+                                            <span>PDF</span>
+
+                                        </a>
+
+                                    </div>
                                 </td>
 
                             </tr>
@@ -492,3 +538,21 @@
 
 </div>
 }
+<style>
+    .payment-action-btn {
+        min-width: 65px;
+        height: 32px;
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 7px;
+        white-space: nowrap;
+    }
+
+        .payment-action-btn i {
+            margin-right: 3px;
+        }
+
+    td.text-center {
+        white-space: nowrap;
+    }
+</style>

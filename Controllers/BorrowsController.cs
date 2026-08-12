@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Data;
+﻿using ClosedXML.Excel;
+using LibraryManagement.Data;
 using LibraryManagement.Models;
 using LibraryManagement.Services;
 using LibraryManagement.Services.Interfaces;
@@ -7,6 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -695,29 +699,65 @@ namespace LibraryManagement.Controllers
 
 
 
-        public async Task<IActionResult> FineManagement(int? page)
+        public async Task<IActionResult> FineManagement(
+     string search,
+     string status,
+     int? page)
         {
             int pageNumber = page ?? 1;
             int pageSize = 10;
 
-            var fines = await _context.Borrows
+            var query = _context.Borrows
                 .Where(x => x.FineAmount > 0)
-                .OrderByDescending(x => x.ReturnDate)
-                .ToListAsync();
+                .AsQueryable();
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+
+                query = query.Where(x =>
+                    x.BorrowerName.Contains(search) ||
+                    x.BorrowerEmail.Contains(search));
+            }
+
+            // Filter status
+            if (status == "Paid")
+            {
+                query = query.Where(x => x.IsPaid);
+            }
+            else if (status == "Unpaid")
+            {
+                query = query.Where(x => !x.IsPaid);
+            }
 
             // Statistics
-            ViewBag.TotalFines = fines.Count;
-            ViewBag.TotalFineAmount = fines.Sum(x => x.FineAmount);
-            ViewBag.PaidFines = fines.Count(x => x.IsPaid);
-            ViewBag.UnpaidFines = fines.Count(x => !x.IsPaid);
+            ViewBag.TotalFines = await query.CountAsync();
 
-            var pagedFines = fines.ToPagedList(
-                pageNumber,
-                pageSize
-            );
+            ViewBag.TotalFineAmount =
+                await query.SumAsync(x => (decimal?)x.FineAmount) ?? 0;
+
+            ViewBag.PaidFines =
+                await query.CountAsync(x => x.IsPaid);
+
+            ViewBag.UnpaidFines =
+                await query.CountAsync(x => !x.IsPaid);
+
+            // Lấy dữ liệu trước
+            var fines = await query
+                .OrderByDescending(x => x.ReturnDate)
+                .ThenByDescending(x => x.Id)
+                .ToListAsync();
+
+            // Sau đó mới phân trang
+            var pagedFines = fines.ToPagedList(pageNumber, pageSize);
+
+            ViewBag.Search = search;
+            ViewBag.Status = status;
 
             return View(pagedFines);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PayFine(
@@ -828,22 +868,531 @@ namespace LibraryManagement.Controllers
 
         public async Task<IActionResult> Invoice(int id)
         {
-            var borrow = await _context.Borrows
-                .Include(x => x.BorrowDetails)
-                    .ThenInclude(x => x.Book)
+            var payment = await _context.FinePayments
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (borrow == null)
+            if (payment == null)
             {
                 return NotFound();
             }
 
-            if (!borrow.IsPaid)
+            return View(payment);
+        }
+
+
+
+        public async Task<IActionResult> PaymentDetails(int id)
+        {
+            var payment = await _context.FinePayments
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (payment == null)
             {
-                return RedirectToAction(nameof(FineManagement));
+                return NotFound();
             }
 
-            return View(borrow);
+            return View(payment);
+        }
+
+
+
+
+        public async Task<IActionResult> DownloadInvoice(int id)
+        {
+            var payment = await _context.FinePayments
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (payment == null)
+            {
+                return NotFound();
+            }
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(40);
+
+                    page.DefaultTextStyle(x =>
+                        x.FontSize(11));
+
+                    // HEADER
+                    page.Header()
+                        .Row(row =>
+                        {
+                            row.RelativeItem()
+                                .Column(column =>
+                                {
+                                    column.Item()
+                                        .Text("LIBRARY MANAGEMENT")
+                                        .Bold()
+                                        .FontSize(20);
+
+                                    column.Item()
+                                        .Text("Library Management System")
+                                        .FontSize(10)
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    column.Item()
+                                        .Text("Ho Chi Minh City, Vietnam")
+                                        .FontSize(10)
+                                        .FontColor(Colors.Grey.Darken1);
+                                });
+
+                            row.ConstantItem(180)
+                                .AlignRight()
+                                .Column(column =>
+                                {
+                                    column.Item()
+                                        .Text("INVOICE")
+                                        .Bold()
+                                        .FontSize(26);
+
+                                    column.Item()
+                                        .Text($"Invoice No: {payment.InvoiceNumber}")
+                                        .FontSize(10);
+
+                                    column.Item()
+                                        .Text(
+                                            $"Date: {payment.PaymentDate:dd/MM/yyyy}")
+                                        .FontSize(10);
+                                });
+                        });
+
+
+                    page.Content()
+                        .PaddingTop(30)
+                        .Column(column =>
+                        {
+                            // CUSTOMER
+                            column.Item()
+                                .Text("BILL TO")
+                                .Bold()
+                                .FontSize(12)
+                                .FontColor(Colors.Grey.Darken1);
+
+                            column.Item()
+                                .PaddingTop(8)
+                                .Border(1)
+                                .BorderColor(Colors.Grey.Lighten2)
+                                .Padding(12)
+                                .Column(customer =>
+                                {
+                                    customer.Item()
+                                        .Text(payment.CustomerName)
+                                        .Bold()
+                                        .FontSize(14);
+
+                                    customer.Item()
+                                        .Text(payment.CustomerEmail)
+                                        .FontColor(
+                                            Colors.Grey.Darken1);
+                                });
+
+
+                            column.Item()
+                                .PaddingTop(30);
+
+
+                            // PAYMENT TABLE
+                            column.Item()
+                                .Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(3);
+                                        columns.RelativeColumn(2);
+                                        columns.RelativeColumn(2);
+                                    });
+
+                                    table.Header(header =>
+                                    {
+                                        header.Cell()
+                                            .Background(Colors.Grey.Darken3)
+                                            .Padding(10)
+                                            .Text("Description")
+                                            .FontColor(Colors.White)
+                                            .Bold();
+
+                                        header.Cell()
+                                            .Background(Colors.Grey.Darken3)
+                                            .Padding(10)
+                                            .Text("Payment Method")
+                                            .FontColor(Colors.White)
+                                            .Bold();
+
+                                        header.Cell()
+                                            .Background(Colors.Grey.Darken3)
+                                            .Padding(10)
+                                            .AlignRight()
+                                            .Text("Amount")
+                                            .FontColor(Colors.White)
+                                            .Bold();
+                                    });
+
+                                    table.Cell()
+                                        .Padding(12)
+                                        .Text("Library overdue fine");
+
+                                    table.Cell()
+                                        .Padding(12)
+                                        .Text(payment.PaymentMethod);
+
+                                    table.Cell()
+                                        .Padding(12)
+                                        .AlignRight()
+                                        .Text(
+                                            $"{payment.Amount:N0} đ");
+                                });
+
+
+                            // TOTAL
+                            column.Item()
+                                .PaddingTop(25)
+                                .AlignRight()
+                                .Column(total =>
+                                {
+                                    total.Item()
+                                        .Text(text =>
+                                        {
+                                            text.Span("TOTAL: ")
+                                                .Bold()
+                                                .FontSize(16);
+
+                                            text.Span(
+                                                $"{payment.Amount:N0} đ")
+                                                .Bold()
+                                                .FontSize(18)
+                                                .FontColor(
+                                                    Colors.Green.Darken2);
+                                        });
+                                });
+
+
+                            // PAYMENT INFO
+                            column.Item()
+                                .PaddingTop(30)
+                                .Column(info =>
+                                {
+                                    info.Item()
+                                        .Text("PAYMENT INFORMATION")
+                                        .Bold()
+                                        .FontSize(12)
+                                        .FontColor(
+                                            Colors.Grey.Darken1);
+
+                                    info.Item()
+                                        .PaddingTop(8)
+                                        .Text(
+                                            $"Status: PAID");
+
+                                    info.Item()
+                                        .Text(
+                                            $"Payment Method: {payment.PaymentMethod}");
+
+                                    info.Item()
+                                        .Text(
+                                            $"Payment Date: {payment.PaymentDate:dd/MM/yyyy HH:mm:ss}");
+
+                                    info.Item()
+                                        .Text(
+                                            $"Paid By: {(string.IsNullOrWhiteSpace(payment.PaidBy)
+                                                ? "System"
+                                                : payment.PaidBy)}");
+                                });
+                        });
+
+
+                    // FOOTER
+                    page.Footer()
+                        .AlignCenter()
+                        .Column(column =>
+                        {
+                            column.Spacing(3);
+
+                            column.Item()
+                                .Text(text =>
+                                {
+                                    text.Span("Thank you for using our library service.")
+                                        .FontSize(9)
+                                        .FontColor(Colors.Grey.Darken1);
+                                });
+
+                            column.Item()
+                                .Text(text =>
+                                {
+                                    text.Span("Page ")
+                                        .FontSize(8)
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    text.CurrentPageNumber()
+                                        .FontSize(8)
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    text.Span(" / ")
+                                        .FontSize(8)
+                                        .FontColor(Colors.Grey.Darken1);
+
+                                    text.TotalPages()
+                                        .FontSize(8)
+                                        .FontColor(Colors.Grey.Darken1);
+                                });
+                        });
+                });
+            });
+
+            var pdf = document.GeneratePdf();
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"Invoice-{payment.InvoiceNumber}.pdf");
+        }
+
+
+
+
+        // ==============================
+        // EXPORT BORROWS TO EXCEL
+        // ==============================
+        [HttpGet]
+        public async Task<IActionResult> ExportExcel()
+        {
+            var borrows = await _context.Borrows
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                .OrderByDescending(x => x.BorrowDate)
+                .ToListAsync();
+
+            using var workbook = new XLWorkbook();
+
+            var worksheet = workbook.Worksheets.Add("Borrow Records");
+
+            // ==============================
+            // TITLE
+            // ==============================
+
+            worksheet.Cell(1, 1).Value = "LIBRARY MANAGEMENT";
+            worksheet.Range(1, 1, 1, 10).Merge();
+
+            worksheet.Cell(1, 1).Style.Font.Bold = true;
+            worksheet.Cell(1, 1).Style.Font.FontSize = 18;
+            worksheet.Cell(1, 1).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            worksheet.Cell(2, 1).Value = "Borrow Records";
+            worksheet.Range(2, 1, 2, 10).Merge();
+
+            worksheet.Cell(2, 1).Style.Font.Bold = true;
+            worksheet.Cell(2, 1).Style.Font.FontSize = 13;
+            worksheet.Cell(2, 1).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            // ==============================
+            // HEADER
+            // ==============================
+
+            string[] headers =
+            {
+        "#",
+        "Borrower",
+        "Email",
+        "Borrow Date",
+        "Due Date",
+        "Return Date",
+        "Status",
+        "Book",
+        "Quantity",
+        "Fine Amount"
+    };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var cell = worksheet.Cell(4, i + 1);
+
+                cell.Value = headers[i];
+
+                cell.Style.Font.Bold = true;
+                cell.Style.Font.FontColor = XLColor.White;
+                cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#343a40");
+
+                cell.Style.Alignment.Horizontal =
+                    XLAlignmentHorizontalValues.Center;
+
+                cell.Style.Alignment.Vertical =
+                    XLAlignmentVerticalValues.Center;
+
+                cell.Style.Border.OutsideBorder =
+                    XLBorderStyleValues.Thin;
+            }
+
+            // ==============================
+            // DATA
+            // ==============================
+
+            int row = 5;
+            int stt = 1;
+
+            foreach (var borrow in borrows)
+            {
+                var details = borrow.BorrowDetails?.ToList();
+
+                // Nếu không có BorrowDetail
+                if (details == null || details.Count == 0)
+                {
+                    worksheet.Cell(row, 1).Value = stt;
+                    worksheet.Cell(row, 2).Value = borrow.BorrowerName;
+                    worksheet.Cell(row, 3).Value = borrow.BorrowerEmail;
+
+                    worksheet.Cell(row, 4).Value =
+                        borrow.BorrowDate.ToString("dd/MM/yyyy");
+
+                    worksheet.Cell(row, 5).Value =
+                        borrow.DueDate.ToString("dd/MM/yyyy");
+
+                    worksheet.Cell(row, 6).Value =
+                        borrow.ReturnDate?.ToString("dd/MM/yyyy") ?? "-";
+
+                    worksheet.Cell(row, 7).Value =
+                        borrow.IsReturned ? "Returned" : "Borrowing";
+
+                    worksheet.Cell(row, 8).Value = "-";
+                    worksheet.Cell(row, 9).Value = 0;
+
+                    worksheet.Cell(row, 10).Value =
+                        borrow.FineAmount;
+
+                    row++;
+                    stt++;
+
+                    continue;
+                }
+
+                foreach (var detail in details)
+                {
+                    worksheet.Cell(row, 1).Value = stt;
+                    worksheet.Cell(row, 2).Value = borrow.BorrowerName;
+                    worksheet.Cell(row, 3).Value = borrow.BorrowerEmail;
+
+                    worksheet.Cell(row, 4).Value =
+                        borrow.BorrowDate.ToString("dd/MM/yyyy");
+
+                    worksheet.Cell(row, 5).Value =
+                        borrow.DueDate.ToString("dd/MM/yyyy");
+
+                    worksheet.Cell(row, 6).Value =
+                        borrow.ReturnDate?.ToString("dd/MM/yyyy") ?? "-";
+
+                    worksheet.Cell(row, 7).Value =
+                        borrow.IsReturned ? "Returned" : "Borrowing";
+
+                    worksheet.Cell(row, 8).Value =
+                        detail.Book?.Title ?? "Unknown Book";
+
+                    worksheet.Cell(row, 9).Value =
+                        detail.Quantity;
+
+                    worksheet.Cell(row, 10).Value =
+                        borrow.FineAmount;
+
+                    row++;
+                }
+
+                stt++;
+            }
+
+            // ==============================
+            // FORMAT
+            // ==============================
+
+            var dataRange = worksheet.Range(
+                4,
+                1,
+                Math.Max(row - 1, 4),
+                10);
+
+            dataRange.Style.Border.OutsideBorder =
+                XLBorderStyleValues.Thin;
+
+            dataRange.Style.Border.InsideBorder =
+                XLBorderStyleValues.Thin;
+
+            dataRange.Style.Alignment.Vertical =
+                XLAlignmentVerticalValues.Center;
+
+            // Center specific columns
+            worksheet.Column(1).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            worksheet.Column(4).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            worksheet.Column(5).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            worksheet.Column(6).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            worksheet.Column(7).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            worksheet.Column(9).Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            // Currency
+            worksheet.Column(10)
+                .Style.NumberFormat.Format = "#,##0";
+
+            // ==============================
+            // WIDTH
+            // ==============================
+
+            worksheet.Column(1).Width = 7;
+            worksheet.Column(2).Width = 25;
+            worksheet.Column(3).Width = 30;
+            worksheet.Column(4).Width = 15;
+            worksheet.Column(5).Width = 15;
+            worksheet.Column(6).Width = 15;
+            worksheet.Column(7).Width = 15;
+            worksheet.Column(8).Width = 35;
+            worksheet.Column(9).Width = 12;
+            worksheet.Column(10).Width = 18;
+
+            // ==============================
+            // FREEZE HEADER
+            // ==============================
+
+            worksheet.SheetView.FreezeRows(4);
+
+            // ==============================
+            // AUTO FILTER
+            // ==============================
+
+            worksheet.Range(
+                4,
+                1,
+                Math.Max(row - 1, 4),
+                10
+            ).SetAutoFilter();
+
+            // ==============================
+            // DOWNLOAD
+            // ==============================
+
+            using var stream = new MemoryStream();
+
+            workbook.SaveAs(stream);
+
+            stream.Position = 0;
+
+            string fileName =
+                $"BorrowRecords_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(
+                stream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileName);
         }
 
 

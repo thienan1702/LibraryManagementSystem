@@ -1,266 +1,475 @@
-﻿@model LibraryManagement.Models.Borrow
+﻿@model LibraryManagement.Models.FinePayment
 
 @{
-    ViewData["Title"] = "Payment Invoice";
+    Layout = null;
 }
 
-<div class="container py-4">
+<!DOCTYPE html>
 
-    <div class="invoice-card">
+<html>
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <title>Invoice - @Model.InvoiceNumber</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f1f3f5;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #212529;
+        }
+
+        .invoice-wrapper {
+            width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 45px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.12);
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #212529;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+
+        .company-name {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .company-info {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+            .invoice-title h1 {
+                margin: 0;
+                font-size: 32px;
+                letter-spacing: 2px;
+            }
+
+        .invoice-number {
+            margin-top: 8px;
+            color: #6c757d;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .customer-box {
+            border: 1px solid #dee2e6;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        .customer-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #212529;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .total-box {
+            margin-top: 25px;
+            margin-left: auto;
+            width: 350px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .total-final {
+            border-top: 2px solid #212529;
+            margin-top: 8px;
+            padding-top: 15px;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .payment-method {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #e9ecef;
+            font-weight: bold;
+        }
+
+        .footer {
+            border-top: 1px solid #dee2e6;
+            margin-top: 45px;
+            padding-top: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .print-buttons {
+            width: 800px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        button,
+        a {
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-print {
+            background: #198754;
+            color: white;
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+
+        @@media print {
+
+            body {
+                background: white;
+            }
+
+            .invoice-wrapper {
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+            }
+
+            .print-buttons {
+                display: none;
+            }
+
+            @@page {
+                size: A4;
+                margin: 15mm;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="print-buttons">
+
+        <a href="javascript:history.back()"
+           class="btn-back">
+
+            ← Back
+
+        </a>
+
+        <button onclick="window.print()"
+                class="btn-print">
+
+            🖨 Print Invoice
+
+        </button>
+
+    </div>
+
+
+    <div class="invoice-wrapper">
+
+        <!-- Header -->
 
         <div class="invoice-header">
 
             <div>
 
-                <h2 class="fw-bold mb-1">
+                <div class="company-name">
 
-                    <i class="fas fa-book-open text-primary"></i>
+                    LIBRARY MANAGEMENT
 
-                    Library Management
+                </div>
 
-                </h2>
+                <div class="company-info">
 
-                <span class="text-muted">
-                    Fine Payment Receipt
+                    Library Management System<br />
+
+                    Ho Chi Minh City, Vietnam<br />
+
+                    Email: library@example.com
+
+                </div>
+
+            </div>
+
+
+            <div class="invoice-title">
+
+                <h1>INVOICE</h1>
+
+                <div class="invoice-number">
+
+                    Invoice No:
+                    <strong>
+                        @Model.InvoiceNumber
+                    </strong>
+
+                </div>
+
+                <div class="invoice-number">
+
+                    Date:
+                    @Model.PaymentDate.ToString("dd/MM/yyyy")
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Customer -->
+
+        <div class="section">
+
+            <div class="section-title">
+
+                Bill To
+
+            </div>
+
+            <div class="customer-box">
+
+                <div class="customer-name">
+
+                    @Model.CustomerName
+
+                </div>
+
+                <div>
+
+                    @Model.CustomerEmail
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Payment -->
+
+        <div class="section">
+
+            <div class="section-title">
+
+                Payment Information
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Description</th>
+
+                        <th>Payment Method</th>
+
+                        <th class="text-right">
+
+                            Amount
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+
+                            Library overdue fine
+
+                        </td>
+
+                        <td>
+
+                            <span class="payment-method">
+
+                                @Model.PaymentMethod
+
+                            </span>
+
+                        </td>
+
+                        <td class="text-right">
+
+                            @Model.Amount.ToString("N0") đ
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- Total -->
+
+        <div class="total-box">
+
+            <div class="total-row">
+
+                <span>
+
+                    Fine Amount
+
+                </span>
+
+                <strong>
+
+                    @Model.Amount.ToString("N0") đ
+
+                </strong>
+
+            </div>
+
+
+            <div class="total-row total-final">
+
+                <span>
+
+                    TOTAL
+
+                </span>
+
+                <span>
+
+                    @Model.Amount.ToString("N0") đ
+
                 </span>
 
             </div>
 
-            <div class="text-end">
+        </div>
 
-                <div class="text-muted">
-                    Invoice No.
-                </div>
 
-                <strong>
-                    @Model.InvoiceNumber
-                </strong>
+        <!-- Payment status -->
 
-            </div>
+        <div class="section"
+             style="margin-top:35px;">
+
+            <strong>
+
+                Payment Status:
+
+            </strong>
+
+            <span style="
+                color:#198754;
+                font-weight:bold;
+                margin-left:8px;">
+
+                PAID
+
+            </span>
+
+            <br />
+
+            <strong>
+
+                Paid By:
+
+            </strong>
+
+            @(string.IsNullOrWhiteSpace(Model.PaidBy)
+                        ? "System"
+                        : Model.PaidBy)
+
+            <br />
+
+            <strong>
+
+                Payment Date:
+
+            </strong>
+
+            @Model.PaymentDate.ToString("dd/MM/yyyy HH:mm:ss")
 
         </div>
 
 
-        <hr />
+        <div class="footer">
 
+            Thank you for using our library service.
 
-        <div class="row mb-4">
+            <br />
 
-            <div class="col-md-6">
-
-                <small class="text-muted">
-                    CUSTOMER
-                </small>
-
-                <h5 class="fw-bold">
-                    @Model.BorrowerName
-                </h5>
-
-                <div>
-                    @Model.BorrowerEmail
-                </div>
-
-            </div>
-
-            <div class="col-md-6 text-md-end">
-
-                <small class="text-muted">
-                    PAYMENT DATE
-                </small>
-
-                <h6 class="fw-bold">
-
-                    @Model.PaidDate?.ToString("dd/MM/yyyy HH:mm")
-
-                </h6>
-
-            </div>
-
-        </div>
-
-
-        <table class="table">
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Description
-                    </th>
-
-                    <th>
-                        Borrow Date
-                    </th>
-
-                    <th>
-                        Return Date
-                    </th>
-
-                    <th class="text-end">
-                        Amount
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        Late Return Fine
-                    </td>
-
-                    <td>
-                        @Model.BorrowDate.ToString("dd/MM/yyyy")
-                    </td>
-
-                    <td>
-                        @Model.ReturnDate?.ToString("dd/MM/yyyy")
-                    </td>
-
-                    <td class="text-end fw-bold text-danger">
-
-                        @Model.FineAmount.ToString("N0") đ
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-
-        <div class="invoice-summary">
-
-            <div>
-
-                Payment Method
-
-                <strong>
-                    @Model.PaymentMethod
-                </strong>
-
-            </div>
-
-            <div>
-
-                Total
-
-                <strong class="total">
-
-                    @Model.FineAmount.ToString("N0") đ
-
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="paid-stamp">
-
-            <i class="fas fa-circle-check"></i>
-
-            PAYMENT COMPLETED
-
-        </div>
-
-
-        <div class="invoice-footer">
-
-            <button onclick="window.print()"
-                    class="btn btn-primary">
-
-                <i class="fas fa-print"></i>
-
-                Print Invoice
-
-            </button>
-
-            <a asp-action="FineManagement"
-               class="btn btn-secondary">
-
-                Back
-
-            </a>
+            This invoice was generated by Library Management System.
 
         </div>
 
     </div>
 
-</div>
-<style>
+</body>
 
-    .invoice-card {
-        max-width: 950px;
-        margin: auto;
-        background: white;
-        border-radius: 18px;
-        padding: 35px;
-        box-shadow: 0 5px 25px rgba(0,0,0,.08);
-    }
-
-    .invoice-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .invoice-summary {
-        margin-top: 25px;
-        margin-left: auto;
-        max-width: 350px;
-    }
-
-        .invoice-summary > div {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .invoice-summary .total {
-            color: #dc3545;
-            font-size: 22px;
-        }
-
-    .paid-stamp {
-        margin: 30px auto;
-        width: fit-content;
-        padding: 10px 20px;
-        border: 2px solid #198754;
-        border-radius: 10px;
-        color: #198754;
-        font-weight: 700;
-        transform: rotate(-2deg);
-    }
-
-    .invoice-footer {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 30px;
-    }
-
-    @@media print {
-        body
-
-    {
-        background: white !important;
-    }
-
-    .invoice-card {
-        box-shadow: none;
-        max-width: 100%;
-    }
-
-    .invoice-footer {
-        display: none;
-    }
-
-    }
-</style>
+</html>

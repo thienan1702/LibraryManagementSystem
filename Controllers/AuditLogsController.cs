@@ -17,19 +17,98 @@ namespace LibraryManagement.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> Index(
+      string? search,
+      string? actionFilter,
+      DateTime? fromDate,
+      DateTime? toDate,
+      int? page)
+        {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
 
-public async Task<IActionResult> Index(int? page)
-    {
-        int pageNumber = page ?? 1;
-        int pageSize = 10;
+            var query = _context.AuditLogs.AsQueryable();
 
-        var logs = await _context.AuditLogs
-            .OrderByDescending(x => x.Time)
-            .ToListAsync();
+            // =========================
+            // SEARCH
+            // =========================
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
 
-        var pagedLogs = logs.ToPagedList(pageNumber, pageSize);
+                query = query.Where(x =>
+                    (x.UserName != null &&
+                     x.UserName.Contains(search))
+                    ||
+                    (x.Entity != null &&
+                     x.Entity.Contains(search))
+                    ||
+                    (x.Description != null &&
+                     x.Description.Contains(search)));
+            }
 
-        return View(pagedLogs);
+            // =========================
+            // ACTION FILTER
+            // =========================
+            if (!string.IsNullOrWhiteSpace(actionFilter))
+            {
+                query = query.Where(x =>
+                    x.Action == actionFilter);
+            }
+
+            // =========================
+            // FROM DATE
+            // =========================
+            if (fromDate.HasValue)
+            {
+                var startDate = fromDate.Value.Date;
+
+                query = query.Where(x =>
+                    x.Time >= startDate);
+            }
+
+            // =========================
+            // TO DATE
+            // =========================
+            if (toDate.HasValue)
+            {
+                var endDate =
+                    toDate.Value.Date.AddDays(1);
+
+                query = query.Where(x =>
+                    x.Time < endDate);
+            }
+
+            // =========================
+            // GET DATA
+            // =========================
+            var logs = await query
+                .OrderByDescending(x => x.Time)
+                .ToListAsync();
+
+            // =========================
+            // PAGINATION
+            // =========================
+            var pagedLogs = logs.ToPagedList(
+                pageNumber,
+                pageSize);
+
+            // =========================
+            // VIEW BAG
+            // =========================
+            ViewBag.Search = search;
+
+            ViewBag.Action = actionFilter;
+
+            ViewBag.FromDate =
+                fromDate?.ToString("yyyy-MM-dd");
+
+            ViewBag.ToDate =
+                toDate?.ToString("yyyy-MM-dd");
+
+            ViewBag.DebugTotal = logs.Count;
+
+            return View(pagedLogs);
+        }
     }
-}
 }

@@ -1,7 +1,7 @@
 using LibraryManagement.Data;
 using LibraryManagement.Models;
 
-namespace LibraryManagement.Services.Implementations
+namespace LibraryManagement.Services
 {
     public class AuditService : IAuditService
     {
@@ -19,15 +19,24 @@ namespace LibraryManagement.Services.Implementations
             int entityId,
             string description)
         {
-            _context.AuditLogs.Add(new AuditLog
+            var auditLog = new AuditLog
             {
-                UserName = user,
+                UserName = string.IsNullOrWhiteSpace(user)
+                    ? "System"
+                    : user,
+
                 Action = action,
+
                 Entity = entity,
+
                 EntityId = entityId,
+
                 Description = description,
+
                 Time = DateTime.Now
-            });
+            };
+
+            _context.AuditLogs.Add(auditLog);
 
             await _context.SaveChangesAsync();
         }

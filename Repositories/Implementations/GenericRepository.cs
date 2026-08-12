@@ -32,8 +32,28 @@ namespace LibraryManagement.Repositories.Implementations
 
         public async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
-            await Task.CompletedTask;
+            var key = _context.Model
+                .FindEntityType(typeof(T))
+                ?.FindPrimaryKey()
+                ?.Properties
+                .FirstOrDefault();
+
+            if (key == null)
+                throw new InvalidOperationException(
+                    $"Entity {typeof(T).Name} does not have a primary key.");
+
+            var keyValue = key.PropertyInfo?.GetValue(entity);
+
+            var existingEntity = await _dbSet.FindAsync(keyValue);
+
+            if (existingEntity == null)
+                return;
+
+            _context.Entry(existingEntity)
+                .CurrentValues
+                .SetValues(entity);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)

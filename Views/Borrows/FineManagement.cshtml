@@ -15,7 +15,6 @@
     var bankAccount = "0123456789";     
     var accountName = "LIBRARY MANAGEMENT";
 }
-}
 
 <div class="container-fluid">
 
@@ -147,6 +146,119 @@
 
     </div>
 
+
+
+    <!-- SEARCH & FILTER -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <form asp-action="FineManagement"
+                  method="get">
+
+                <div class="row g-3 align-items-end">
+
+                    <!-- SEARCH -->
+
+                    <div class="col-md-5">
+
+                        <label class="form-label fw-semibold">
+
+                            <i class="fas fa-search text-primary me-1"></i>
+
+                            Search borrower
+
+                        </label>
+
+                        <input type="text"
+                               name="search"
+                               value="@ViewBag.Search"
+                               class="form-control"
+                               placeholder="Search by name or email..." />
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="col-md-3">
+
+                        <label class="form-label fw-semibold">
+
+                            <i class="fas fa-filter text-primary me-1"></i>
+
+                            Payment Status
+
+                        </label>
+
+                        <select name="status"
+                                class="form-select">
+
+                            <option value=""
+                                    selected="@(string.IsNullOrEmpty(ViewBag.Status) ? "selected" : null)">
+
+                                All Status
+
+                            </option>
+
+                            <option value="Paid"
+                                    selected="@(ViewBag.Status == "Paid" ? "selected" : null)">
+
+                                Paid
+
+                            </option>
+
+                            <option value="Unpaid"
+                                    selected="@(ViewBag.Status == "Unpaid" ? "selected" : null)">
+
+                                Unpaid
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- SEARCH BUTTON -->
+
+                    <div class="col-md-2">
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+
+                            <i class="fas fa-search me-1"></i>
+
+                            Search
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- RESET -->
+
+                    <div class="col-md-2">
+
+                        <a asp-action="FineManagement"
+                           class="btn btn-secondary w-100">
+
+                            <i class="fas fa-rotate-left me-1"></i>
+
+                            Reset
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
     <a asp-action="PaymentHistory"
@@ -447,7 +559,9 @@
 
         page => Url.Action("FineManagement", new
         {
-            page
+            page,
+            search = ViewBag.Search,
+            status = ViewBag.Status
         }),
 
                 new PagedListRenderOptions
@@ -805,6 +919,31 @@
             display: flex;
             flex-direction: column;
             gap: 2px;
+        }
+
+        /* ==============================
+           FINE SEARCH & FILTER
+           ============================== */
+
+        .fine-filter-card {
+            border-radius: 14px;
+        }
+
+            .fine-filter-card .form-control,
+            .fine-filter-card .form-select {
+                height: 42px;
+                border-radius: 8px;
+            }
+
+            .fine-filter-card .btn {
+                height: 42px;
+                border-radius: 8px;
+                font-weight: 600;
+            }
+
+        .filter-label {
+            font-size: 13px;
+            color: #495057;
         }
 
     </style>
