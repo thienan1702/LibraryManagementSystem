@@ -47,36 +47,80 @@ namespace LibraryManagement.Controllers
 
         // GET: Borrows
         public async Task<IActionResult> Index(
-           string search,
-            bool? status,
-            bool overdue = false)
+     string search,
+     bool? status,
+     bool overdue = false,
+     int? page = 1)
         {
+            int pageNumber = page ?? 1;
+            int pageSize = 10;
+
             var borrows = _context.Borrows
                 .Include(x => x.BorrowDetails)
                 .AsQueryable();
 
+            // =========================
+            // SEARCH
+            // =========================
             if (!string.IsNullOrEmpty(search))
             {
+                search = search.Trim();
+
                 borrows = borrows.Where(x =>
                     x.BorrowerName.Contains(search));
             }
+
+            // =========================
+            // OVERDUE
+            // =========================
             if (overdue)
             {
                 borrows = borrows.Where(x =>
-                 !x.IsReturned &&
-                 x.DueDate < DateTime.Today);
+                    !x.IsReturned &&
+                    x.DueDate < DateTime.Today);
             }
+
+            // =========================
+            // STATUS
+            // =========================
             if (status.HasValue)
             {
                 borrows = borrows.Where(x =>
-                    x.IsReturned == status);
+                    x.IsReturned == status.Value);
             }
 
+            // =========================
+            // SORT
+            // =========================
+            borrows = borrows
+                .OrderByDescending(x => x.BorrowDate);
+
+            // =========================
+            // PAGINATION
+            // =========================
+            var pagedBorrows = borrows.ToPagedList(
+                pageNumber,
+                pageSize);
+
+            // =========================
+            // VIEWBAG
+            // =========================
             ViewBag.Search = search;
             ViewBag.Status = status;
             ViewBag.Overdue = overdue;
 
-            return View(await borrows.ToListAsync());
+            // =========================
+            // STATISTICS
+            // =========================
+            ViewBag.TotalBorrow = await _context.Borrows.CountAsync();
+
+            ViewBag.TotalBorrowing = await _context.Borrows
+                .CountAsync(x => !x.IsReturned);
+
+            ViewBag.TotalReturned = await _context.Borrows
+                .CountAsync(x => x.IsReturned);
+
+            return View(pagedBorrows);
         }
 
 

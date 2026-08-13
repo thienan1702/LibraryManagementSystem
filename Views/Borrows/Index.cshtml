@@ -1,5 +1,7 @@
-﻿@model IEnumerable<LibraryManagement.Models.Borrow>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
 
+@model IPagedList<LibraryManagement.Models.Borrow>
 @{
     ViewData["Title"] = "Borrow Management";
 }
@@ -61,8 +63,7 @@
 
                 <h6>Total Borrow</h6>
 
-                <h3>@Model.Count()</h3>
-
+                <h3>@ViewBag.TotalBorrow</h3>
             </div>
 
         </div>
@@ -79,8 +80,7 @@
 
                 <h6>Borrowing</h6>
 
-                <h3>@Model.Count(x => !x.IsReturned)</h3>
-
+                <h3>@ViewBag.TotalBorrowing</h3>
             </div>
 
         </div>
@@ -97,8 +97,7 @@
 
                 <h6>Returned</h6>
 
-                <h3>@Model.Count(x => x.IsReturned)</h3>
-
+                <h3>@ViewBag.TotalReturned</h3>
             </div>
 
         </div>
@@ -155,6 +154,31 @@
 
             <div class="col-md-5">
 
+                <div class="overdue-filter">
+                    <input type="checkbox"
+                           class="btn-check"
+                           name="overdue"
+                           value="true"
+                           id="overdueFilter"
+                           autocomplete="off"
+                           @(ViewBag.Overdue == true ? "checked" : "") />
+
+                    <label class="btn overdue-filter-btn w-50"
+                           for="overdueFilter">
+
+                        <i class="fas fa-clock me-2"></i>
+
+                        Overdue Only
+
+                        @if (ViewBag.Overdue == true)
+                        {
+                            <span class="badge bg-danger ms-2">
+                                Active
+                            </span>
+                        }
+
+                    </label>
+                </div>
                 <button class="btn btn-app btn-search">
 
                     <i class="fas fa-search"></i>
@@ -169,8 +193,12 @@
                     Reset
 
                 </a>
+     
+                
+
 
             </div>
+         
 
         </div>
 
@@ -363,6 +391,43 @@
     </tbody>
 
 </table>
+
+<div class="d-flex justify-content-center mt-4">
+
+    @Html.PagedListPager(
+    Model,
+    page => Url.Action("Index", new
+    {
+        page = page,
+        search = ViewBag.Search,
+        status = ViewBag.Status,
+        overdue = ViewBag.Overdue
+    }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "Previous",
+            LinkToNextPageFormat = "Next",
+            LinkToLastPageFormat = ">>",
+
+            MaximumPageNumbersToDisplay = 5,
+
+            UlElementClasses = new[] { "pagination" },
+
+            LiElementClasses = new[] { "page-item" },
+
+            PageClasses = new[] { "page-link" }
+        }
+        )
+
+</div>
+
+
 @section Scripts {
 
     <script>

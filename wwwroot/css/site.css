@@ -299,3 +299,34 @@ body {
         transform: translateY(0px);
     }
 }
+.overdue-filter-btn {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;  
+}
+
+    .overdue-filter-btn:hover {
+        border-color: #dc3545;
+        color: #dc3545;
+        background: #fff5f5;
+    }
+
+.btn-check:checked + .overdue-filter-btn {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(220, 53, 69, 0.25);
+}
+
+    .btn-check:checked + .overdue-filter-btn:hover {
+        background: #bb2d3b;
+        border-color: #bb2d3b;
+        color: #fff;
+    }
