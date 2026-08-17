@@ -173,7 +173,8 @@
 
                             <li class="nav-item">
 
-                                <a asp-controller="Reports"
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")"
+                                   asp-controller="Reports"
                                    asp-action="Index"
                                    class="nav-link">
 
@@ -203,6 +204,27 @@
                                 </a>
                             </li>
 
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "BookMaintenances" ? "active" : "")"
+                               asp-controller="BookMaintenances"
+                               asp-action="Index">
+
+                                <i class="fas fa-screwdriver-wrench"></i>
+
+                                <span>Maintenance</span>
+
+                            </a>
+
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "LostBooks" ? "active" : "")"
+                               asp-controller="LostBooks"
+                               asp-action="Index">
+
+                                <i class="fas fa-book-dead"></i>
+
+                                <span>Lost Books</span>
+
+                            </a>
+
+
                             <li class="nav-item">
                                 <a asp-controller="Categories"
                                    asp-action="Index"
@@ -229,6 +251,10 @@
                                     <p>Publishers</p>
                                 </a>
                             </li>
+
+
+
+
 
                             <li class="nav-item">
                                 <a asp-controller="Borrows"
@@ -280,10 +306,13 @@
                                 </a>
                             </li>
 
+
+
+
                             <li class="nav-item">
                                 <a asp-controller="Reservations"
                                    asp-action="Index"
-                                   class="nav-link">
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reservations" ? "active" : "")">
 
                                     <i class="fas fa-clock"></i>
 
@@ -295,9 +324,9 @@
 
                             <li class="nav-item">
 
-                                <a asp-controller="StockIns"
-                                   asp-action="Index"
-                                   class="nav-link">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "StockReceipts" ? "active" : "")"
+                                   asp-controller="StockReceipts"
+                                   asp-action="Index">
 
                                     <i class="fas fa-boxes-stacked"></i>
 
@@ -306,6 +335,20 @@
                                 </a>
 
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Suppliers" ? "active" : "")"
+                                   asp-controller="Suppliers"
+                                   asp-action="Index">
+
+                                    <i class="fas fa-truck"></i>
+
+                                    <span>Suppliers</span>
+
+                                </a>
+                            
+                            </li>
+
 
 
                         }

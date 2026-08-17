@@ -1,0 +1,408 @@
+﻿@model IEnumerable<LibraryManagement.Models.LostBook>
+
+@{
+    ViewData["Title"] = "Lost Books";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-book-dead text-danger me-2"></i>
+
+                Lost Books
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Manage lost books and related fines
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-file-circle-xmark fa-2x text-danger mb-2"></i>
+
+                <h6>Lost Records</h6>
+
+                <h3>
+                    @ViewBag.TotalRecords
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-book fa-2x text-warning mb-2"></i>
+
+                <h6>Lost Quantity</h6>
+
+                <h3>
+                    @ViewBag.TotalLostQuantity
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-money-bill-wave fa-2x text-danger mb-2"></i>
+
+                <h6>Total Lost Fine</h6>
+
+                <h3 class="text-danger">
+
+                    @(((decimal)ViewBag.TotalFine).ToString("N0"))
+
+                    VNĐ
+
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SEARCH -->
+
+<div class="page-card mb-4">
+
+    <form asp-action="Index" method="get">
+
+        <div class="row g-2">
+
+            <div class="col-md-6">
+
+                <div class="search-box">
+
+                    <i class="fas fa-search"></i>
+
+                    <input name="search"
+                           value="@ViewBag.Search"
+                           class="form-control"
+                           placeholder="Search book or borrower..." />
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <button class="btn btn-primary">
+
+                    <i class="fas fa-search me-1"></i>
+
+                    Search
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- TABLE -->
+
+<div class="page-card">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover table-bordered align-middle">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Book</th>
+
+                    <th>Borrower</th>
+
+                    <th>Lost Quantity</th>
+
+                    <th>Fine</th>
+
+                    <th>Lost Date</th>
+
+                    <th width="100">
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @{
+                    int stt =
+                    ((ViewBag.CurrentPage - 1)
+                    * ViewBag.PageSize) + 1;
+                }
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @stt
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                @item.Book?.Title
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            <i class="fas fa-user text-primary me-2"></i>
+
+                            @item.Borrow?.BorrowerName
+
+                        </td>
+
+
+                        <td class="text-center">
+
+                            <span class="badge bg-danger fs-6">
+
+                                @item.Quantity
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="text-danger fw-bold">
+
+                                @item.FineAmount.ToString("N0")
+                                VNĐ
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            @item.CreatedAt.ToString(
+                            "dd/MM/yyyy HH:mm")
+
+                    </td>
+
+
+                    <td>
+
+                        <a asp-action="Details"
+                           asp-route-id="@item.Id"
+                           class="btn btn-sm btn-primary">
+
+                            <i class="fas fa-circle-info"></i>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                                stt++;
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+
+            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+
+            <h5>
+                No lost books
+            </h5>
+
+            <p class="text-muted mb-0">
+
+                There are currently no lost book records.
+
+            </p>
+
+        </div>
+    }
+
+
+    <!-- PAGINATION -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="d-flex justify-content-between
+                        align-items-center mt-4">
+
+            <div class="text-muted">
+
+                Showing
+
+                <strong>
+                    @(((ViewBag.CurrentPage - 1)
+                                    * ViewBag.PageSize) + 1)
+                                                        </strong>
+
+                -
+
+                <strong>
+                    @(Math.Min(
+                                    ViewBag.CurrentPage * ViewBag.PageSize,
+                                    ViewBag.TotalItems))
+                                                    </strong>
+
+                of
+
+                <strong>
+                    @ViewBag.TotalItems
+                </strong>
+
+                records
+
+            </div>
+
+
+            <nav>
+
+                <ul class="pagination mb-0">
+
+                    <!-- PREVIOUS -->
+
+                    <li class="page-item
+                            @(ViewBag.CurrentPage <= 1
+                                                    ? "disabled"
+                                                    : "")">
+
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(ViewBag.CurrentPage - 1)"
+                       asp-route-search="@ViewBag.Search">
+
+                            <i class="fas fa-chevron-left"></i>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- PAGES -->
+                @for (
+                                int i = 1;
+                                i <= ViewBag.TotalPages;
+                                i++)
+                    {
+                        <li class="page-item
+                                    @(i == ViewBag.CurrentPage
+                                                            ? "active"
+                                                            : "")">
+
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-search="@ViewBag.Search">
+
+                                @i
+
+                            </a>
+
+                        </li>
+                                }
+
+
+                <!-- NEXT -->
+
+                <li class="page-item
+                        @(ViewBag.CurrentPage >= ViewBag.TotalPages
+                                                ? "disabled"
+                                                : "")">
+
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(ViewBag.CurrentPage + 1)"
+                       asp-route-search="@ViewBag.Search">
+
+                            <i class="fas fa-chevron-right"></i>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+        }
+
+</div>

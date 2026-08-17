@@ -29,6 +29,16 @@ namespace LibraryManagement.Data
 
         public DbSet<FinePayment> FinePayments { get; set; }
 
+        public DbSet<BookMaintenance> BookMaintenances { get; set; }
+
+        public DbSet<LostBook> LostBooks { get; set; }
+
+        public DbSet<Supplier> Suppliers { get; set; }
+
+        public DbSet<StockReceipt> StockReceipts { get; set; }
+
+        public DbSet<StockReceiptDetail> StockReceiptDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

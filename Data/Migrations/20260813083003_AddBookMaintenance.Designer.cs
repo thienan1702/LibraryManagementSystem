@@ -4,6 +4,7 @@ using LibraryManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagement.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260813083003_AddBookMaintenance")]
+    partial class AddBookMaintenance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -433,41 +436,6 @@ namespace LibraryManagement.Data.Migrations
                     b.ToTable("FinePayments");
                 });
 
-            modelBuilder.Entity("LibraryManagement.Models.LostBook", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BorrowId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("FineAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.HasIndex("BorrowId");
-
-                    b.ToTable("LostBooks");
-                });
-
             modelBuilder.Entity("LibraryManagement.Models.Publisher", b =>
                 {
                     b.Property<int>("Id")
@@ -554,116 +522,6 @@ namespace LibraryManagement.Data.Migrations
                     b.HasIndex("BookId");
 
                     b.ToTable("StockIns");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.StockReceipt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("ReceiptCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("ReceiptDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReceiptCode")
-                        .IsUnique();
-
-                    b.HasIndex("SupplierId");
-
-                    b.ToTable("StockReceipts");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.StockReceiptDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockReceiptId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.HasIndex("StockReceiptId");
-
-                    b.ToTable("StockReceiptDetails");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.Supplier", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -867,25 +725,6 @@ namespace LibraryManagement.Data.Migrations
                     b.Navigation("Borrow");
                 });
 
-            modelBuilder.Entity("LibraryManagement.Models.LostBook", b =>
-                {
-                    b.HasOne("LibraryManagement.Models.Book", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LibraryManagement.Models.Borrow", "Borrow")
-                        .WithMany()
-                        .HasForeignKey("BorrowId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("Borrow");
-                });
-
             modelBuilder.Entity("LibraryManagement.Models.Reservation", b =>
                 {
                     b.HasOne("LibraryManagement.Models.Book", "Book")
@@ -906,36 +745,6 @@ namespace LibraryManagement.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.StockReceipt", b =>
-                {
-                    b.HasOne("LibraryManagement.Models.Supplier", "Supplier")
-                        .WithMany("StockReceipts")
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.StockReceiptDetail", b =>
-                {
-                    b.HasOne("LibraryManagement.Models.Book", "Book")
-                        .WithMany("StockReceiptDetails")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LibraryManagement.Models.StockReceipt", "StockReceipt")
-                        .WithMany("Details")
-                        .HasForeignKey("StockReceiptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("StockReceipt");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -999,8 +808,6 @@ namespace LibraryManagement.Data.Migrations
                     b.Navigation("BorrowDetails");
 
                     b.Navigation("Maintenances");
-
-                    b.Navigation("StockReceiptDetails");
                 });
 
             modelBuilder.Entity("LibraryManagement.Models.Borrow", b =>
@@ -1016,16 +823,6 @@ namespace LibraryManagement.Data.Migrations
             modelBuilder.Entity("LibraryManagement.Models.Publisher", b =>
                 {
                     b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.StockReceipt", b =>
-                {
-                    b.Navigation("Details");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.Supplier", b =>
-                {
-                    b.Navigation("StockReceipts");
                 });
 #pragma warning restore 612, 618
         }

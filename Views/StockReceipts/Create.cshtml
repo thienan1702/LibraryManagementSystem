@@ -1,0 +1,916 @@
+﻿@model LibraryManagement.ViewModels.StockReceiptCreateVM
+
+@{
+    ViewData["Title"] = "Create Stock Receipt";
+
+    var suppliers = ViewBag.Suppliers
+        as List<LibraryManagement.Models.Supplier>
+        ?? new List<LibraryManagement.Models.Supplier>();
+
+    var books = ViewBag.Books
+        as List<LibraryManagement.Models.Book>
+        ?? new List<LibraryManagement.Models.Book>();
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+            <div class="page-title">
+
+                <i class="fas fa-boxes-stacked text-primary me-2"></i>
+
+                Create Stock Receipt
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Create a new stock-in receipt and add books to inventory
+
+            </div>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+
+            Back
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<form asp-action="Create"
+      method="post"
+      id="stockReceiptForm">
+
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly"
+         class="alert alert-danger">
+    </div>
+
+
+    <!-- RECEIPT INFORMATION -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                <i class="fas fa-file-invoice me-2"></i>
+
+                Receipt Information
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <!-- RECEIPT CODE -->
+
+                <div class="col-md-4 mb-3">
+
+                    <label asp-for="ReceiptCode"
+                           class="form-label fw-bold">
+
+                        Receipt Code
+
+                    </label>
+
+                    <input asp-for="ReceiptCode"
+                           class="form-control"
+                           readonly />
+
+                    <span asp-validation-for="ReceiptCode"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- RECEIPT DATE -->
+
+                <div class="col-md-4 mb-3">
+
+                    <label asp-for="ReceiptDate"
+                           class="form-label fw-bold">
+
+                        Receipt Date
+
+                    </label>
+
+                    <input asp-for="ReceiptDate"
+                           type="datetime-local"
+                           class="form-control" />
+
+                    <span asp-validation-for="ReceiptDate"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- CREATED BY -->
+
+                <div class="col-md-4 mb-3">
+
+                    <label asp-for="CreatedBy"
+                           class="form-label fw-bold">
+
+                        Created By
+
+                    </label>
+
+                    <input asp-for="CreatedBy"
+                           class="form-control"
+                           readonly />
+
+                </div>
+
+
+                <!-- SUPPLIER -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="SupplierId"
+                           class="form-label fw-bold">
+
+                        Supplier
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <select asp-for="SupplierId"
+                            class="form-select"
+                            id="supplierSelect">
+
+                        <option value="">
+                            -- Select Supplier --
+                        </option>
+
+                        @foreach (var supplier in suppliers)
+                        {
+                            <option value="@supplier.Id">
+
+                                @supplier.Name
+
+                                @if (!string.IsNullOrWhiteSpace(supplier.Phone))
+                                {
+                                    <text>
+                                        - @supplier.Phone
+                                    </text>
+                                }
+
+                            </option>
+                        }
+
+                    </select>
+
+                    <span asp-validation-for="SupplierId"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- NOTE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Note"
+                           class="form-label fw-bold">
+
+                        Note
+
+                    </label>
+
+                    <input asp-for="Note"
+                           class="form-control"
+                           placeholder="Optional note..." />
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOOK DETAILS -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-book me-2"></i>
+
+                    Stock Receipt Details
+
+                </h5>
+
+
+                <button type="button"
+                        class="btn btn-light btn-sm"
+                        onclick="addBookRow()">
+
+                    <i class="fas fa-plus me-1"></i>
+
+                    Add Book
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="alert alert-info">
+
+                <i class="fas fa-circle-info me-2"></i>
+
+                Add the books received from the supplier.
+                The amount will be calculated automatically.
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered align-middle"
+                       id="detailsTable">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th width="35">
+                                #
+                            </th>
+
+                            <th>
+                                Book
+                            </th>
+
+                            <th width="130"
+                                class="text-center">
+
+                                Quantity
+
+                            </th>
+
+                            <th width="180"
+                                class="text-end">
+
+                                Unit Price
+
+                            </th>
+
+                            <th width="180"
+                                class="text-end">
+
+                                Amount
+
+                            </th>
+
+                            <th width="60">
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="detailsBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- EMPTY -->
+
+            <div id="emptyMessage"
+                 class="text-center py-4">
+
+                <i class="fas fa-book-open fa-2x text-muted mb-2"></i>
+
+                <p class="text-muted mb-0">
+
+                    No books added yet.
+
+                </p>
+
+                <button type="button"
+                        class="btn btn-primary btn-sm mt-2"
+                        onclick="addBookRow()">
+
+                    <i class="fas fa-plus me-1"></i>
+
+                    Add First Book
+
+                </button>
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div class="d-flex justify-content-end mt-4">
+
+                <div class="receipt-total">
+
+                    <span class="text-muted me-3">
+
+                        Total Amount:
+
+                    </span>
+
+                    <strong id="totalAmount">
+
+                        0 VNĐ
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTION -->
+
+    <div class="d-flex justify-content-end gap-2 mb-4">
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-times me-1"></i>
+
+            Cancel
+
+        </a>
+
+        <button type="submit"
+                class="btn btn-primary"
+                id="saveButton">
+
+            <i class="fas fa-save me-1"></i>
+
+            Save Receipt
+
+        </button>
+
+    </div>
+
+</form>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+
+    <script>
+
+        // ==========================================
+        // BOOK DATA
+        // ==========================================
+
+        const books = [
+            @foreach (var book in books)
+            {
+                    <text>
+                    {
+                        id: @book.Id,
+                        title: @Html.Raw(
+                                                System.Text.Json.JsonSerializer.Serialize(book.Title)
+                                        ),
+                isbn: @Html.Raw(
+                                        System.Text.Json.JsonSerializer.Serialize(book.ISBN)
+                                )
+            },
+            </text>
+                }
+        ];
+
+
+        let rowIndex = 0;
+
+
+        // ==========================================
+        // FORMAT MONEY
+        // ==========================================
+
+        function formatMoney(value) {
+
+            return new Intl.NumberFormat(
+                'vi-VN'
+            ).format(value) + ' VNĐ';
+
+        }
+
+
+        // ==========================================
+        // ADD BOOK ROW
+        // ==========================================
+
+        function addBookRow() {
+
+            const body =
+                document.getElementById("detailsBody");
+
+            const emptyMessage =
+                document.getElementById("emptyMessage");
+
+            const row =
+                document.createElement("tr");
+
+            row.dataset.index = rowIndex;
+
+
+            let bookOptions =
+                `<option value="">-- Select Book --</option>`;
+
+
+            books.forEach(book => {
+
+                bookOptions += `
+                    <option value="${book.id}">
+                        ${escapeHtml(book.title)}
+                        ${book.isbn
+                            ? ` - ISBN: ${escapeHtml(book.isbn)}`
+                            : ""}
+                    </option>
+                `;
+
+            });
+
+
+            row.innerHTML = `
+
+                <td class="text-center row-number">
+                    ${body.children.length + 1}
+                </td>
+
+
+                <td>
+
+                    <select
+                        name="Details[${rowIndex}].BookId"
+                        class="form-select book-select"
+                        required>
+
+                        ${bookOptions}
+
+                    </select>
+
+                </td>
+
+
+                <td>
+
+                    <input
+                        type="number"
+                        name="Details[${rowIndex}].Quantity"
+                        class="form-control text-center quantity-input"
+                        value="1"
+                        min="1"
+                        required />
+
+                </td>
+
+
+                <td>
+
+                    <div class="input-group">
+
+                        <input
+                            type="number"
+                            name="Details[${rowIndex}].UnitPrice"
+                            class="form-control text-end price-input"
+                            value="0"
+                            min="0"
+                            step="1000"
+                            required />
+
+                        <span class="input-group-text">
+                            ₫
+                        </span>
+
+                    </div>
+
+                </td>
+
+
+                <td class="text-end">
+
+                    <strong class="amount">
+                        0 VNĐ
+                    </strong>
+
+                </td>
+
+
+                <td class="text-center">
+
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="removeBookRow(this)">
+
+                        <i class="fas fa-trash"></i>
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            body.appendChild(row);
+
+            emptyMessage.style.display = "none";
+
+            rowIndex++;
+
+            updateRowNumbers();
+
+            attachRowEvents(row);
+
+        }
+
+
+        // ==========================================
+        // ATTACH EVENTS
+        // ==========================================
+
+        function attachRowEvents(row) {
+
+            const quantity =
+                row.querySelector(".quantity-input");
+
+            const price =
+                row.querySelector(".price-input");
+
+
+            quantity.addEventListener(
+                "input",
+                () => updateRowAmount(row)
+            );
+
+
+            price.addEventListener(
+                "input",
+                () => updateRowAmount(row)
+            );
+
+        }
+
+
+        // ==========================================
+        // UPDATE ROW AMOUNT
+        // ==========================================
+
+        function updateRowAmount(row) {
+
+            const quantity =
+                parseInt(
+                    row.querySelector(".quantity-input").value
+                ) || 0;
+
+
+            const price =
+                parseFloat(
+                    row.querySelector(".price-input").value
+                ) || 0;
+
+
+            const amount =
+                quantity * price;
+
+
+            row.querySelector(".amount")
+                .textContent =
+                formatMoney(amount);
+
+
+            updateTotal();
+
+        }
+
+
+        // ==========================================
+        // UPDATE TOTAL
+        // ==========================================
+
+        function updateTotal() {
+
+            let total = 0;
+
+
+            document
+                .querySelectorAll("#detailsBody tr")
+                .forEach(row => {
+
+                    const quantity =
+                        parseInt(
+                            row.querySelector(
+                                ".quantity-input"
+                            ).value
+                        ) || 0;
+
+
+                    const price =
+                        parseFloat(
+                            row.querySelector(
+                                ".price-input"
+                            ).value
+                        ) || 0;
+
+
+                    total += quantity * price;
+
+                });
+
+
+            document.getElementById(
+                "totalAmount"
+            ).textContent =
+                formatMoney(total);
+
+        }
+
+
+        // ==========================================
+        // REMOVE ROW
+        // ==========================================
+
+                function removeBookRow(button) {
+
+            const row = button.closest("tr");
+
+            row.remove();
+
+            reindexRows();
+
+            updateRowNumbers();
+
+            updateTotal();
+
+            const body =
+                document.getElementById("detailsBody");
+
+            const emptyMessage =
+                document.getElementById("emptyMessage");
+
+            if (body.children.length === 0) {
+
+                emptyMessage.style.display = "block";
+
+            }
+        }
+
+
+                function reindexRows() {
+
+            document
+                .querySelectorAll("#detailsBody tr")
+                .forEach((row, index) => {
+
+                    row.querySelector(".book-select").name =
+                        `Details[${index}].BookId`;
+
+                    row.querySelector(".quantity-input").name =
+                        `Details[${index}].Quantity`;
+
+                    row.querySelector(".price-input").name =
+                        `Details[${index}].UnitPrice`;
+
+                });
+
+        }
+
+
+        // ==========================================
+        // ROW NUMBER
+        // ==========================================
+
+        function updateRowNumbers() {
+
+            document
+                .querySelectorAll(
+                    "#detailsBody tr"
+                )
+                .forEach((row, index) => {
+
+                    row.querySelector(
+                        ".row-number"
+                    ).textContent =
+                        index + 1;
+
+                });
+
+        }
+
+
+        // ==========================================
+        // ESCAPE HTML
+        // ==========================================
+
+        function escapeHtml(value) {
+
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+
+        }
+
+
+        // ==========================================
+        // FORM VALIDATION
+        // ==========================================
+
+        document
+            .getElementById("stockReceiptForm")
+            .addEventListener(
+                "submit",
+                function (e) {
+
+                    const rows =
+                        document.querySelectorAll(
+                            "#detailsBody tr"
+                        );
+
+
+                    if (rows.length === 0) {
+
+                        e.preventDefault();
+
+                        Swal.fire({
+
+                            icon: "warning",
+
+                            title: "No books added",
+
+                            text:
+                                "Please add at least one book to the receipt."
+
+                        });
+
+                        return;
+
+                    }
+
+
+                    const supplier =
+                        document.getElementById(
+                            "supplierSelect"
+                        );
+
+
+                    if (!supplier.value) {
+
+                        e.preventDefault();
+
+                        Swal.fire({
+
+                            icon: "warning",
+
+                            title: "Supplier required",
+
+                            text:
+                                "Please select a supplier."
+
+                        });
+
+                        return;
+
+                    }
+
+
+                    // Check duplicate books
+
+                    const selectedBooks =
+                        [];
+
+
+                    let duplicate =
+                        false;
+
+
+                    rows.forEach(row => {
+
+                        const select =
+                            row.querySelector(
+                                ".book-select"
+                            );
+
+
+                        if (
+                            select.value &&
+                            selectedBooks.includes(
+                                select.value
+                            )
+                        ) {
+
+                            duplicate = true;
+
+                        }
+
+
+                        if (select.value) {
+
+                            selectedBooks.push(
+                                select.value
+                            );
+
+                        }
+
+                    });
+
+
+                    if (duplicate) {
+
+                        e.preventDefault();
+
+                        Swal.fire({
+
+                            icon: "warning",
+
+                            title: "Duplicate book",
+
+                            text:
+                                "The same book cannot be added twice."
+
+                        });
+
+                    }
+
+                }
+            );
+
+    </script>
+
+
+    <style>
+
+        .receipt-total {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 14px 22px;
+            font-size: 18px;
+        }
+
+
+            .receipt-total strong {
+                color: #dc3545;
+                font-size: 22px;
+            }
+
+
+        #detailsBody tr {
+            transition: background-color .2s ease;
+        }
+
+
+            #detailsBody tr:hover {
+                background-color: #f8f9fa;
+            }
+
+
+        .book-select {
+            min-width: 280px;
+        }
+
+    </style>
+
+}

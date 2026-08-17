@@ -628,73 +628,395 @@ namespace LibraryManagement.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Borrows/Return/5
+        [HttpGet]
         public async Task<IActionResult> Return(int id)
         {
             var borrow = await _context.Borrows
                 .Include(x => x.BorrowDetails)
-                .ThenInclude(x => x.Book)
+                    .ThenInclude(x => x.Book)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (borrow == null)
                 return NotFound();
 
-            // Đánh dấu đã trả
-            borrow.ReturnDate = DateTime.Now;
-            borrow.IsReturned = true;
-
-            //==============================
-            // Fine Management
-            //==============================
-
-            const decimal finePerDay = 10000;
-
-            if (borrow.ReturnDate.Value.Date > borrow.DueDate.Date)
+            if (borrow.IsReturned)
             {
-                int overdueDays =
-                    (borrow.ReturnDate.Value.Date - borrow.DueDate.Date).Days;
+                TempData["Warning"] =
+                    "This borrow transaction has already been returned.";
 
-                borrow.FineAmount = overdueDays * finePerDay;
-
-                // Có tiền phạt => chưa thanh toán
-                borrow.IsPaid = false;
-            }
-            else
-            {
-                borrow.FineAmount = 0;
-
-                // Không có tiền phạt => xem như đã thanh toán
-                borrow.IsPaid = true;
+                return RedirectToAction(nameof(Index));
             }
 
-            //==============================
-            // Cập nhật lại số lượng sách
-            //==============================
+            var model = new ReturnBorrowVM
+            {
+                BorrowId = borrow.Id,
+                BorrowerName = borrow.BorrowerName,
+                BorrowDate = borrow.BorrowDate,
+                DueDate = borrow.DueDate,
+
+                Details = borrow.BorrowDetails.Select(detail =>
+                    new ReturnBorrowDetailVM
+                    {
+                        BorrowDetailId = detail.Id,
+                        BookId = detail.BookId,
+                        BookTitle = detail.Book?.Title ?? "Unknown Book",
+                        Quantity = detail.Quantity,
+
+                        GoodQuantity = detail.Quantity,
+                        MinorDamageQuantity = 0,
+                        MajorDamageQuantity = 0,
+                        LostQuantity = 0,
+
+                        DamageDescription = null,
+                        ConditionNote = null
+                    }).ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReturnConfirmed(
+      ReturnBorrowVM model)
+        {
+            var borrow = await _context.Borrows
+                .Include(x => x.BorrowDetails)
+                    .ThenInclude(x => x.Book)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == model.BorrowId);
+
+            if (borrow == null)
+                return NotFound();
+
+            if (borrow.IsReturned)
+            {
+                TempData["Warning"] =
+                    "This borrow transaction has already been returned.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // ==============================
+            // VALIDATE RETURN INFORMATION
+            // ==============================
 
             foreach (var detail in borrow.BorrowDetails)
             {
-                detail.Book.AvailableQuantity += detail.Quantity;
+                var item = model.Details
+                    .FirstOrDefault(x =>
+                        x.BorrowDetailId == detail.Id);
+
+                if (item == null)
+                {
+                    TempData["Error"] =
+                        "Return information is required.";
+
+                    return RedirectToAction(
+                        nameof(Return),
+                        new { id = borrow.Id });
+                }
+
+                int totalReturned =
+                    item.GoodQuantity +
+                    item.MinorDamageQuantity +
+                    item.MajorDamageQuantity +
+                    item.LostQuantity;
+
+                if (totalReturned != detail.Quantity)
+                {
+                    TempData["Error"] =
+                        $"Return quantity for '{detail.Book?.Title}' " +
+                        $"must equal {detail.Quantity}.";
+
+                    return RedirectToAction(
+                        nameof(Return),
+                        new { id = borrow.Id });
+                }
+
+                if (item.GoodQuantity < 0 ||
+                    item.MinorDamageQuantity < 0 ||
+                    item.MajorDamageQuantity < 0 ||
+                    item.LostQuantity < 0)
+                {
+                    TempData["Error"] =
+                        "Return quantity cannot be negative.";
+
+                    return RedirectToAction(
+                        nameof(Return),
+                        new { id = borrow.Id });
+                }
             }
+
+
+            // ==============================
+            // RETURN DATE
+            // ==============================
+
+            borrow.ReturnDate =
+                DateTime.Now;
+
+            borrow.IsReturned =
+                true;
+
+
+            // ==============================
+            // OVERDUE FINE
+            // ==============================
+
+            const decimal finePerDay =
+                10000;
+
+            decimal overdueFine = 0;
+
+            if (borrow.ReturnDate.Value.Date >
+                borrow.DueDate.Date)
+            {
+                int overdueDays =
+                    (borrow.ReturnDate.Value.Date -
+                     borrow.DueDate.Date).Days;
+
+                overdueFine =
+                    overdueDays * finePerDay;
+            }
+
+
+            // ==============================
+            // DAMAGE FEE
+            // ==============================
+
+            const decimal minorDamageFee =
+                20000;
+
+            const decimal majorDamageFee =
+                50000;
+
+            const decimal lostBookFee =
+                100000;
+
+            decimal totalDamageFee = 0;
+
+
+            // ==============================
+            // PROCESS BOOKS
+            // ==============================
+
+            foreach (var detail in borrow.BorrowDetails)
+            {
+                var item = model.Details
+                    .First(x =>
+                        x.BorrowDetailId == detail.Id);
+
+
+                detail.GoodQuantity =
+                    item.GoodQuantity;
+
+                detail.MinorDamageQuantity =
+                    item.MinorDamageQuantity;
+
+                detail.MajorDamageQuantity =
+                    item.MajorDamageQuantity;
+
+                detail.LostQuantity =
+                    item.LostQuantity;
+
+                detail.DamageDescription =
+                    item.DamageDescription;
+
+                detail.ConditionNote =
+                    item.ConditionNote;
+
+                detail.ReturnedAt =
+                    DateTime.Now;
+
+
+                // ==============================
+                // RETURN CONDITION
+                // ==============================
+
+                if (item.LostQuantity ==
+                    detail.Quantity)
+                {
+                    detail.ReturnCondition =
+                        BookReturnCondition.Lost;
+                }
+                else if (item.MajorDamageQuantity > 0)
+                {
+                    detail.ReturnCondition =
+                        BookReturnCondition.MajorDamage;
+                }
+                else if (item.MinorDamageQuantity > 0)
+                {
+                    detail.ReturnCondition =
+                        BookReturnCondition.MinorDamage;
+                }
+                else if (item.GoodQuantity ==
+                         detail.Quantity)
+                {
+                    detail.ReturnCondition =
+                        BookReturnCondition.Good;
+                }
+                else
+                {
+                    detail.ReturnCondition =
+                        BookReturnCondition.Mixed;
+                }
+
+
+                // ==============================
+                // DAMAGE FEE
+                // ==============================
+
+                decimal damageFee =
+                    item.MinorDamageQuantity * minorDamageFee +
+                    item.MajorDamageQuantity * majorDamageFee +
+                    item.LostQuantity * lostBookFee;
+
+                detail.DamageFee = damageFee;
+
+                totalDamageFee += damageFee;
+
+
+                // ==============================
+                // RECORD LOST BOOK
+                // ==============================
+
+                if (item.LostQuantity > 0)
+                {
+                    var lostBook = new LostBook
+                    {
+                        BookId = detail.BookId,
+                        BorrowId = borrow.Id,
+                        Quantity = item.LostQuantity,
+
+                        FineAmount =
+                            item.LostQuantity * lostBookFee,
+
+                        Note = item.DamageDescription,
+
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.LostBooks.Add(lostBook);
+                }
+
+
+                // ==============================
+                // UPDATE BOOK STOCK
+                // ==============================
+
+                // Good + Minor Damage
+                // => available for borrowing
+
+                detail.Book!.AvailableQuantity +=
+                    item.GoodQuantity +
+                    item.MinorDamageQuantity;
+
+
+                // Lost
+                // => remove permanently from total inventory
+
+                if (item.LostQuantity > 0)
+                {
+                    detail.Book.Quantity -=
+                        item.LostQuantity;
+                }
+
+
+                // Major Damage
+                // => not available
+                // => create maintenance record
+
+                if (item.MajorDamageQuantity > 0)
+                {
+                    var maintenance = new BookMaintenance
+                    {
+                        BookId = detail.BookId,
+                        Quantity = item.MajorDamageQuantity,
+
+                        Reason = "Major damage from returned book",
+
+                        Note = item.DamageDescription,
+
+                        Status = MaintenanceStatus.Pending,
+
+                        Cost = 0,
+
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.BookMaintenances.Add(maintenance);
+                }
+            }
+
+                // ==============================
+                // TOTAL FINE
+                // ==============================
+
+                borrow.FineAmount =
+                overdueFine +
+                totalDamageFee;
+
+            borrow.IsPaid =
+                borrow.FineAmount <= 0;
+
+
+            // ==============================
+            // SAVE
+            // ==============================
 
             await _context.SaveChangesAsync();
 
-            //==============================
-            // Xử lý Reservation
-            //==============================
+
+            // ==============================
+            // PROCESS RESERVATION
+            // ==============================
 
             foreach (var detail in borrow.BorrowDetails)
             {
-                await ProcessReservation(detail.BookId);
+                if (detail.Book!.AvailableQuantity > 0)
+                {
+                    await ProcessReservation(
+                        detail.BookId);
+                }
             }
+
+
+            // ==============================
+            // MESSAGE
+            // ==============================
+
+            bool hasMaintenance =
+                borrow.BorrowDetails.Any(x =>
+                    x.MajorDamageQuantity > 0);
 
             if (borrow.FineAmount > 0)
             {
                 TempData["Warning"] =
-                    $"Book returned successfully. Fine: {borrow.FineAmount:N0} VND. Please complete payment.";
+                    $"Book returned successfully. " +
+                    $"Total fine: {borrow.FineAmount:N0} VND. " +
+                    $"Please complete payment.";
+
+                if (hasMaintenance)
+                {
+                    TempData["Warning"] +=
+                        " Major damaged books have been sent to maintenance.";
+                }
+            }
+            else if (hasMaintenance)
+            {
+                TempData["Warning"] =
+                    "Book returned successfully. " +
+                    "Major damaged books have been sent to maintenance.";
             }
             else
             {
-                TempData["Success"] = "Book returned successfully.";
+                TempData["Success"] =
+                    "Book returned successfully.";
             }
+
 
             return RedirectToAction(nameof(Index));
         }

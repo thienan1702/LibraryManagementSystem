@@ -1,0 +1,525 @@
+﻿@model X.PagedList.IPagedList<LibraryManagement.Models.Supplier>
+@{
+    ViewData["Title"] = "Suppliers";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+            <div class="page-title">
+                <i class="fas fa-truck text-primary me-2"></i>
+                Suppliers
+            </div>
+
+            <div class="page-subtitle">
+                Manage book suppliers and supplier information
+            </div>
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+
+            <i class="fas fa-plus me-1"></i>
+            Add Supplier
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- SEARCH -->
+
+<div class="page-card mb-4">
+
+    <form asp-action="Index"
+          method="get">
+
+        <div class="row g-2">
+
+            <div class="col-md-8">
+
+                <div class="search-box">
+
+                    <i class="fas fa-search"></i>
+
+                    <input name="search"
+                           value="@ViewBag.Search"
+                           class="form-control"
+                           placeholder="Search supplier, phone, email or address..." />
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <button class="btn btn-primary">
+
+                    <i class="fas fa-search me-1"></i>
+                    Search
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- TABLE -->
+
+<div class="page-card">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover table-bordered align-middle">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Supplier</th>
+
+                    <th>Phone</th>
+
+                    <th>Email</th>
+
+                    <th>Address</th>
+
+                    <th>Status</th>
+
+                    <th width="180">
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @{
+                    int stt = 1;
+                }
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @stt
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                @item.Name
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            @(item.Phone ?? "-")
+
+                        </td>
+
+                        <td>
+
+                            @(item.Email ?? "-")
+
+                        </td>
+
+                        <td>
+
+                            @(item.Address ?? "-")
+
+                        </td>
+
+                        <td>
+
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-success">
+
+                                    <i class="fas fa-check me-1"></i>
+                                    Active
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+
+                                    <i class="fas fa-ban me-1"></i>
+                                    Inactive
+
+                                </span>
+                            }
+
+                        </td>
+
+                        <td>
+
+                            <div class="btn-group">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-primary">
+
+                                    <i class="fas fa-circle-info"></i>
+
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-warning">
+
+                                    <i class="fas fa-pen"></i>
+
+                                </a>
+
+                                <form asp-action="ToggleStatus"
+                                      asp-route-id="@item.Id"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-sm @(item.IsActive ? "btn-secondary" : "btn-success")">
+
+                                        @if (item.IsActive)
+                                        {
+                                            <i class="fas fa-ban"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-check"></i>
+                                        }
+
+                                    </button>
+
+                                </form>
+
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-danger">
+
+                                    <i class="fas fa-trash"></i>
+
+                                </a>
+
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    stt++;
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    @if (Model.PageCount > 1)
+    {
+        <div class="row align-items-center mt-4">
+
+            <!-- INFORMATION -->
+
+            <div class="col-md-4">
+
+                <div class="text-muted small">
+
+                    Showing
+                    <strong>@Model.FirstItemOnPage</strong>
+                    -
+                    <strong>@Model.LastItemOnPage</strong>
+
+                    of
+
+                    <strong>@Model.TotalItemCount</strong>
+
+                    suppliers
+
+                </div>
+
+            </div>
+
+
+            <!-- PAGINATION -->
+
+            <div class="col-md-4">
+
+                <nav aria-label="Supplier pagination">
+
+                    <ul class="pagination justify-content-center mb-0">
+
+                        <!-- FIRST -->
+
+                        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="1"
+                               asp-route-search="@ViewBag.Search">
+
+                                &lt;&lt;
+
+                            </a>
+
+                        </li>
+
+
+                        <!-- PREVIOUS -->
+
+                        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(Model.PageNumber - 1)"
+                               asp-route-search="@ViewBag.Search">
+
+                                Previous
+
+                            </a>
+
+                        </li>
+
+
+                        @{
+                            int currentPage = Model.PageNumber;
+                            int totalPages = Model.PageCount;
+
+                            int startPage;
+                            int endPage;
+
+                            if (totalPages <= 5)
+                            {
+                                startPage = 1;
+                                endPage = totalPages;
+                            }
+                            else if (currentPage <= 3)
+                            {
+                                startPage = 1;
+                                endPage = 5;
+                            }
+                            else if (currentPage >= totalPages - 2)
+                            {
+                                startPage = totalPages - 4;
+                                endPage = totalPages;
+                            }
+                            else
+                            {
+                                startPage = currentPage - 2;
+                                endPage = currentPage + 2;
+                            }
+                        }
+
+
+                        <!-- FIRST PAGE -->
+                        @if (startPage > 1)
+                        {
+                            <li class="page-item">
+
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="1"
+                                   asp-route-search="@ViewBag.Search">
+
+                                    1
+
+                                </a>
+
+                            </li>
+
+                            @if (startPage > 2)
+                            {
+                                <li class="page-item disabled">
+
+                                    <span class="page-link">
+                                        ...
+                                    </span>
+
+                                </li>
+                            }
+                        }
+
+
+                        <!-- PAGE NUMBERS -->
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@i"
+                                   asp-route-search="@ViewBag.Search">
+
+                                    @i
+
+                                </a>
+
+                            </li>
+                        }
+
+
+                        <!-- LAST PAGE -->
+                        @if (endPage < totalPages)
+                        {
+                            @if (endPage < totalPages - 1)
+                            {
+                                <li class="page-item disabled">
+
+                                    <span class="page-link">
+                                        ...
+                                    </span>
+
+                                </li>
+                            }
+
+                            <li class="page-item">
+
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@totalPages"
+                                   asp-route-search="@ViewBag.Search">
+
+                                    @totalPages
+
+                                </a>
+
+                            </li>
+                        }
+
+
+                        <!-- NEXT -->
+
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(currentPage + 1)"
+                               asp-route-search="@ViewBag.Search">
+
+                                Next
+
+                            </a>
+
+                        </li>
+
+
+                        <!-- LAST -->
+
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@totalPages"
+                               asp-route-search="@ViewBag.Search">
+
+                                &gt;&gt;
+
+                            </a>
+
+                        </li>
+
+                    </ul>
+
+                </nav>
+
+            </div>
+
+
+            <!-- RIGHT SPACE -->
+
+            <div class="col-md-4">
+            </div>
+
+        </div>
+    }
+
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+
+            <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+
+            <h5>
+                No suppliers found
+            </h5>
+
+            <p class="text-muted">
+                There are currently no suppliers.
+            </p>
+
+        </div>
+    }
+
+</div>
+    <style>
+        .pagination {
+            gap: 4px;
+            }
+
+            .pagination .page-link {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px !important;
+            min-width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #374151;
+            background-color: #fff;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            padding: 0 10px;
+
+            transition: all 0.2s ease;
+            }
+
+            .pagination .page-link:hover {
+            background-color: #f3f4f6;
+            color: #0d6efd;
+            }
+
+            .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+            }
+
+            .pagination .page-item.disabled .page-link {
+            background-color: #f8f9fa;
+            color: #9ca3af;
+            border-color: #e5e7eb;
+     }
+    </style>

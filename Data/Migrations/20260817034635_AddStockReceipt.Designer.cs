@@ -4,6 +4,7 @@ using LibraryManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagement.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260817034635_AddStockReceipt")]
+    partial class AddStockReceipt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -580,18 +583,23 @@ namespace LibraryManagement.Data.Migrations
                     b.Property<DateTime>("ReceiptDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
+                    b.Property<string>("SupplierAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("SupplierName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("SupplierPhone")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ReceiptCode")
-                        .IsUnique();
-
-                    b.HasIndex("SupplierId");
 
                     b.ToTable("StockReceipts");
                 });
@@ -627,43 +635,6 @@ namespace LibraryManagement.Data.Migrations
                     b.HasIndex("StockReceiptId");
 
                     b.ToTable("StockReceiptDetails");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.Supplier", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -908,17 +879,6 @@ namespace LibraryManagement.Data.Migrations
                     b.Navigation("Book");
                 });
 
-            modelBuilder.Entity("LibraryManagement.Models.StockReceipt", b =>
-                {
-                    b.HasOne("LibraryManagement.Models.Supplier", "Supplier")
-                        .WithMany("StockReceipts")
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
             modelBuilder.Entity("LibraryManagement.Models.StockReceiptDetail", b =>
                 {
                     b.HasOne("LibraryManagement.Models.Book", "Book")
@@ -1021,11 +981,6 @@ namespace LibraryManagement.Data.Migrations
             modelBuilder.Entity("LibraryManagement.Models.StockReceipt", b =>
                 {
                     b.Navigation("Details");
-                });
-
-            modelBuilder.Entity("LibraryManagement.Models.Supplier", b =>
-                {
-                    b.Navigation("StockReceipts");
                 });
 #pragma warning restore 612, 618
         }

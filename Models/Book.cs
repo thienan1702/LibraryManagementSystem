@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,6 +21,12 @@ namespace LibraryManagement.Models
             ErrorMessage = "Quantity must be greater than 0.")]
         public int Quantity { get; set; }
         public int AvailableQuantity { get; set; }
+
+        // Số lượng sách bị hư
+        public int DamagedQuantity { get; set; }
+
+        // Số lượng sách bị mất
+        public int LostQuantity { get; set; }
 
         public string? Description { get; set; }
 
@@ -46,5 +52,11 @@ namespace LibraryManagement.Models
         public virtual ICollection<BorrowDetail> BorrowDetails { get; set; }
     = new List<BorrowDetail>();
 
+        public virtual ICollection<StockReceiptDetail> StockReceiptDetails
+        { get; set; }
+       = new List<StockReceiptDetail>();
+
+        public virtual ICollection<BookMaintenance> Maintenances { get; set; }
+    = new List<BookMaintenance>();
     }
 }

@@ -1,0 +1,237 @@
+﻿@model LibraryManagement.Models.LostBook
+
+@{
+    ViewData["Title"] = "Lost Book Details";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-book-dead text-danger me-2"></i>
+
+                Lost Book Details
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Details about this lost book record
+
+            </div>
+
+        </div>
+
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+
+            Back
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="row">
+
+    <!-- BOOK -->
+
+    <div class="col-md-6 mb-4">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-header bg-danger text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-book me-2"></i>
+
+                    Book Information
+
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Book Title
+                </small>
+
+                <h4 class="fw-bold">
+
+                    @Model.Book?.Title
+
+                </h4>
+
+
+                <hr />
+
+
+                <small class="text-muted">
+                    Lost Quantity
+                </small>
+
+                <h3>
+
+                    <span class="badge bg-danger">
+
+                        @Model.Quantity
+
+                    </span>
+
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BORROWER -->
+
+    <div class="col-md-6 mb-4">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-header bg-primary text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-user me-2"></i>
+
+                    Borrow Information
+
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Borrower
+                </small>
+
+                <h5 class="fw-bold">
+
+                    @Model.Borrow?.BorrowerName
+
+                </h5>
+
+
+                <hr />
+
+
+                <small class="text-muted">
+                    Borrow Date
+                </small>
+
+                <p>
+
+                    @(Model.Borrow?.BorrowDate
+                                        .ToString("dd/MM/yyyy"))
+
+                </p>
+
+
+                <small class="text-muted">
+                    Lost Date
+                </small>
+
+                <p>
+
+                    @Model.CreatedAt.ToString(
+                                        "dd/MM/yyyy HH:mm")
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FINE -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-light">
+
+        <h5 class="mb-0">
+
+            <i class="fas fa-money-bill-wave
+                      text-danger me-2"></i>
+
+            Lost Book Fine
+
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <h2 class="text-danger fw-bold">
+
+            @Model.FineAmount.ToString("N0")
+            VNĐ
+
+        </h2>
+
+    </div>
+
+</div>
+
+
+<!-- NOTE -->
+@if (!string.IsNullOrWhiteSpace(Model.Note))
+{
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-light">
+
+            <h5 class="mb-0">
+
+                <i class="fas fa-note-sticky
+                              text-primary me-2"></i>
+
+                Note
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @Model.Note
+
+        </div>
+
+    </div>
+}
+
+
+<a asp-action="Index"
+   class="btn btn-secondary">
+
+    <i class="fas fa-arrow-left me-1"></i>
+
+    Back to Lost Books
+
+</a>

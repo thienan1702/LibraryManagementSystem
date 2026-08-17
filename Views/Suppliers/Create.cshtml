@@ -1,0 +1,171 @@
+﻿@model LibraryManagement.Models.Supplier
+
+@{
+    ViewData["Title"] = "Add Supplier";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+            <div class="page-title">
+                <i class="fas fa-truck text-primary me-2"></i>
+                Add Supplier
+            </div>
+
+            <div class="page-subtitle">
+                Add a new book supplier
+            </div>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+            Back
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body">
+
+        <form asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Name"
+                           class="form-label fw-bold">
+
+                        Supplier Name
+
+                    </label>
+
+                    <input asp-for="Name"
+                           class="form-control"
+                           placeholder="Enter supplier name..." />
+
+                    <span asp-validation-for="Name"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Phone"
+                           class="form-label fw-bold">
+
+                        Phone
+
+                    </label>
+
+                    <input asp-for="Phone"
+                           class="form-control"
+                           placeholder="Enter phone number..." />
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Email"
+                           class="form-label fw-bold">
+
+                        Email
+
+                    </label>
+
+                    <input asp-for="Email"
+                           class="form-control"
+                           placeholder="Enter email..." />
+
+                </div>
+
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Address"
+                           class="form-label fw-bold">
+
+                        Address
+
+                    </label>
+
+                    <input asp-for="Address"
+                           class="form-control"
+                           placeholder="Enter supplier address..." />
+
+                </div>
+
+
+                <div class="col-12 mb-3">
+
+                    <label asp-for="Note"
+                           class="form-label fw-bold">
+
+                        Note
+
+                    </label>
+
+                    <textarea asp-for="Note"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Optional note...">
+                    </textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fas fa-save me-1"></i>
+                    Save Supplier
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

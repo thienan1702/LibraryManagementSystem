@@ -1,0 +1,407 @@
+﻿@model LibraryManagement.Models.BookMaintenance
+
+@{
+    ViewData["Title"] = "Maintenance Details";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+            <div class="page-title">
+                <i class="fas fa-screwdriver-wrench text-primary me-2"></i>
+                Maintenance Details
+            </div>
+
+            <div class="page-subtitle">
+                Detailed information about this maintenance record
+            </div>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+            Back
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="row">
+
+    <!-- BOOK INFORMATION -->
+
+    <div class="col-md-6 mb-4">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-header bg-primary text-white">
+
+                <h5 class="mb-0">
+                    <i class="fas fa-book me-2"></i>
+                    Book Information
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        Book Title
+                    </small>
+
+                    <h5 class="fw-bold">
+                        @Model.Book?.Title
+                    </h5>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted">
+                            Quantity
+                        </small>
+
+                        <h5>
+
+                            <span class="badge bg-danger fs-6">
+
+                                @Model.Quantity
+
+                            </span>
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted">
+                            Status
+                        </small>
+
+                        <div>
+
+                            @switch (Model.Status)
+                            {
+                                case MaintenanceStatus.Pending:
+
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Pending
+                                    </span>
+
+                                    break;
+
+                                case MaintenanceStatus.InProgress:
+
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-spinner me-1"></i>
+                                        In Progress
+                                    </span>
+
+                                    break;
+
+                                case MaintenanceStatus.Completed:
+
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>
+                                        Completed
+                                    </span>
+
+                                    break;
+
+                                case MaintenanceStatus.Cancelled:
+
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-ban me-1"></i>
+                                        Cancelled
+                                    </span>
+
+                                    break;
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAINTENANCE INFORMATION -->
+
+    <div class="col-md-6 mb-4">
+
+        <div class="card shadow-sm border-0 h-100">
+
+            <div class="card-header bg-primary text-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-clipboard-list me-2"></i>
+
+                    Maintenance Information
+
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        Reason
+                    </small>
+
+                    <p class="fw-semibold mb-0">
+
+                        @Model.Reason
+
+                    </p>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        Created At
+                    </small>
+
+                    <p class="mb-0">
+
+                        @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+
+                    </p>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <small class="text-muted">
+                        Started At
+                    </small>
+
+                    <p class="mb-0">
+
+                        @(Model.StartedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")
+
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <small class="text-muted">
+                        Completed At
+                    </small>
+
+                    <p class="mb-0">
+
+                        @(Model.CompletedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- COST -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-light">
+
+        <h5 class="mb-0">
+
+            <i class="fas fa-money-bill-wave text-success me-2"></i>
+
+            Maintenance Cost
+
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        @if (Model.Cost > 0)
+        {
+            <h3 class="text-danger fw-bold">
+
+                @Model.Cost.ToString("N0") VNĐ
+
+            </h3>
+        }
+        else
+        {
+            <span class="text-muted">
+                No maintenance cost recorded.
+            </span>
+        }
+
+    </div>
+
+</div>
+
+
+<!-- ACTION -->
+
+<div class="d-flex gap-2">
+
+    @if (Model.Status == MaintenanceStatus.Pending)
+    {
+        <form asp-action="Start"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <button class="btn btn-warning">
+
+                <i class="fas fa-play me-1"></i>
+
+                Start Maintenance
+
+            </button>
+
+        </form>
+    }
+
+
+    @if (Model.Status == MaintenanceStatus.InProgress)
+    {
+        <button type="button"
+                class="btn btn-success"
+                onclick="completeMaintenance(@Model.Id)">
+
+            <i class="fas fa-check me-1"></i>
+
+            Complete
+
+        </button>
+    }
+
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+
+        <i class="fas fa-arrow-left me-1"></i>
+
+        Back
+
+    </a>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        function completeMaintenance(id) {
+
+            Swal.fire({
+
+                title: "Complete Maintenance",
+
+                text: "Enter maintenance cost",
+
+                input: "number",
+
+                inputValue: 0,
+
+                inputAttributes: {
+                    min: 0,
+                    step: 1000
+                },
+
+                showCancelButton: true,
+
+                confirmButtonText: "Complete",
+
+                cancelButtonText: "Cancel",
+
+                icon: "question"
+
+            }).then((result) => {
+
+                if (!result.isConfirmed)
+                    return;
+
+                const form =
+                    document.createElement("form");
+
+                form.method = "post";
+
+                form.action =
+                    "/BookMaintenances/Complete/" + id;
+
+                const token =
+                    document.querySelector(
+                        'input[name="__RequestVerificationToken"]'
+                    );
+
+                if (token) {
+
+                    const tokenInput =
+                        document.createElement("input");
+
+                    tokenInput.type = "hidden";
+
+                    tokenInput.name =
+                        "__RequestVerificationToken";
+
+                    tokenInput.value =
+                        token.value;
+
+                    form.appendChild(tokenInput);
+                }
+
+                const costInput =
+                    document.createElement("input");
+
+                costInput.type = "hidden";
+
+                costInput.name = "cost";
+
+                costInput.value =
+                    result.value || 0;
+
+                form.appendChild(costInput);
+
+                document.body.appendChild(form);
+
+                form.submit();
+
+            });
+
+        }
+
+    </script>
+}

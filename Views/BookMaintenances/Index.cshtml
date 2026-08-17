@@ -1,0 +1,677 @@
+﻿@model IEnumerable<LibraryManagement.Models.BookMaintenance>
+
+@{
+    ViewData["Title"] = "Book Maintenance";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+            <div class="page-title">
+
+                <i class="fas fa-screwdriver-wrench text-primary me-2"></i>
+
+                Book Maintenance
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Manage damaged books and maintenance status
+
+            </div>
+        </div>
+
+        <a asp-controller="Books"
+           asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+
+            Back to Books
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-screwdriver-wrench fa-2x text-primary mb-2"></i>
+
+                <h6>Total Maintenance</h6>
+
+                <h3>
+                    @ViewBag.TotalMaintenance
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+
+                <h6>Pending</h6>
+
+                <h3>
+                    @ViewBag.Pending
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-spinner fa-2x text-info mb-2"></i>
+
+                <h6>In Progress</h6>
+
+                <h3>
+                    @ViewBag.InProgress
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <i class="fas fa-circle-check fa-2x text-success mb-2"></i>
+
+                <h6>Completed</h6>
+
+                <h3>
+                    @ViewBag.Completed
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SEARCH -->
+
+<div class="page-card mb-4">
+
+    <form asp-action="Index" method="get">
+
+        <div class="row g-2">
+
+            <div class="col-md-5">
+
+                <div class="search-box">
+
+                    <i class="fas fa-search"></i>
+
+                    <input name="search"
+                           value="@ViewBag.Search"
+                           class="form-control"
+                           placeholder="Search book or reason..." />
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <select name="status"
+                        class="form-select">
+
+                    <option value="">
+                        All Status
+                    </option>
+
+                    @foreach (MaintenanceStatus item in Enum.GetValues(typeof(MaintenanceStatus)))
+                    {
+                        <option value="@item"
+                                selected="@(ViewBag.Status?.ToString() == item.ToString())">
+
+                            @item
+
+                        </option>
+                    }
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <button class="btn btn-primary">
+
+                    <i class="fas fa-search me-1"></i>
+
+                    Search
+
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- TABLE -->
+
+<div class="page-card">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover table-bordered align-middle">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Book</th>
+
+                    <th>Quantity</th>
+
+                    <th>Reason</th>
+
+                    <th>Created</th>
+
+                    <th>Status</th>
+
+                    <th>Cost</th>
+
+                    <th width="320">
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @{
+                    int stt = ((ViewBag.CurrentPage - 1) * ViewBag.PageSize) + 1;
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @stt
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                @item.Book?.Title
+
+                            </strong>
+
+                        </td>
+
+
+                        <td class="text-center">
+
+                            <span class="badge bg-danger fs-6">
+
+                                @item.Quantity
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            @item.Reason
+
+                        </td>
+
+
+                        <td>
+
+                            @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+
+                        </td>
+
+
+                        <td>
+
+                            @switch (item.Status)
+                            {
+                                case MaintenanceStatus.Pending:
+
+                                    <span class="badge bg-warning text-dark">
+
+                                        <i class="fas fa-clock me-1"></i>
+                                        Pending
+
+                                    </span>
+
+                                    break;
+
+
+                                case MaintenanceStatus.InProgress:
+
+                                    <span class="badge bg-info">
+
+                                        <i class="fas fa-spinner me-1"></i>
+                                        In Progress
+
+                                    </span>
+
+                                    break;
+
+
+                                case MaintenanceStatus.Completed:
+
+                                    <span class="badge bg-success">
+
+                                        <i class="fas fa-check me-1"></i>
+                                        Completed
+
+                                    </span>
+
+                                    break;
+
+
+                                case MaintenanceStatus.Cancelled:
+
+                                    <span class="badge bg-secondary">
+
+                                        <i class="fas fa-ban me-1"></i>
+                                        Cancelled
+
+                                    </span>
+
+                                    break;
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            @if (item.Cost > 0)
+                            {
+                                <span class="text-danger fw-bold">
+
+                                    @item.Cost.ToString("N0") VNĐ
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    -
+                                </span>
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="btn-group">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-primary">
+
+                                    <i class="fas fa-circle-info"></i>
+
+                                </a>
+
+
+                                @if (item.Status == MaintenanceStatus.Pending)
+                                {
+                                    <form asp-action="Start"
+                                          asp-route-id="@item.Id"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button class="btn btn-sm btn-warning">
+
+                                            <i class="fas fa-play"></i>
+
+                                            Start
+
+                                        </button>
+
+                                    </form>
+                                }
+
+
+                                @if (item.Status == MaintenanceStatus.InProgress)
+                                {
+                                    <button type="button"
+                                            class="btn btn-sm btn-success"
+                                            onclick="completeMaintenance(@item.Id)">
+
+                                        <i class="fas fa-check"></i>
+
+                                        Complete
+
+                                    </button>
+                                }
+
+
+                                @if (item.Status == MaintenanceStatus.Pending ||
+                                                            item.Status == MaintenanceStatus.InProgress)
+                                {
+                                    <form asp-action="Cancel"
+                                          asp-route-id="@item.Id"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button class="btn btn-sm btn-secondary">
+
+                                            <i class="fas fa-ban"></i>
+
+                                        </button>
+
+                                    </form>
+                                }
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    stt++;
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+
+            <i class="fas fa-screwdriver-wrench fa-3x text-muted mb-3"></i>
+
+            <h5>
+                No maintenance records
+            </h5>
+
+            <p class="text-muted">
+                There are currently no books under maintenance.
+            </p>
+
+        </div>
+    }
+
+</div>
+
+
+@if (ViewBag.TotalPages > 1)
+{
+    <div class="d-flex justify-content-between align-items-center mt-4">
+
+        <div class="text-muted">
+
+            Showing
+
+            <strong>
+                @(((ViewBag.CurrentPage - 1) * ViewBag.PageSize) + 1)
+            </strong>
+
+            -
+
+            <strong>
+                @(Math.Min(
+                            ViewBag.CurrentPage * ViewBag.PageSize,
+                            ViewBag.TotalItems))
+        </strong>
+
+            of
+
+            <strong>
+                @ViewBag.TotalItems
+            </strong>
+
+            maintenance records
+
+        </div>
+
+
+        <nav aria-label="Maintenance pagination">
+
+            <ul class="pagination mb-0">
+
+                <!-- Previous -->
+
+                <li class="page-item
+                        @(ViewBag.CurrentPage <= 1 ? "disabled" : "")">
+
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(ViewBag.CurrentPage - 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-status="@ViewBag.Status">
+
+                        <i class="fas fa-chevron-left"></i>
+
+                    </a>
+
+                </li>
+
+
+                <!-- Page Numbers -->
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item
+                                @(i == ViewBag.CurrentPage ? "active" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-search="@ViewBag.Search"
+                           asp-route-status="@ViewBag.Status">
+
+                            @i
+
+                        </a>
+
+                    </li>
+                }
+
+
+                <!-- Next -->
+
+                <li class="page-item
+                        @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "")">
+
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(ViewBag.CurrentPage + 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-status="@ViewBag.Status">
+
+                        <i class="fas fa-chevron-right"></i>
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </div>
+}
+
+
+    <style>
+
+        .pagination {
+                gap: 4px;
+            }
+
+        .pagination .page-link {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            min-width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            font-weight: 600;
+        }
+
+        .pagination .page-link:hover {
+            transform: translateY(-1px);
+        }
+
+</style>
+
+
+
+@section Scripts {
+
+    <script>
+
+        function completeMaintenance(id) {
+
+            Swal.fire({
+
+                title: "Complete Maintenance",
+
+                text: "Enter maintenance cost",
+
+                input: "number",
+
+                inputValue: 0,
+
+                inputAttributes: {
+                    min: 0,
+                    step: 1000
+                },
+
+                showCancelButton: true,
+
+                confirmButtonText: "Complete",
+
+                cancelButtonText: "Cancel",
+
+                icon: "question"
+
+            }).then((result) => {
+
+                if (!result.isConfirmed)
+                    return;
+
+                const cost = result.value || 0;
+
+                const form = document.createElement("form");
+
+                form.method = "post";
+
+                form.action =
+                    "/BookMaintenances/Complete/" + id;
+
+                const token =
+                    document.querySelector(
+                        'input[name="__RequestVerificationToken"]'
+                    );
+
+                if (token) {
+
+                    const tokenInput =
+                        document.createElement("input");
+
+                    tokenInput.type = "hidden";
+
+                    tokenInput.name = "__RequestVerificationToken";
+
+                    tokenInput.value = token.value;
+
+                    form.appendChild(tokenInput);
+                }
+
+                const costInput =
+                    document.createElement("input");
+
+                costInput.type = "hidden";
+
+                costInput.name = "cost";
+
+                costInput.value = cost;
+
+                form.appendChild(costInput);
+
+                document.body.appendChild(form);
+
+                form.submit();
+
+            });
+
+        }
+
+    </script>
+
+}

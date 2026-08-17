@@ -143,29 +143,7 @@
 
                     </tr>
 
-
-                    
-                        <td>
-
-                            <span class="badge bg-primary">
-
-                                @Model.Quantity
-
-                            </span>
-
-                        </td>
-
-
-                    <td>
-
-                        <span class="badge bg-success">
-
-                            @Model.AvailableQuantity
-
-                        </span>
-
-                    </td>
-
+                 
                     <tr>
 
                         <th>
@@ -194,7 +172,186 @@
                         <td>@Model.Description</td>
                     </tr>
 
+
+
+
+
                 </table>
+
+
+            </div>
+            <!-- ==============================
+            BOOK CONDITION STATISTICS
+            ============================== -->
+
+            <div class="row g-3 mt-3">
+
+                <!-- Total -->
+                <div class="col-md-4 col-lg-2">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-body text-center">
+
+                            <div class="mb-2">
+
+                                <i class="fas fa-book fa-2x text-primary"></i>
+
+                            </div>
+
+                            <h6 class="text-muted mb-1">
+                                Total
+                            </h6>
+
+                            <h3 class="fw-bold text-primary">
+                                @Model.Quantity
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Available -->
+                <div class="col-md-4 col-lg-2">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-body text-center">
+
+                            <div class="mb-2">
+
+                                <i class="fas fa-book-open fa-2x text-success"></i>
+
+                            </div>
+
+                            <h6 class="text-muted mb-1">
+                                Available
+                            </h6>
+
+                            <h3 class="fw-bold text-success">
+                                @Model.AvailableQuantity
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Good -->
+                <div class="col-md-4 col-lg-2">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-body text-center">
+
+                            <div class="mb-2">
+
+                                <i class="fas fa-circle-check fa-2x text-info"></i>
+
+                            </div>
+
+                            <h6 class="text-muted mb-1">
+                                Returned Good
+                            </h6>
+
+                            <h3 class="fw-bold text-info">
+                                @ViewBag.GoodQuantity
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Minor Damage -->
+                <div class="col-md-4 col-lg-2">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-body text-center">
+
+                            <div class="mb-2">
+
+                                <i class="fas fa-triangle-exclamation fa-2x text-warning"></i>
+
+                            </div>
+
+                            <h6 class="text-muted mb-1">
+                                Minor Damage
+                            </h6>
+
+                            <h3 class="fw-bold text-warning">
+                                @ViewBag.MinorDamageQuantity
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Major Damage -->
+                <div class="col-md-4 col-lg-2">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-body text-center">
+
+                            <div class="mb-2">
+
+                                <i class="fas fa-circle-exclamation fa-2x text-danger"></i>
+
+                            </div>
+
+                            <h6 class="text-muted mb-1">
+                                Major Damage
+                            </h6>
+
+                            <h3 class="fw-bold text-danger">
+                                @ViewBag.MajorDamageQuantity
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Lost -->
+                <div class="col-md-4 col-lg-2">
+
+                    <div class="card border-0 shadow-sm h-100">
+
+                        <div class="card-body text-center">
+
+                            <div class="mb-2">
+
+                                <i class="fas fa-box-open fa-2x text-dark"></i>
+
+                            </div>
+
+                            <h6 class="text-muted mb-1">
+                                Lost
+                            </h6>
+
+                            <h3 class="fw-bold text-dark">
+                                @ViewBag.LostQuantity
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -204,14 +361,328 @@
 
     <hr />
 
+
+    <!-- ============================== -->
+    <!-- RETURN HISTORY -->
+    <!-- ============================== -->
+
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+
+                    <i class="fas fa-clock-rotate-left me-2"></i>
+
+                    Return History
+
+                </h5>
+
+                <span class="badge bg-light text-primary">
+
+                    @Model.BorrowDetails.Count(x => x.ReturnedAt.HasValue)
+                    record(s)
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            @{
+                var returnHistory = Model.BorrowDetails
+                .Where(x => x.ReturnedAt.HasValue)
+                .OrderByDescending(x => x.ReturnedAt)
+                .ToList();
+            }
+
+
+            @if (returnHistory.Any())
+            {
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Borrower
+                                </th>
+
+                                <th>
+                                    Return Date
+                                </th>
+
+                                <th class="text-center">
+                                    Good
+                                </th>
+
+                                <th class="text-center">
+                                    Minor Damage
+                                </th>
+
+                                <th class="text-center">
+                                    Major Damage
+                                </th>
+
+                                <th class="text-center">
+                                    Lost
+                                </th>
+
+                                <th>
+                                    Condition
+                                </th>
+
+                                <th class="text-end">
+                                    Damage Fee
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var item in returnHistory)
+                            {
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="d-flex align-items-center">
+
+                                            <div class="avatar-circle">
+
+                                                @(item.Borrow?.BorrowerName?
+                                                                                        .Substring(0, 1)
+                                                                                        .ToUpper() ?? "?")
+
+                                            </div>
+
+                                            <div class="ms-2">
+
+                                                <strong>
+
+                                                    @(item.Borrow?.BorrowerName
+                                                                                                ?? "Unknown")
+
+                                        </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @item.ReturnedAt?.ToString("dd/MM/yyyy HH:mm")
+
+                                    </td>
+
+
+                                    <td class="text-center">
+
+                                @if (item.GoodQuantity > 0)
+                                        {
+                                            <span class="badge bg-success">
+
+                                                @item.GoodQuantity
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+
+                                    </td>
+
+
+                                    <td class="text-center">
+
+                                        @if (item.MinorDamageQuantity > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+
+                                                @item.MinorDamageQuantity
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+
+                                    </td>
+
+
+                                    <td class="text-center">
+
+                                        @if (item.MajorDamageQuantity > 0)
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                @item.MajorDamageQuantity
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+
+                                    </td>
+
+
+                                    <td class="text-center">
+
+                                        @if (item.LostQuantity > 0)
+                                        {
+                                            <span class="badge bg-dark">
+
+                                                @item.LostQuantity
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @switch (item.ReturnCondition)
+                                        {
+                                            case BookReturnCondition.Good:
+
+                                                <span class="badge bg-success">
+                                                    Good
+                                                </span>
+
+                                                break;
+
+                                            case BookReturnCondition.MinorDamage:
+
+                                                <span class="badge bg-warning text-dark">
+                                                    Minor Damage
+                                                </span>
+
+                                                break;
+
+                                            case BookReturnCondition.MajorDamage:
+
+                                                <span class="badge bg-danger">
+                                                    Major Damage
+                                                </span>
+
+                                                break;
+
+                                            case BookReturnCondition.Lost:
+
+                                                <span class="badge bg-dark">
+                                                    Lost
+                                                </span>
+
+                                                break;
+
+                                            case BookReturnCondition.Mixed:
+
+                                                <span class="badge bg-info">
+                                                    Mixed
+                                                </span>
+
+                                                break;
+                                        }
+
+                                    </td>
+
+
+                                    <td class="text-end">
+
+                                        @if (item.DamageFee > 0)
+                                        {
+                                            <strong class="text-danger">
+
+                                                @item.DamageFee.ToString("N0") VNĐ
+
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success">
+                                                0 VNĐ
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="text-center py-5">
+
+                    <i class="fas fa-clock-rotate-left fa-3x text-muted mb-3"></i>
+
+                    <h5 class="text-muted">
+                        No return history
+                    </h5>
+
+                    <p class="text-muted mb-0">
+
+                        This book has not been returned yet.
+
+                    </p>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
     <h4 class="mb-4">
 
-        <i class="fas fa-history text-primary"></i>
+        <i class="fas fa-user-clock text-primary"></i>
 
-        Borrow History
+        Current Borrowers
 
     </h4>
-    @if (Model.BorrowDetails.Any())
+
+    @{
+        var currentBorrowers = Model.BorrowDetails
+        .Where(x => !x.Borrow.IsReturned)
+        .OrderByDescending(x => x.Borrow.BorrowDate)
+        .ToList();
+    }
+
+    @if (currentBorrowers.Any())
     {
         <table class="table table-hover align-middle">
 
@@ -223,9 +694,7 @@
 
                     <th>Borrow Date</th>
 
-                    <th>Return Date</th>
-
-                    <th>Status</th>
+                    <th>Due Date</th>
 
                     <th>Quantity</th>
 
@@ -235,12 +704,15 @@
 
             <tbody>
 
-                @foreach (var history in Model.BorrowDetails.OrderByDescending(x => x.Borrow.BorrowDate))
+                @foreach (var history in currentBorrowers)
                 {
                     <tr>
 
                         <td>
-                            @history.Borrow.BorrowerName
+                            <i class="fas fa-user text-primary me-2"></i>
+                            <strong>
+                                @history.Borrow.BorrowerName
+                            </strong>
                         </td>
 
                         <td>
@@ -248,30 +720,13 @@
                         </td>
 
                         <td>
-                            @(history.Borrow.ReturnDate?.ToString("dd/MM/yyyy") ?? "-")
+                            @history.Borrow.DueDate.ToString("dd/MM/yyyy")
                         </td>
 
                         <td>
-
-                            @if (history.Borrow.IsReturned)
-                            {
-                                <span class="badge bg-success">
-                                    Returned
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">
-                                    Borrowing
-                                </span>
-                            }
-
-                        </td>
-
-                        <td>
-
-                            @history.Quantity
-
+                            <span class="badge bg-primary">
+                                @history.Quantity
+                            </span>
                         </td>
 
                     </tr>
@@ -283,9 +738,13 @@
     }
     else
     {
-        <div class="alert alert-info">
+        <div class="text-center py-4">
 
-            This book has never been borrowed.
+            <i class="fas fa-book-open fa-2x text-muted mb-2"></i>
+
+            <p class="text-muted mb-0">
+                This book is currently not being borrowed.
+            </p>
 
         </div>
     }

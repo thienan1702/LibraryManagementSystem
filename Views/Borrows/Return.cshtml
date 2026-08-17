@@ -1,0 +1,698 @@
+﻿@model LibraryManagement.ViewModels.ReturnBorrowVM
+
+@{
+    ViewData["Title"] = "Return Books";
+}
+
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="page-card mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="page-title">
+
+                    <i class="fas fa-rotate-left text-primary me-2"></i>
+
+                    Return Books
+
+                </div>
+
+                <div class="page-subtitle">
+
+                    Check and record the condition of each returned book
+
+                </div>
+            </div>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+
+                <i class="fas fa-arrow-left me-1"></i>
+
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- BORROW INFORMATION -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                <i class="fas fa-receipt me-2"></i>
+
+                Borrow Information
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Borrower
+                    </div>
+
+                    <div class="fw-bold fs-5">
+
+                        <i class="fas fa-user text-primary me-2"></i>
+
+                        @Model.BorrowerName
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Borrow Date
+                    </div>
+
+                    <div class="fw-bold fs-5">
+
+                        <i class="fas fa-calendar-days text-primary me-2"></i>
+
+                        @Model.BorrowDate.ToString("dd/MM/yyyy")
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="text-muted small mb-1">
+                        Due Date
+                    </div>
+
+                    <div class="fw-bold fs-5">
+
+                        <i class="fas fa-calendar-check text-danger me-2"></i>
+
+                        @Model.DueDate.ToString("dd/MM/yyyy")
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RETURN FORM -->
+    <form asp-controller="Borrows"
+          asp-action="ReturnConfirmed"
+          method="post"
+          id="returnForm">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               asp-for="BorrowId" />
+
+
+        <div class="card shadow-sm border-0">
+
+            <!-- CARD HEADER -->
+            <div class="card-header bg-primary text-white">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <h5 class="mb-0">
+
+                        <i class="fas fa-book-open me-2"></i>
+
+                        Book Condition
+
+                    </h5>
+
+                    <span class="badge bg-light text-primary">
+
+                        @Model.Details.Count book(s)
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <!-- INFO -->
+                <div class="alert alert-info border-0 shadow-sm">
+
+                    <div class="d-flex">
+
+                        <i class="fas fa-circle-info fa-lg me-3 mt-1"></i>
+
+                        <div>
+
+                            <strong>Return instructions</strong>
+
+                            <div class="small mt-1">
+
+                                Please classify every borrowed book.
+
+                                The total of
+
+                                <strong>
+                                    Good + Minor Damage + Major Damage + Lost
+                                </strong>
+
+                                must equal the borrowed quantity.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONDITION LEGEND -->
+                <div class="row g-2 mb-4">
+
+                    <div class="col-md-3">
+
+                        <div class="border rounded p-2 text-center">
+
+                            <span class="badge bg-success mb-1">
+                                Good
+                            </span>
+
+                            <div class="small text-muted">
+                                No damage
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="border rounded p-2 text-center">
+
+                            <span class="badge bg-warning text-dark mb-1">
+                                Minor Damage
+                            </span>
+
+                            <div class="small text-muted">
+                                Small damage
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="border rounded p-2 text-center">
+
+                            <span class="badge bg-danger mb-1">
+                                Major Damage
+                            </span>
+
+                            <div class="small text-muted">
+                                Serious damage
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="border rounded p-2 text-center">
+
+                            <span class="badge bg-dark mb-1">
+                                Lost
+                            </span>
+
+                            <div class="small text-muted">
+                                Book lost
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABLE -->
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th style="min-width:220px;">
+                                    Book
+                                </th>
+
+                                <th class="text-center"
+                                    style="width:90px;">
+
+                                    Borrowed
+
+                                </th>
+
+                                <th class="text-center"
+                                    style="width:120px;">
+
+                                    <span class="text-success">
+                                        Good
+                                    </span>
+
+                                </th>
+
+                                <th class="text-center"
+                                    style="width:140px;">
+
+                                    <span class="text-warning">
+                                        Minor Damage
+                                    </span>
+
+                                </th>
+
+                                <th class="text-center"
+                                    style="width:140px;">
+
+                                    <span class="text-danger">
+                                        Major Damage
+                                    </span>
+
+                                </th>
+
+                                <th class="text-center"
+                                    style="width:100px;">
+
+                                    <span class="text-danger">
+                                        Lost
+                                    </span>
+
+                                </th>
+
+                                <th style="min-width:240px;">
+                                    Damage Description
+                                </th>
+
+                                <th style="min-width:200px;">
+                                    Note
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @for (int i = 0; i < Model.Details.Count; i++)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <input type="hidden"
+                                               asp-for="Details[i].BorrowDetailId" />
+
+                                        <input type="hidden"
+                                               asp-for="Details[i].BookId" />
+
+                                        <input type="hidden"
+                                               asp-for="Details[i].Quantity" />
+
+                                        <strong>
+                                            @Model.Details[i].BookTitle
+                                        </strong>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="badge bg-primary fs-6">
+                                            @Model.Details[i].Quantity
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Details[i].GoodQuantity"
+                                               class="form-control text-center condition-input"
+                                               type="number"
+                                               min="0"
+                                               max="@Model.Details[i].Quantity"
+                                               data-max="@Model.Details[i].Quantity" />
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Details[i].MinorDamageQuantity"
+                                               class="form-control text-center condition-input"
+                                               type="number"
+                                               min="0"
+                                               max="@Model.Details[i].Quantity"
+                                               data-max="@Model.Details[i].Quantity" />
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Details[i].MajorDamageQuantity"
+                                               class="form-control text-center condition-input"
+                                               type="number"
+                                               min="0"
+                                               max="@Model.Details[i].Quantity"
+                                               data-max="@Model.Details[i].Quantity" />
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Details[i].LostQuantity"
+                                               class="form-control text-center condition-input"
+                                               type="number"
+                                               min="0"
+                                               max="@Model.Details[i].Quantity"
+                                               data-max="@Model.Details[i].Quantity" />
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Details[i].DamageDescription"
+                                               class="form-control"
+                                               placeholder="Describe damage..." />
+                                    </td>
+
+                                    <td>
+                                        <input asp-for="Details[i].ConditionNote"
+                                               class="form-control"
+                                               placeholder="Optional note..." />
+                                    </td>
+
+                                </tr>
+                            
+
+                                <!-- VALIDATION ROW -->
+
+                                <tr class="validation-row">
+
+                                    <td colspan="8"
+                                        class="py-1">
+
+                                        <div class="d-flex justify-content-end">
+
+                                            <small class="quantity-status text-muted">
+
+                                                Total: 0 /
+                                                @Model.Details[i].Quantity
+
+                                            </small>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- GENERAL NOTE -->
+                <div class="mt-4">
+
+                    <label class="form-label fw-bold">
+
+                        <i class="fas fa-note-sticky text-primary me-1"></i>
+
+                        Return Note
+
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="3"
+                              placeholder="Optional general note about this return..."></textarea>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary me-2">
+
+                        <i class="fas fa-xmark me-1"></i>
+
+                        Cancel
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="confirmReturnBtn">
+
+                        <i class="fas fa-check-circle me-1"></i>
+
+                        Confirm Return
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form = document.getElementById("returnForm");
+
+            const rows = document.querySelectorAll(".condition-row");
+
+            function updateRow(row) {
+
+                const inputs =
+                    row.querySelectorAll(".condition-input");
+
+                let total = 0;
+
+                inputs.forEach(function (input) {
+
+                    let value = parseInt(input.value || 0);
+
+                    if (value < 0) {
+
+                        input.value = 0;
+
+                        value = 0;
+
+                    }
+
+                    total += value;
+
+                });
+
+                const borrowed =
+                    parseInt(
+                        inputs[0].getAttribute("data-max")
+                    );
+
+                const status =
+                    row.nextElementSibling
+                        .querySelector(".quantity-status");
+
+                if (total === borrowed) {
+
+                    row.classList.remove("table-danger");
+
+                    row.classList.add("table-success");
+
+                    status.innerHTML =
+                        `<span class="text-success">
+                            <i class="fas fa-check-circle"></i>
+                            Complete: ${total} / ${borrowed}
+                         </span>`;
+
+                }
+                else if (total > borrowed) {
+
+                    row.classList.remove("table-success");
+
+                    row.classList.add("table-danger");
+
+                    status.innerHTML =
+                        `<span class="text-danger">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            Too many: ${total} / ${borrowed}
+                         </span>`;
+
+                }
+                else {
+
+                    row.classList.remove("table-success");
+
+                    row.classList.remove("table-danger");
+
+                    status.innerHTML =
+                        `<span class="text-warning">
+                            <i class="fas fa-clock"></i>
+                            Incomplete: ${total} / ${borrowed}
+                         </span>`;
+
+                }
+
+            }
+
+
+            document
+                .querySelectorAll(".condition-input")
+                .forEach(function (input) {
+
+                    input.addEventListener("input", function () {
+
+                        const row =
+                            this.closest(".condition-row");
+
+                        updateRow(row);
+
+                    });
+
+                });
+
+
+            rows.forEach(function (row) {
+
+                updateRow(row);
+
+            });
+
+
+            form.addEventListener("submit", function (e) {
+
+                let valid = true;
+
+                rows.forEach(function (row) {
+
+                    const inputs =
+                        row.querySelectorAll(".condition-input");
+
+                    let total = 0;
+
+                    inputs.forEach(function (input) {
+
+                        total += parseInt(
+                            input.value || 0
+                        );
+
+                    });
+
+                    const borrowed =
+                        parseInt(
+                            inputs[0].getAttribute("data-max")
+                        );
+
+                    if (total !== borrowed) {
+
+                        valid = false;
+
+                        row.classList.add("table-danger");
+
+                    }
+
+                });
+
+
+                if (!valid) {
+
+                    e.preventDefault();
+
+                    Swal.fire({
+
+                        icon: "warning",
+
+                        title: "Invalid quantity",
+
+                        text:
+                            "For every book, Good + Minor Damage + Major Damage + Lost must equal the borrowed quantity.",
+
+                        confirmButtonText: "OK"
+
+                    });
+
+                    return;
+
+                }
+
+
+                Swal.fire({
+
+                    title: "Confirm return?",
+
+                    text:
+                        "The book condition will be recorded and the return transaction will be completed.",
+
+                    icon: "question",
+
+                    showCancelButton: true,
+
+                    confirmButtonColor: "#0d6efd",
+
+                    cancelButtonColor: "#6c757d",
+
+                    confirmButtonText:
+                        "Yes, confirm return",
+
+                    cancelButtonText:
+                        "Cancel"
+
+                }).then(function (result) {
+
+                    if (result.isConfirmed) {
+
+                        form.submit();
+
+                    }
+
+                });
+
+                e.preventDefault();
+
+            });
+
+        });
+
+    </script>
+}  

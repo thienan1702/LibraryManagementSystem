@@ -1,0 +1,437 @@
+﻿
+@model LibraryManagement.Models.StockReceipt
+
+@{
+    ViewData["Title"] = "Stock Receipt Details";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+            <div class="page-title">
+
+                <i class="fas fa-file-invoice text-primary me-2"></i>
+
+                Stock Receipt Details
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Detailed information about this stock-in receipt
+
+            </div>
+        </div>
+
+        <!-- ACTION -->
+
+        <div class="d-flex justify-content-end">
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+
+                <i class="fas fa-arrow-left me-1"></i>
+
+                Back to Stock In
+
+            </a>
+
+            <a asp-action="ExportInvoice"
+               asp-route-id="@Model.Id"
+               class="btn btn-success">
+
+                <i class="fas fa-file-pdf me-1"></i>
+
+                Export Invoice
+            </a>
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- RECEIPT INFORMATION -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+
+            <i class="fas fa-file-invoice me-2"></i>
+
+            Receipt Information
+
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <!-- RECEIPT CODE -->
+
+            <div class="col-md-3 mb-3">
+
+                <small class="text-muted">
+                    Receipt Code
+                </small>
+
+                <h5 class="fw-bold">
+
+                    @Model.ReceiptCode
+
+                </h5>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div class="col-md-3 mb-3">
+
+                <small class="text-muted">
+                    Receipt Date
+                </small>
+
+                <h5>
+
+                    @Model.ReceiptDate.ToString("dd/MM/yyyy HH:mm")
+
+                </h5>
+
+            </div>
+
+
+            <!-- CREATED BY -->
+
+            <div class="col-md-3 mb-3">
+
+                <small class="text-muted">
+                    Created By
+                </small>
+
+                <h5>
+
+                    <i class="fas fa-user text-primary me-1"></i>
+
+                    @Model.CreatedBy
+
+                </h5>
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div class="col-md-3 mb-3">
+
+                <small class="text-muted">
+                    Total Amount
+                </small>
+
+                <h5 class="text-danger fw-bold">
+
+                    @Model.TotalAmount.ToString("N0") VNĐ
+
+                </h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SUPPLIER INFORMATION -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-light">
+
+        <h5 class="mb-0">
+
+            <i class="fas fa-truck text-primary me-2"></i>
+
+            Supplier Information
+
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        @if (Model.Supplier != null)
+        {
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <small class="text-muted">
+                        Supplier
+                    </small>
+
+                    <h5 class="fw-bold">
+
+                        @Model.Supplier.Name
+
+                    </h5>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <small class="text-muted">
+                        Phone
+                    </small>
+
+                    <h5>
+
+                        @(string.IsNullOrWhiteSpace(Model.Supplier.Phone)
+                                            ? "-"
+                                            : Model.Supplier.Phone)
+
+                    </h5>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <small class="text-muted">
+                        Address
+                    </small>
+
+                    <h5>
+
+                        @(string.IsNullOrWhiteSpace(Model.Supplier.Address)
+                                            ? "-"
+                                            : Model.Supplier.Address)
+
+                </h5>
+
+                </div>
+
+            </div>
+                }
+        else
+        {
+            <span class="text-muted">
+
+                No supplier information.
+
+            </span>
+        }
+
+    </div>
+
+</div>
+
+
+<!-- BOOK DETAILS -->
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+
+            <i class="fas fa-books me-2"></i>
+
+            Imported Books
+
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th width="60">
+                            #
+                        </th>
+
+                        <th>
+                            Book
+                        </th>
+
+                        <th>
+                            ISBN
+                        </th>
+
+                        <th class="text-center">
+                            Quantity
+                        </th>
+
+                        <th class="text-end">
+                            Unit Price
+                        </th>
+
+                        <th class="text-end">
+                            Amount
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @{
+                        int stt = 1;
+                    }
+
+                    @foreach (var detail in Model.Details)
+                    {
+                        <tr>
+
+                            <td>
+
+                                @stt
+
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+
+                                    @(detail.Book?.Title ?? "Unknown Book")
+
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                @(detail.Book?.ISBN ?? "-")
+
+                            </td>
+
+
+                            <td class="text-center">
+
+                                <span class="badge bg-primary fs-6">
+
+                                    @detail.Quantity
+
+                                </span>
+
+                            </td>
+
+
+                            <td class="text-end">
+
+                                @detail.UnitPrice.ToString("N0") VNĐ
+
+                            </td>
+
+
+                            <td class="text-end">
+
+                                <strong class="text-danger">
+
+                                    @detail.Amount.ToString("N0") VNĐ
+
+                                </strong>
+
+                            </td>
+
+                        </tr>
+
+                        stt++;
+                    }
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr class="table-light">
+
+                        <th colspan="3"
+                            class="text-end">
+
+                            Total:
+
+                        </th>
+
+                        <th class="text-center">
+
+                            @Model.Details.Sum(x => x.Quantity)
+
+                        </th>
+
+                        <th></th>
+
+                        <th class="text-end text-danger">
+
+                            <strong>
+
+                                @Model.TotalAmount.ToString("N0") VNĐ
+
+                            </strong>
+
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- NOTE -->
+@if (!string.IsNullOrWhiteSpace(Model.Note))
+{
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-light">
+
+            <h5 class="mb-0">
+
+                <i class="fas fa-note-sticky text-warning me-2"></i>
+
+                Note
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            @Model.Note
+
+        </div>
+
+    </div>
+}
+
+
+

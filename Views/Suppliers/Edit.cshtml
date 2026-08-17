@@ -1,0 +1,246 @@
+﻿@model LibraryManagement.Models.Supplier
+
+@{
+    ViewData["Title"] = "Edit Supplier";
+}
+
+<div class="page-card">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+
+            <div class="page-title">
+
+                <i class="fas fa-pen-to-square text-primary me-2"></i>
+
+                Edit Supplier
+
+            </div>
+
+            <div class="page-subtitle">
+
+                Update supplier information
+
+            </div>
+
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-1"></i>
+
+            Back
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-primary text-white">
+
+        <h5 class="mb-0">
+
+            <i class="fas fa-truck-field me-2"></i>
+
+            Supplier Information
+
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <form asp-action="Edit"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   asp-for="Id" />
+
+
+            <div asp-validation-summary="ModelOnly"
+                 class="alert alert-danger">
+            </div>
+
+
+            <!-- NAME -->
+
+            <div class="mb-3">
+
+                <label asp-for="Name"
+                       class="form-label fw-bold">
+
+                    Supplier Name
+                    <span class="text-danger">*</span>
+
+                </label>
+
+                <input asp-for="Name"
+                       class="form-control"
+                       placeholder="Enter supplier name..." />
+
+                <span asp-validation-for="Name"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+
+            <!-- ADDRESS -->
+
+            <div class="mb-3">
+
+                <label asp-for="Address"
+                       class="form-label fw-bold">
+
+                    Address
+
+                </label>
+
+                <textarea asp-for="Address"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Enter supplier address...">
+                </textarea>
+
+                <span asp-validation-for="Address"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+
+            <div class="row">
+
+                <!-- PHONE -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Phone"
+                           class="form-label fw-bold">
+
+                        Phone
+
+                    </label>
+
+                    <input asp-for="Phone"
+                           class="form-control"
+                           placeholder="Enter phone number..." />
+
+                    <span asp-validation-for="Phone"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Email"
+                           class="form-label fw-bold">
+
+                        Email
+
+                    </label>
+
+                    <input asp-for="Email"
+                           type="email"
+                           class="form-control"
+                           placeholder="Enter email address..." />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="mb-4">
+
+                <label asp-for="IsActive"
+                       class="form-label fw-bold">
+
+                    Status
+
+                </label>
+
+                <div class="form-check form-switch">
+
+                    <input asp-for="IsActive"
+                           class="form-check-input"
+                           role="switch"
+                           style="width: 3em; height: 1.5em;" />
+
+                    <label class="form-check-label ms-2">
+
+                        @(Model.IsActive
+                                                ? "Active"
+                                                : "Inactive")
+
+                    </label>
+
+                </div>
+
+                <small class="text-muted">
+
+                    Inactive suppliers will not appear when creating
+                    a new stock receipt.
+
+                </small>
+
+            </div>
+
+
+            <!-- ACTION -->
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    <i class="fas fa-xmark me-1"></i>
+
+                    Cancel
+
+                </a>
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="fas fa-save me-1"></i>
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

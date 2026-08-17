@@ -130,7 +130,29 @@ namespace LibraryManagement.Controllers
              .FirstOrDefaultAsync(x => x.Id == id);
 
             if (book == null)
-                return NotFound(); 
+                return NotFound();
+            var returnedDetails = book.BorrowDetails
+       .Where(x => x.ReturnedAt.HasValue)
+       .ToList();
+
+
+            ViewBag.TotalBorrowed =
+                book.BorrowDetails.Sum(x => x.Quantity);
+
+            ViewBag.GoodQuantity =
+                returnedDetails.Sum(x => x.GoodQuantity);
+
+            ViewBag.MinorDamageQuantity =
+                returnedDetails.Sum(x => x.MinorDamageQuantity);
+
+            ViewBag.MajorDamageQuantity =
+                returnedDetails.Sum(x => x.MajorDamageQuantity);
+
+            ViewBag.LostQuantity =
+                returnedDetails.Sum(x => x.LostQuantity);
+
+            ViewBag.TotalDamageFee =
+                returnedDetails.Sum(x => x.DamageFee);
 
             return View(book);
         }
