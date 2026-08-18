@@ -143,27 +143,50 @@
                         data-widget="treeview"
                         role="menu">
 
+
+                        <!-- ========================= -->
+                        <!-- HOME -->
+                        <!-- ========================= -->
+
                         <li class="nav-item">
+
                             <a asp-controller="Home"
                                asp-action="Index"
                                class="nav-link">
+
                                 <i class="nav-icon fas fa-house"></i>
+
                                 <p>Home</p>
+
                             </a>
+
                         </li>
 
+
+                        <!-- ========================= -->
+                        <!-- DASHBOARD -->
+                        <!-- ========================= -->
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
+
                                 <a asp-controller="Dashboard"
                                    asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">                                    
-                                   <i class="nav-icon fas fa-chart-line"></i>
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-chart-line"></i>
+
                                     <p>Dashboard</p>
+
                                 </a>
+
                             </li>
                         }
 
+
+                        <!-- ========================= -->
+                        <!-- LIBRARY -->
+                        <!-- ========================= -->
                         @if (User.IsInRole("Admin") || User.IsInRole("User"))
                         {
                             <li class="nav-header">
@@ -171,92 +194,63 @@
                             </li>
 
 
-                            <li class="nav-item">
-
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")"
-                                   asp-controller="Reports"
-                                   asp-action="Index"
-                                   class="nav-link">
-
-                                    <i class="nav-icon fas fa-chart-bar"></i>
-
-                                    <p>Reports</p>
-
-                                </a>
-
-                            </li>
+                            <!-- BOOKS -->
 
                             <li class="nav-item">
+
                                 <a asp-controller="Books"
                                    asp-action="Index"
                                    class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Books" ? "active" : "")">
+
                                     <i class="nav-icon fas fa-book"></i>
+
                                     <p>Books</p>
+
                                 </a>
+
                             </li>
 
+
+                            <!-- BORROW -->
+
                             <li class="nav-item">
+
                                 <a asp-controller="Borrows"
                                    asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Borrows" ? "active" : "")">                                   
-                                   <i class="nav-icon fas fa-handshake"></i>
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Borrows" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-handshake"></i>
+
                                     <p>Borrow</p>
+
                                 </a>
-                            </li>
 
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "BookMaintenances" ? "active" : "")"
-                               asp-controller="BookMaintenances"
-                               asp-action="Index">
-
-                                <i class="fas fa-screwdriver-wrench"></i>
-
-                                <span>Maintenance</span>
-
-                            </a>
-
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "LostBooks" ? "active" : "")"
-                               asp-controller="LostBooks"
-                               asp-action="Index">
-
-                                <i class="fas fa-book-dead"></i>
-
-                                <span>Lost Books</span>
-
-                            </a>
-
-
-                            <li class="nav-item">
-                                <a asp-controller="Categories"
-                                   asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories" ? "active" : "")">                                    
-                                        <i class="nav-icon fas fa-list"></i>
-                                    <p>Categories</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a asp-controller="Authors"
-                                   asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Authors" ? "active" : "")">                                 
-                                        <i class="nav-icon fas fa-user"></i>
-                                    <p>Authors</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a asp-controller="Publishers"
-                                   asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Publishers" ? "active" : "")">                                    
-                                        <i class="nav-icon fas fa-building"></i>
-                                    <p>Publishers</p>
-                                </a>
                             </li>
 
 
+                            <!-- RESERVATIONS -->
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+
+                                    <a asp-controller="Reservations"
+                                       asp-action="Index"
+                                       class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reservations" ? "active" : "")">
+
+                                        <i class="nav-icon fas fa-clock"></i>
+
+                                        <p>Reservations</p>
+
+                                    </a>
+
+                                </li>
+                            }
 
 
+                            <!-- FINE -->
 
                             <li class="nav-item">
+
                                 <a asp-controller="Borrows"
                                    asp-action="FineManagement"
                                    class="nav-link">
@@ -266,90 +260,228 @@
                                     <p>Fine Management</p>
 
                                 </a>
+
                             </li>
 
-                            <li class="="nav-item">
-                            <a asp-controller="Borrows"
-                               asp-action="PaymentHistory"
-                               class="nav-link">
 
-                                <i class="fas fa-clock-rotate-left"></i>
+                            <!-- PAYMENT HISTORY -->
 
-                                <span>Payment History</span>
+                            <li class="nav-item">
 
-                            </a>
+                                <a asp-controller="Borrows"
+                                   asp-action="PaymentHistory"
+                                   class="nav-link">
+
+                                    <i class="nav-icon fas fa-clock-rotate-left"></i>
+
+                                    <p>Payment History</p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- CATEGORIES -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="Categories"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-list"></i>
+
+                                    <p>Categories</p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- AUTHORS -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="Authors"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Authors" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-user"></i>
+
+                                    <p>Authors</p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- PUBLISHERS -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="Publishers"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Publishers" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-building"></i>
+
+                                    <p>Publishers</p>
+
+                                </a>
+
                             </li>
 
                         }
 
+
+                        <!-- ========================= -->
+                        <!-- WAREHOUSE -->
+                        <!-- ========================= -->
+                        @if (User.IsInRole("Admin") || User.IsInRole("Warehouse"))
+                        {
+                            <li class="nav-header">
+                                WAREHOUSE
+                            </li>
+
+
+                            <!-- STOCK IN -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="StockReceipts"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "StockReceipts" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-boxes-stacked"></i>
+
+                                    <p>Stock In</p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- SUPPLIERS -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="Suppliers"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Suppliers" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-truck"></i>
+
+                                    <p>Suppliers</p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- MAINTENANCE -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="BookMaintenances"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "BookMaintenances" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-screwdriver-wrench"></i>
+
+                                    <p>Maintenance</p>
+
+                                </a>
+
+                            </li>
+
+
+                            <!-- LOST BOOKS -->
+
+                            <li class="nav-item">
+
+                                <a asp-controller="LostBooks"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "LostBooks" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-book-dead"></i>
+
+                                    <p>Lost Books</p>
+
+                                </a>
+
+                            </li>
+
+                        }
+
+
+                        <!-- ========================= -->
+                        <!-- REPORTS -->
+                        <!-- ========================= -->
+                        @if (User.IsInRole("Admin") || User.IsInRole("Warehouse"))
+                        {
+                            <li class="nav-header">
+                                REPORTS
+                            </li>
+
+
+                            <li class="nav-item">
+
+                                <a asp-controller="Reports"
+                                   asp-action="Index"
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reports" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-chart-bar"></i>
+
+                                    <p>Reports</p>
+
+                                </a>
+
+                            </li>
+                        }
+
+
+                        <!-- ========================= -->
+                        <!-- ADMINISTRATION -->
+                        <!-- ========================= -->
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-header">
-                                ADMIN
+                                ADMINISTRATION
                             </li>
 
+
+                            <!-- USERS -->
+
                             <li class="nav-item">
+
                                 <a asp-controller="Users"
                                    asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")">                                   
-                                   <i class="nav-icon fas fa-users"></i>
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-users"></i>
+
                                     <p>Users</p>
+
                                 </a>
+
                             </li>
 
+
+                            <!-- AUDIT LOGS -->
+
                             <li class="nav-item">
+
                                 <a asp-controller="AuditLogs"
                                    asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "AuditLogs" ? "active" : "")">                                    
-                                   <i class="nav-icon fas fa-clock-rotate-left"></i>
+                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "AuditLogs" ? "active" : "")">
+
+                                    <i class="nav-icon fas fa-clock-rotate-left"></i>
+
                                     <p>Audit Logs</p>
-                                </a>
-                            </li>
-
-
-
-
-                            <li class="nav-item">
-                                <a asp-controller="Reservations"
-                                   asp-action="Index"
-                                   class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Reservations" ? "active" : "")">
-
-                                    <i class="fas fa-clock"></i>
-
-                                    <p>Reservations</p>
-
-                                </a>
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "StockReceipts" ? "active" : "")"
-                                   asp-controller="StockReceipts"
-                                   asp-action="Index">
-
-                                    <i class="fas fa-boxes-stacked"></i>
-
-                                    <span>Stock In</span>
 
                                 </a>
 
                             </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Suppliers" ? "active" : "")"
-                                   asp-controller="Suppliers"
-                                   asp-action="Index">
-
-                                    <i class="fas fa-truck"></i>
-
-                                    <span>Suppliers</span>
-
-                                </a>
-                            
-                            </li>
-
-
 
                         }
 
@@ -358,8 +490,7 @@
                 </nav>
 
             </div>
-
-        </aside>
+               <</aside>
 
         <!-- Content -->
 

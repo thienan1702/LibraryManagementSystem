@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Controllers
 {
-    [Authorize(Roles = "Admin,User")]
+    [Authorize(Roles = "Admin,Warehouse")]
     public class LostBooksController : Controller
     {
         private readonly ApplicationDbContext _context;

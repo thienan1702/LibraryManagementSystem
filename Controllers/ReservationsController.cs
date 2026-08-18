@@ -8,7 +8,7 @@ using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers;
 
-[Authorize(Roles = "Admin,User")]
+[Authorize(Roles = "Admin")]
 public class ReservationsController : Controller
 {
     private readonly ApplicationDbContext _context;

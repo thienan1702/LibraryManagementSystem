@@ -12,7 +12,7 @@ using X.PagedList.Extensions;
 
 namespace LibraryManagement.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Warehouse")]
     public class StockReceiptsController : Controller
     {
         private readonly ApplicationDbContext _context;

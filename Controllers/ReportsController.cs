@@ -12,7 +12,7 @@ using QuestPDF.Fluent;
 
 namespace LibraryManagement.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Warehouse")]
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _context;

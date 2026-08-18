@@ -169,11 +169,12 @@ namespace LibraryManagement.Controllers
 
         public IActionResult Create()
         {
-            ViewBag.Roles = new List<string>
-    {
-        "Admin",
-        "User"
-    };
+               ViewBag.Roles = new List<string>
+            {
+                "Admin",
+                "User",
+                "Warehouse"
+            };
 
             return View();
         }
@@ -184,7 +185,12 @@ namespace LibraryManagement.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Roles = new List<string> { "Admin", "User" };
+                ViewBag.Roles = new List<string>
+                    {
+                        "Admin",
+                        "User",
+                        "Warehouse"
+                    };
                 return View(model);
             }
 
@@ -194,7 +200,12 @@ namespace LibraryManagement.Controllers
             {
                 ModelState.AddModelError("", "Email already exists.");
 
-                ViewBag.Roles = new List<string> { "Admin", "User" };
+                ViewBag.Roles = new List<string>
+                    {
+                        "Admin",
+                        "User",
+                        "Warehouse"
+                    };
 
                 return View(model);
             }
@@ -289,8 +300,12 @@ namespace LibraryManagement.Controllers
             foreach (var error in result.Errors)
                 ModelState.AddModelError("", error.Description);
 
-            ViewBag.Roles = new List<string> { "Admin", "User" };
-
+            ViewBag.Roles = new List<string>
+                {
+                    "Admin",
+                    "User",
+                    "Warehouse"
+                };
             return View(model);
         }
 

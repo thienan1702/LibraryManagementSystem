@@ -7,10 +7,11 @@ namespace LibraryManagement.Data
     {
         public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         {
-            string[] roles =
+            var roles = new[]
             {
                 "Admin",
-                "User"
+                "User",
+                "Warehouse"
             };
 
             foreach (var role in roles)
