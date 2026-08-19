@@ -2,6 +2,61 @@
 
 A web-based **Library Management System** built with **ASP.NET Core MVC**, **Entity Framework Core**, **ASP.NET Core Identity**, and **SQL Server**.
 
+## 📸 Screenshots
+
+### Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+### Book Management
+
+![Books](screenshots/books.png)
+
+### Borrow & Return
+
+![Borrow](screenshots/index-borrow.png)
+
+![Borrow](screenshots/return-borrow.png)
+
+![Borrow](screenshots/borrow.png)
+
+### Stock In
+
+![Stock In](screenshots/stock-in.png)
+
+### Supplier Management
+
+![Suppliers](screenshots/suppliers.png)
+
+### Maintenance
+
+![Maintenance](screenshots/maintenance.png)
+
+### Reservation
+
+![Reservation](screenshots/maintenance.png)
+
+### Report
+
+![Report](screenshots/report.png)
+
+### Fine Management and payment
+
+![Fines](screenshots/fine-management.png)
+
+![Fines](screenshots/payment.png)
+
+### User
+
+![User](screenshots/users.png)
+
+### AuditLog
+
+![AuditLog](screenshots/auditlogs.png)
+
+
+
+
 ## ✨ Features
 
 ### 📚 Book Management

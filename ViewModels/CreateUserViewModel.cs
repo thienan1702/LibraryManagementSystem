@@ -4,13 +4,14 @@ namespace LibraryManagement.ViewModels
 {
     public class CreateUserViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Full name is required.")]
         public string FullName { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
         public string Email { get; set; } = "";
 
-        public string Role { get; set; } = "User";
+        [Required(ErrorMessage = "Please select a role.")]
+        public string Role { get; set; } = "";
     }
 }

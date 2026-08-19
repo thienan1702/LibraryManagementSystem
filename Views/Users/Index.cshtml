@@ -68,16 +68,17 @@
 
             <option value="Admin"
                     selected="@(ViewBag.Role == "Admin")">
-
                 Admin
-
             </option>
 
             <option value="User"
                     selected="@(ViewBag.Role == "User")">
-
                 User
+            </option>
 
+            <option value="Warehouse"
+                    selected="@(ViewBag.Role == "Warehouse")">
+                Warehouse
             </option>
 
         </select>
@@ -302,19 +303,39 @@
                     {
                         <span class="badge bg-danger">
 
-                            <i class="fas fa-user-shield"></i>
+                            <i class="fas fa-user-shield me-1"></i>
 
                             Admin
 
                         </span>
                     }
-                    else
+                    else if (item.Role == "Warehouse")
+                    {
+                        <span class="badge bg-warning text-dark">
+
+                            <i class="fas fa-boxes-stacked me-1"></i>
+
+                            Warehouse
+
+                        </span>
+                    }
+                    else if (item.Role == "User")
                     {
                         <span class="badge bg-primary">
 
-                            <i class="fas fa-user"></i>
+                            <i class="fas fa-user me-1"></i>
 
                             User
+
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+
+                            <i class="fas fa-user-question me-1"></i>
+
+                            @item.Role
 
                         </span>
                     }

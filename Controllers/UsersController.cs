@@ -35,7 +35,17 @@ namespace LibraryManagement.Controllers
 
             foreach (var user in users)
             {
-                var roles = await _userManager.GetRolesAsync(user);
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                var userRole = userRoles.FirstOrDefault() ?? "No Role";
+
+                if (!string.IsNullOrEmpty(role) &&
+                    !userRole.Equals(
+                        role,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
 
                 model.Add(new UserListViewModel
                 {
@@ -44,11 +54,10 @@ namespace LibraryManagement.Controllers
                     Email = user.Email,
                     UserName = user.UserName,
                     EmailConfirmed = user.EmailConfirmed,
-                    LockoutEnd = user.LockoutEnd,
-                    Role = roles.FirstOrDefault() ?? "User"
+                    LockoutEnd =user.LockoutEnd,
+                    Role = userRole
                 });
             }
-
             // Search
             if (!string.IsNullOrWhiteSpace(search))
             {
